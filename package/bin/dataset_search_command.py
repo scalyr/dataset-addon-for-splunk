@@ -41,18 +41,18 @@ class DataSetSearch(GeneratingCommand):
         **Description:** DataSet search to filter events''', 
         require=False)
 
-    maxCount = Option(doc='''
-        **Syntax: maxCount=<integer>
+    maxcount = Option(doc='''
+        **Syntax: maxcount=<integer>
         **Description:** the number of events to return from DataSet. Default is 100.''', 
         require=False, validate=validators.Integer())
 
-    startTime = Option(doc='''
-        **Syntax: startTime=<string>
+    starttime = Option(doc='''
+        **Syntax: starttime=<string>
         **Description:** alternative to time picker for start time to send to DataSet. Use relative (e.g. 1d) or epoch time.''', 
         require=False, validate=validators.Match('time', '\d*(d|h|m|s)|\d{10,16}'))
 
-    endTime = Option(doc='''
-        **Syntax: endTime=<string>
+    endtime = Option(doc='''
+        **Syntax: endtime=<string>
         **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
         require=False, validate=validators.Match('time', '\d*(d|h|m|s)|\d{10,16}'))
 
@@ -76,8 +76,8 @@ class DataSetSearch(GeneratingCommand):
         ds_headers = { "Authorization": "Bearer " + ds_api_key }
 
         #use startTime and endTime if provided in search
-        if self.startTime:
-            start_time = self.startTime
+        if self.starttime:
+            start_time = self.starttime
         #or use Splunk time picker
         else:
             try:
@@ -87,8 +87,8 @@ class DataSetSearch(GeneratingCommand):
                 start_time = '24h'
 
         #same logic for end
-        if self.endTime:
-            end_time = self.endTime
+        if self.endtime:
+            end_time = self.endtime
         else:
             try:
                 end_time = int(self.search_results_info.search_lt)
@@ -114,19 +114,19 @@ class DataSetSearch(GeneratingCommand):
                 ds_url_endpoint = 'query'
                 ds_payload["queryType"] = "log"
                 ds_payload['filter'] = ds_search
-                if self.maxCount:
-                    ds_payload['maxCount'] = self.maxCount
+                if self.maxcount:
+                    ds_payload['maxCount'] = self.maxcount
 
             elif ds_method == 'powerquery':
                 ds_url_endpoint = 'powerQuery'
                 ds_payload['query'] = ds_search
-                if self.maxCount:
-                    ds_payload['query'] += "| limit " + str(self.maxCount)
+                if self.maxcount:
+                    ds_payload['query'] += "| limit " + str(self.maxcount)
                     logging.info('powerQuery uses | limit instead of maxCount, adding this to powerQuery filter')
         else:
-            #set maxCount if user provided no other arguments
-            if self.maxCount:
-                ds_payload['maxCount'] = self.maxCount
+            #set maxcount if user provided no other arguments
+            if self.maxcount:
+                ds_payload['maxCount'] = self.maxcount
 
         ds_url += ds_url_endpoint
         #make request
@@ -177,7 +177,6 @@ class DataSetSearch(GeneratingCommand):
 
                     #parse results, match returned columns with corresponding values
                     if 'values' in r_json and 'columns' in r_json:
-                        columns = r_json['columns']
                         values = r_json['values']
 
                         for value_list in values:
