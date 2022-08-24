@@ -140,7 +140,6 @@ class DataSetSearch(GeneratingCommand):
                 if 'warnings' in r_json :
                     logging.warning(r_json["warnings"])
 
-                '''
                 #handle query payload
                 if ds_url_endpoint == 'query':
                     if 'matches' in r_json and 'sessions' in r_json:
@@ -171,7 +170,6 @@ class DataSetSearch(GeneratingCommand):
                             }
                     else: #if no resulting ['matches'] and ['sessions']:
                         yield { '_raw': 'No matching results' }
-                '''
 
                 if ds_url_endpoint == 'powerQuery':
                     if 'cpuUsage' in r_json:
