@@ -134,7 +134,7 @@ class DATASET_QUERY_INPUT(smi.Script):
                             for key in session_dict:
                                 ds_event_dict[key] = session_dict[key]
 
-                    event_time = ds_event_dict['timestamp']
+                    event_time = int(ds_event_dict['timestamp'])
                     get_checkpoint = checkpoint.get(input_name)
 
                     #if checkpoint doesn't exist, set to 0
