@@ -134,7 +134,7 @@ class DATASET_ALERTS_INPUT(smi.Script):
                         event = smi.Event(
                             stanza=input_name,
                             data=ds_event,
-                            sourcetype=input_name,
+                            sourcetype='dataset:alerts',
                             time=splunk_dt
                         )
                         logger.debug("writing event with event_time=%s and checkpoint=%s" % (str(event_time), str(checkpoint_time)))
