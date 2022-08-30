@@ -119,6 +119,9 @@ Since events are returned in JSON format, the Splunk [spath command](https://doc
 ## Alert Action
 An alert action allows sending an event to the DataSet [addEvents API](https://app.scalyr.com/help/api#addEvents). 
 
+## Support
+For support, please open an issue on GitHub.
+
 ##### Note
 This add-on was built with the [Splunk Add-on UCC framework](https://splunk.github.io/addonfactory-ucc-generator/).
 Splunk is a trademark or registered trademark of Splunk Inc. in the United States and other countries.
