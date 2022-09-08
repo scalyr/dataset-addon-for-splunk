@@ -2,7 +2,7 @@
     "meta": {
         "name": "TA-dataset",
         "displayName": "DataSet Add-on for Splunk",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "restRoot": "TA_dataset",
         "schemaVersion": "0.0.3"
     },
@@ -367,9 +367,9 @@
                                     "type": "number",
                                     "range": [
                                         1,
-                                        5000
+                                        9999999
                                     ],
-                                    "errorMsg": "Max Count must be 1 - 5000"
+                                    "errorMsg": "Max Count must be a number"
                                 }
                             ]
                         }
