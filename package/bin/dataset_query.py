@@ -6,6 +6,7 @@ import datetime
 import json
 import requests
 import traceback
+import math
 
 from dataset_common import *
 
@@ -84,6 +85,9 @@ class DATASET_QUERY_INPUT(smi.Script):
                 APP_NAME
             )
             ds_start_time = input_items.get('start_time')
+            #convert start time to epoch, necessary for recursive calls with continuation token
+            ds_st = relative_to_epoch(ds_start_time)
+
             ds_environment = get_environment(session_key, logger)
             ds_url_endpoint = 'query'
             ds_url = get_url(ds_environment) + ds_url_endpoint
@@ -91,81 +95,107 @@ class DATASET_QUERY_INPUT(smi.Script):
             ds_headers = { "Authorization": "Bearer " + ds_api_key }
             ds_proxy = get_proxy(session_key, logger)
 
-            ds_payload = { "queryType": "log", "startTime": ds_start_time }
+            ds_payload = { "queryType": "log", "startTime": ds_st }
 
             ds_end_time = input_items.get('end_time')
             ds_query = input_items.get('dataset_query_string')
-            ds_max_count = input_items.get('max_count')
+            ds_max_count = int(input_items.get('max_count'))
+
+            api_maxcount = 100
 
             if ds_end_time:
-                ds_payload['endTime'] = ds_end_time
+                ds_et = relative_to_epoch(ds_end_time)
+                ds_payload['endTime'] = ds_et
             if ds_query:
                 ds_payload['filter'] = ds_query
             if ds_max_count:
-                ds_payload['maxCount'] = ds_max_count
-
-            #make request
-            r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=ds_proxy)
-            r_json = r.json() #parse results json
-            
-            #log information from results
-            if 'status' in r_json:
-                logger.info("response status=%s" % str(r_json['status']))
-            
-            #response includes good information for debug logging
-            if r_json['status'] == 'success':
-                if 'executionTime' in r_json:
-                    logger.debug("executionTime %s" % (str(r_json['executionTime'])))
-                if 'cpuUsage' in r_json:
-                    logger.debug("cpuUsage is %s" % (str(r_json['cpuUsage'])))
-            
-            if 'matches' in r_json and 'sessions' in r_json:
-                #parse results, match returned matches with corresponding sessions
-                matches = r_json['matches']
-                sessions = r_json['sessions']
-                
-                for match_list in matches:
-                    ds_event_dict = {}
-                    ds_event_dict = match_list
-                    session_key = match_list['session']
-
-                    for session_entry, session_dict in sessions.items():
-                        if session_entry == session_key:
-                            for key in session_dict:
-                                ds_event_dict[key] = session_dict[key]
-
-                    event_time = int(ds_event_dict['timestamp'])
-                    get_checkpoint = checkpoint.get(input_name)
-
-                    #if checkpoint doesn't exist, set to 0
-                    if get_checkpoint == None:
-                        checkpoint.update(input_name, {"timestamp": 0})
-                        checkpoint_time = 0
-                    else:
-                        checkpoint_time = get_checkpoint["timestamp"]
-
-                    if event_time > checkpoint_time:
-                        #if greater than current checkpoint, update checkpoint and write event
-                        logger.debug("saving checkpoint %s" % (str(event_time)))
-                        checkpoint.update(input_name, {"timestamp": event_time})
-
-                        splunk_dt = normalize_time(int(event_time))
-                        ds_event = json.dumps(ds_event_dict)
-                        #create and write event
-                        event = smi.Event(
-                            stanza=input_name,
-                            data=ds_event,
-                            sourcetype=input_name,
-                            time=splunk_dt
-                        )
-                        logger.debug("writing event with event_time=%s and checkpoint=%s" % (str(event_time), str(checkpoint_time)))
-                        ew.write_event(event)
-                    else:
-                        logger.debug("skipping due to event_time=%s is less than checkpoint=%s" % (str(event_time), str(checkpoint_time)))
-
+                api_maxcount = get_maxcount(ds_max_count)
+                ds_payload['maxCount'] = api_maxcount
             else:
-                logger.info("no matching events")
-    
+                ds_max_count = 100
+
+            ds_iterations = math.ceil(ds_max_count / 5000)
+            for count in range(ds_iterations):
+                logger.info("query api {} of {}".format(count+1, ds_iterations))
+                r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=ds_proxy)
+                r_json = r.json() #parse results json
+
+                #first, validate success
+                if r.ok:
+                    if 'warnings' in r_json :
+                        logger.warning(r_json["warnings"])
+                    
+                    #response includes good information for debug logging
+                    if 'executionTime' in r_json:
+                        logger.debug("executionTime %s" % (str(r_json['executionTime'])))
+
+                    if 'cpuUsage' in r_json:
+                        logger.debug("cpuUsage is %s" % (str(r_json['cpuUsage'])))
+
+                    if 'matches' in r_json and 'sessions' in r_json:
+                        #parse results, match returned matches with corresponding sessions
+                        matches = r_json['matches']
+                        sessions = r_json['sessions']
+                        
+                        for match_list in matches:
+                            ds_event_dict = {}
+                            ds_event_dict = match_list
+                            session_key = match_list['session']
+
+                            for session_entry, session_dict in sessions.items():
+                                if session_entry == session_key:
+                                    for key in session_dict:
+                                        ds_event_dict[key] = session_dict[key]
+
+                            event_time = int(ds_event_dict['timestamp'])
+                            get_checkpoint = checkpoint.get(input_name)
+
+                            #if checkpoint doesn't exist, set to 0
+                            if get_checkpoint == None:
+                                checkpoint.update(input_name, {"timestamp": 0})
+                                checkpoint_time = 0
+                            else:
+                                checkpoint_time = get_checkpoint["timestamp"]
+
+                            if event_time > checkpoint_time:
+                                #if greater than current checkpoint, write event and update checkpoint
+                                splunk_dt = normalize_time(int(event_time))
+                                ds_event = json.dumps(ds_event_dict)
+                                #create and write event
+                                event = smi.Event(
+                                    stanza=input_name,
+                                    data=ds_event,
+                                    source=input_name,
+                                    sourcetype='dataset:query',
+                                    time=splunk_dt
+                                )
+                                logger.debug("writing event with event_time=%s and checkpoint=%s" % (str(event_time), str(checkpoint_time)))
+                                ew.write_event(event)
+
+                                logger.debug("saving checkpoint %s" % (str(event_time)))
+                                checkpoint.update(input_name, {"timestamp": event_time})
+                            else:
+                                logger.debug("skipping due to event_time=%s is less than checkpoint=%s" % (str(event_time), str(checkpoint_time)))
+
+                    else:
+                        logger.info("no matching events")
+
+                    #after first call, set continuationToken
+                    if 'continuationToken' in r_json:
+                        ds_payload['continuationToken'] = r_json['continuationToken']
+                        #reduce maxcount for each call, then for last call set payload to only return remaining # of desired results
+                        ds_max_count = ds_max_count - api_maxcount
+                        if ds_max_count > 0 and ds_max_count < 5000:
+                            ds_payload['maxCount'] = ds_max_count
+                    else:
+                        break
+                else:
+                    if 'message' in r_json:
+                        logger.error(r_json['message'])
+                    else:
+                        logger.error("response = {}".format(r_json))
+                    break
+
         except Exception as e:
             logger.exception(e)
             sys.exit(1)
