@@ -7,7 +7,7 @@ import datetime
 import json
 import requests
 import ast
-from dataset_common import get_url, normalize_time, relative_to_epoch
+from dataset_common import get_url, normalize_time, relative_to_epoch, get_maxcount
 import logging
 import math
 import re
@@ -41,6 +41,11 @@ class DataSetSearch(GeneratingCommand):
     search = Option(doc='''
         **Syntax: search=<string>
         **Description:** DataSet search to filter events''', 
+        require=False)
+    
+    columns = Option(doc='''
+        **Syntax: columns=<string>
+        **Description:** Specified columns to return''', 
         require=False)
 
     maxcount = Option(doc='''
@@ -124,15 +129,17 @@ class DataSetSearch(GeneratingCommand):
 
             if ds_method == 'query':
                 ds_url_endpoint = "query"
-                ds_payload["queryType"] = "log"
+                ds_payload['queryType'] = "log"
                 if self.search:
                     ds_payload['filter'] = self.search
                 if self.maxcount:
                     api_maxcount = get_maxcount(self.maxcount)
                     ds_payload['maxCount'] = api_maxcount
+                if self.columns:
+                    ds_payload['columns'] = self.columns
 
             elif ds_method == 'powerquery':
-                ds_url_endpoint = 'powerQuery'
+                ds_url_endpoint = "powerQuery"
                 if self.search:
                     ds_payload['query'] = self.search
                 else:
@@ -141,15 +148,19 @@ class DataSetSearch(GeneratingCommand):
                 if self.maxcount:
                     ds_payload['query'] += "| limit " + str(self.maxcount)
                     logging.info('powerQuery uses | limit instead of maxCount, adding this to powerQuery filter')
+                if self.columns:
+                    ds_payload['query'] += "| columns " + str(self.columns)
+                
         else:
             #set maxcount if user provided no other arguments
             if self.maxcount:
                 api_maxcount = get_maxcount(self.maxcount)
                 ds_payload['maxCount'] = api_maxcount
+            if self.columns:
+                ds_payload['columns'] = self.columns
             
-            ds_payload["queryType"] = "log"   
+            ds_payload['queryType'] = "log"   
             
-
         ds_url += ds_url_endpoint
 
         try:
@@ -181,24 +192,43 @@ class DataSetSearch(GeneratingCommand):
                             for match_list in matches:
                                 ds_event_dict = {}
                                 ds_event_dict = match_list
-                                session_key = match_list['session']
 
-                                for session_entry, session_dict in sessions.items():
-                                    if session_entry == session_key:
-                                        for key in session_dict:
-                                            ds_event_dict[key] = session_dict[key]
+                                #if columns were given, simply return matches and skip merging session data
+                                #if columns were not given, merge sessions and matches to return all fields
+                                if not self.columns:
+                                    session_key = match_list['session']
+
+                                    for session_entry, session_dict in sessions.items():
+                                        if session_entry == session_key:
+                                            for key in session_dict:
+                                                ds_event_dict[key] = session_dict[key]
 
                                 #parse as proper json
                                 ds_event = json.loads(json.dumps(ds_event_dict))
-                                #convert epoch nanoseconds to seconds for Splunk timestamping
-                                splunk_dt = normalize_time(int(ds_event['timestamp']))
 
-                                yield {
-                                    '_raw': ds_event,
-                                    '_time': splunk_dt,
-                                    'source': 'dataset_command',
-                                    'sourcetype': 'dataset:query'
-                                }
+
+
+                                #if timestamp exists, use it
+                                if 'timestamp' in ds_event:
+                                    #convert epoch nanoseconds to seconds for Splunk timestamping
+                                    splunk_dt = normalize_time(int(ds_event['timestamp']))
+
+                                    yield {
+                                        '_raw': ds_event,
+                                        '_time': splunk_dt,
+                                        'source': 'dataset_command',
+                                        'sourcetype': 'dataset:query'
+                                    }
+                                else:
+                                    #otherwise, if no 'timestamp' field just return payload
+                                    #Splunk does not parse events well without a timestamp, use current time to fix this
+                                    yield {
+                                        '_raw': ds_event,
+                                        '_time': int(time.time()),
+                                        'source': 'dataset_command',
+                                        'sourcetype': 'dataset:query'
+                                    } 
+
                         else:
                             logging.error('No matches and sessions in response')
                             logging.error(r_json)
@@ -215,6 +245,8 @@ class DataSetSearch(GeneratingCommand):
                     else:
                         if 'message' in r_json:
                             logging.error(r_json['message'])
+                        else:
+                            logging.error("response = {}".format(r_json))
                         break
 
             ##### Handle PowerQuery
@@ -248,9 +280,11 @@ class DataSetSearch(GeneratingCommand):
                                 'sourcetype': 'dataset:powerQuery'
                             }
                         #otherwise, if no 'timestamp' field just return payload
+                        #Splunk does not parse events well without a timestamp, use current time to fix this
                         else:
                             yield {
                                 '_raw': ds_event,
+                                '_time': int(time.time()),
                                 'source': 'dataset_command',
                                 'sourcetype': 'dataset:powerquery'
                             }                  
