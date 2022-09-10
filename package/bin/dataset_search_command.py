@@ -206,8 +206,6 @@ class DataSetSearch(GeneratingCommand):
                                 #parse as proper json
                                 ds_event = json.loads(json.dumps(ds_event_dict))
 
-
-
                                 #if timestamp exists, use it
                                 if 'timestamp' in ds_event:
                                     #convert epoch nanoseconds to seconds for Splunk timestamping
