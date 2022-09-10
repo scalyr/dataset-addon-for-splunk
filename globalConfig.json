@@ -359,7 +359,7 @@
                         {
                             "field": "max_count",
                             "label": "Max Count",
-                            "help": "Specifies the maximum number of records to return, from 1 to 5000. If left blank, the default is 100.",
+                            "help": "Specifies the maximum number of records to return. If left blank, the default is 100.",
                             "required": false,
                             "type": "text",
                             "validators": [
