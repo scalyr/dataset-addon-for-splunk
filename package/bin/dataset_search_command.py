@@ -206,26 +206,19 @@ class DataSetSearch(GeneratingCommand):
                                 #parse as proper json
                                 ds_event = json.loads(json.dumps(ds_event_dict))
 
-                                #if timestamp exists, use it
+                                #if timestamp exists, convert epoch nanoseconds to seconds for Splunk
                                 if 'timestamp' in ds_event:
-                                    #convert epoch nanoseconds to seconds for Splunk timestamping
                                     splunk_dt = normalize_time(int(ds_event['timestamp']))
-
-                                    yield {
-                                        '_raw': ds_event,
-                                        '_time': splunk_dt,
-                                        'source': 'dataset_command',
-                                        'sourcetype': 'dataset:query'
-                                    }
                                 else:
-                                    #otherwise, if no 'timestamp' field just return payload
                                     #Splunk does not parse events well without a timestamp, use current time to fix this
-                                    yield {
-                                        '_raw': ds_event,
-                                        '_time': int(time.time()),
-                                        'source': 'dataset_command',
-                                        'sourcetype': 'dataset:query'
-                                    } 
+                                    splunk_dt = int(time.time())
+
+                                yield {
+                                    '_raw': ds_event,
+                                    '_time': splunk_dt,
+                                    'source': 'dataset_command',
+                                    'sourcetype': 'dataset:query'
+                                }
 
                         else:
                             logging.error('No matches and sessions in response')
@@ -267,25 +260,19 @@ class DataSetSearch(GeneratingCommand):
                         #PowerQuery results are returned by default in chronological order
                         ds_event = json.loads(json.dumps(ds_event_dict))
 
-                        #if timestamp exists, use it
+                        #if timestamp exists, convert epoch nanoseconds to seconds for Splunk
                         if 'timestamp' in ds_event:
-                            #convert epoch nanoseconds to seconds for Splunk
                             splunk_dt = normalize_time(int(ds_event['timestamp']))
-                            yield {
-                                '_raw': ds_event,
-                                '_time': splunk_dt,
-                                'source': 'dataset_command',
-                                'sourcetype': 'dataset:powerQuery'
-                            }
-                        #otherwise, if no 'timestamp' field just return payload
-                        #Splunk does not parse events well without a timestamp, use current time to fix this
-                        else:
-                            yield {
-                                '_raw': ds_event,
-                                '_time': int(time.time()),
-                                'source': 'dataset_command',
-                                'sourcetype': 'dataset:powerquery'
-                            }                  
+                        else:                                
+                            #Splunk does not parse events well without a timestamp, use current time to fix this
+                            splunk_dt = int(time.time())
+
+                        yield {
+                            '_raw': ds_event,
+                            '_time': splunk_dt,
+                            'source': 'dataset_command',
+                            'sourcetype': 'dataset:powerQuery'
+                        }              
                                             
                 else: #if no resulting ['values'] and ['columns']
                     logging.error('No matches in response')
