@@ -56,12 +56,12 @@ class DataSetSearch(GeneratingCommand):
     starttime = Option(doc='''
         **Syntax: starttime=<string>
         **Description:** alternative to time picker for start time to send to DataSet. Use relative (e.g. 1d) or epoch time.''', 
-        require=False, validate=validators.Match('time', '\d*(d|h|m|s)|\d{10,16}'))
+        require=False, validate=validators.Match('time', '\d*(d|h|m|s)|\d{10,19}'))
 
     endtime = Option(doc='''
         **Syntax: endtime=<string>
         **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
-        require=False, validate=validators.Match('time', '\d*(d|h|m|s)|\d{10,16}'))
+        require=False, validate=validators.Match('time', '\d*(d|h|m|s)|\d{10,19}'))
 
     def generate(self):
         #get datasest environment from conf settings
