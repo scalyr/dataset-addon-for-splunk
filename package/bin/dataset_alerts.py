@@ -91,17 +91,17 @@ class DATASET_ALERTS_INPUT(smi.Script):
             r_json = r.json() #parse results json
             
             #log information from results
-            if r_json['status']:
+            if 'status' in r_json:
                 logger.info("response status=%s" % str(r_json['status']))
             
-            if r_json['warnings']:
+            if 'warnings' in r_json:
                 for warning in r_json['warnings']:
                     logger.warning("response warning=%s" % str(warning))
                 
-            if r_json['matchingEvents']:
+            if 'matchingEvents' in r_json:
                 logger.info("response matches=%s" % str(r_json['matchingEvents']))
                 
-            if r_json['omittedEvents']:
+            if 'omitedEvents' in r_json:
                 logger.warning("response omitted=%s" % str(r_json['omittedEvents']))
             
             #parse results, match returned columns with corresponding values
