@@ -125,9 +125,6 @@ class DATASET_ALERTS_INPUT(smi.Script):
 
                     if event_time > checkpoint_time:
                         #if greater than current checkpoint, update checkpoint and write event
-                        logger.debug("saving checkpoint %s" % (str(event_time)))
-                        checkpoint.update(input_name, {"timestamp": event_time})
-
                         splunk_dt = normalize_time(int(event_time))
                         ds_event = json.dumps(ds_event_dict)
                         #create and write event
@@ -139,6 +136,9 @@ class DATASET_ALERTS_INPUT(smi.Script):
                         )
                         logger.debug("writing event with event_time=%s and checkpoint=%s" % (str(event_time), str(checkpoint_time)))
                         ew.write_event(event)
+
+                        logger.debug("saving checkpoint %s" % (str(event_time)))
+                        checkpoint.update(input_name, {"timestamp": event_time})
                     else:
                         logger.debug("skipping due to event_time=%s is less than checkpoint=%s" % (str(event_time), str(checkpoint_time)))
             else:
