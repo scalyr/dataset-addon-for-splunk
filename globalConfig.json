@@ -375,7 +375,7 @@
                                     "errorMsg": "Column names must be comma separated."
                                 }
                             ]
-                        },                        
+                        },
                         {
                             "field": "max_count",
                             "label": "Max Count",
