@@ -81,13 +81,19 @@ The DataSet Add-on for Splunk collects the following inputs utilizing time-based
 | dataset:query | User-defined standard [query](https://app.scalyr.com/help/api#query) API call to index events | - |
 
 ## SPL Command
-The `| dataset` command allows queries against the DataSet API directly from Splunk's search bar. Five optional parameters are supported:
+The `| dataset` command allows queries against the DataSet API directly from Splunk's search bar. Optional parameters are supported:
 
-- **method** - Define `query` or `powerQuery` to call the appropriate REST endpoint. Default is query.
-- **query** - The DataSet [query](https://app.scalyr.com/help/query-language) or Power Query []()  used to filter events. Default is no filter (return all events limited by maxCount).
-- **maxcount** - Number of events to return from DataSet. Default is 100.
+- **method** - Define `query`, `powerquery` or `timeseries` to call the appropriate REST endpoint. Default is query.
+- **query** - The DataSet [query](https://app.scalyr.com/help/query-language) or filter used to select events. Default is no filter (return all events limited by maxCount).
+- **maxcount** - Number of events to return from DataSet query or powerquery. Default is 100. Not used for timeseries.
 - **starttime** - The Splunk time picker can be used (not "All Time"), but if starttime is defined it will take precedence to define the [start time](https://app.scalyr.com/help/time-reference) for DataSet events to return. Use epoch time or relative shorthand in the form of a number followed by d, h, m or s (for days, hours, minutes or seconds), e.g.: `24h`. Default is 24h.
 - **endtime** - The Splunk time picker can be used (not "All Time"), but if endtime is defined it will take precedence to define the [end time](https://app.scalyr.com/help/time-reference) for DataSet events to return. Use epoch time or relative shorthand in the form of a number followed by d, h, m or s (for days, hours, minutes or seconds), e.g.: `5m`. Default is current time at search.
+
+For timeseries queries, additional parameters include:
+- **function** - Define value to compute from matching events. Default is rate.
+- **buckets** - The number of numeric values to return by dividing time range into equal slices. Default is 1.
+- **createsummaries** - Specify whether to create summaries to automatically update on ingestion pipeline. Default is true, *be sure to set to false for one-off or while testing new queries*.
+- **useonlysummaries** - Specify whether to only use preexisting timeseries for fastest speed.
 
 For all queries, be sure to `"`wrap the entire query in double quotes`"`, and inside use `'`single quotes`'` or double quotes `\"`escaped with a backslash`\"`, as shown in the following examples.
 
@@ -114,6 +120,11 @@ Since events are returned in JSON format, the Splunk [spath command](https://doc
 | dataset query="serverHost = * AND Action = 'allow'" maxcount=50 starttime=10m endtime=1m
 | spath
 | collect index=dataset
+```
+
+Timeseries Query Example:
+```
+| dataset method=timeseries search="serverHost='scalyr-metalog'" function="p90(delayMedian)" starttime="24h" buckets=24 createsummaries=false onlyusesummaries=false
 ```
 
 ## Alert Action

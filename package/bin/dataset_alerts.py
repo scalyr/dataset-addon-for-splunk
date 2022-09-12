@@ -91,17 +91,17 @@ class DATASET_ALERTS_INPUT(smi.Script):
             r_json = r.json() #parse results json
             
             #log information from results
-            if r_json['status']:
+            if 'status' in r_json:
                 logger.info("response status=%s" % str(r_json['status']))
             
-            if r_json['warnings']:
+            if 'warnings' in r_json:
                 for warning in r_json['warnings']:
                     logger.warning("response warning=%s" % str(warning))
                 
-            if r_json['matchingEvents']:
+            if 'matchingEvents' in r_json:
                 logger.info("response matches=%s" % str(r_json['matchingEvents']))
                 
-            if r_json['omittedEvents']:
+            if 'omitedEvents' in r_json:
                 logger.warning("response omitted=%s" % str(r_json['omittedEvents']))
             
             #parse results, match returned columns with corresponding values
@@ -125,9 +125,6 @@ class DATASET_ALERTS_INPUT(smi.Script):
 
                     if event_time > checkpoint_time:
                         #if greater than current checkpoint, update checkpoint and write event
-                        logger.debug("saving checkpoint %s" % (str(event_time)))
-                        checkpoint.update(input_name, {"timestamp": event_time})
-
                         splunk_dt = normalize_time(int(event_time))
                         ds_event = json.dumps(ds_event_dict)
                         #create and write event
@@ -139,6 +136,9 @@ class DATASET_ALERTS_INPUT(smi.Script):
                         )
                         logger.debug("writing event with event_time=%s and checkpoint=%s" % (str(event_time), str(checkpoint_time)))
                         ew.write_event(event)
+
+                        logger.debug("saving checkpoint %s" % (str(event_time)))
+                        checkpoint.update(input_name, {"timestamp": event_time})
                     else:
                         logger.debug("skipping due to event_time=%s is less than checkpoint=%s" % (str(event_time), str(checkpoint_time)))
             else:

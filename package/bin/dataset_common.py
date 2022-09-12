@@ -2,6 +2,7 @@ import os
 import os.path as op
 import sys
 import json
+import time
 from collections import OrderedDict
 
 import import_declare_test
@@ -129,3 +130,33 @@ def get_proxy(session_key, logger):
 def normalize_time(ds_time):
     splunk_dt = ds_time / 1000000000
     return splunk_dt
+
+
+def relative_to_epoch(relative):
+    """
+    This function uses return epoch time from a relative time
+    :param relative: shorthand relative time stamp (e.g. "24h" for 24 hours ago)
+    :return : time_relative in epoch as an integer
+    """
+    relative_num = int(relative[0:-1])
+    relative_unit = relative[-1:]
+    #get current epoch time in milliseconds
+    time_current = int(time.time())
+    num_seconds = 1
+    if relative_unit == 'm':
+        num_seconds = num_seconds * 60
+    elif relative_unit == 'h':
+        num_seconds = num_seconds * 60 * 60
+    elif relative_unit == 'd':
+        num_seconds = num_seconds * 60 * 60 * 24
+
+    time_relative = time_current - (relative_num * num_seconds)
+    return time_relative
+
+
+def get_maxcount(max):
+    #query API returns max 5,000 results per call
+    if max > 5000:
+        return 5000
+    else:
+        return max
