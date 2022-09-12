@@ -36,8 +36,8 @@ def get_read_token(self):
 class DataSetSearch(GeneratingCommand):
     method = Option(doc='''
         **Syntax: method=(query|powerQuery|timeseries)
-        **Description:** DataSet endpoint to use: simple query, timeseriesQuery or powerQuery''', 
-        require=False, validate=validators.Match('query', '(?i)query|timeseriesQuery|powerQuery'))
+        **Description:** DataSet endpoint to use: simple query, powerQuery or timeseries''', 
+        require=False, validate=validators.Match('query', '(?i)query|powerQuery|timeseries'))
     
     search = Option(doc='''
         **Syntax: search=<string>
@@ -67,7 +67,7 @@ class DataSetSearch(GeneratingCommand):
     function = Option(doc='''
         **Syntax: endtime=<string>
         **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
-        default='rate', require=False, validate=validators.Match('function', '(?i)(count|mean|min|max|sum|sumPerSecond|median|p10|p50|p90|p95|p9{2,3})(\(\w+\))?'))
+        default='rate', require=False, validate=validators.Match('function', '(?i)(rate|count|mean|min|max|sum|sumPerSecond|median|p10|p50|p90|p95|p9{2,3})(\(\w+\))?'))
 
     buckets = Option(doc='''
         **Syntax: endtime=<string>
@@ -77,12 +77,12 @@ class DataSetSearch(GeneratingCommand):
     createsummaries = Option(doc='''
         **Syntax: endtime=<string>
         **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
-        default=True, require=False, validate=validators.Boolean)
+        default=True, require=False, validate=validators.Boolean())
     
     onlyusesummaries = Option(doc='''
         **Syntax: endtime=<string>
         **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
-        default=False, require=False, validate=validators.Boolean)
+        default=False, require=False, validate=validators.Boolean())
 
 
     def generate(self):
@@ -319,11 +319,17 @@ class DataSetSearch(GeneratingCommand):
             
             #### Handle timeseriesQuery
             if ds_url_endpoint == 'timeseriesQuery':
+                #get function used, split before parenthesees
+                splunk_function = re.split("\(", self.function)[0]
                 ts_payload = { "queries": [ds_payload] }
 
+                #with varying lengths of time (10 - 19 digits), take first 10 digits
+                start_str = str(start_time)[0:10]
+                end_str = str(end_time)[0:10]
+                splunk_start = int(start_str)
+                splunk_end = int(end_str)
                 #calculate time differental for start and end, then divide by number of buckets
-                timedelta = float(end_time) - float(start_time)
-                timebucket = int(timedelta) / int(self.buckets)
+                bucket_time = (splunk_end - splunk_start) / int(self.buckets)
 
                 r = requests.post(url=ds_url, headers=ds_headers, json=ts_payload)
                 r_json = r.json()
@@ -333,23 +339,23 @@ class DataSetSearch(GeneratingCommand):
                     if 'cpuUsage' in r_json:
                         logging.info('cpuUsage: %s ' % r_json['cpuUsage'] )
 
-                    #parse results, match returned columns with corresponding values
+                    #parse resulting values
                     if 'results' in r_json:
                         values = r_json['results'][0]['values']
 
                         for counter in range(len(values)):
-                            ds_event = str(values[counter])
+                            ds_event = values[counter]
+                            #determine timestamp by adding bucket_time to start_time x number of iterations (+1 since indices start at 0)
+                            splunk_dt = splunk_start + bucket_time * (counter + 1)
 
-                            #determine timestamp by adding bucket time to start_time x number of iterations (+1 since indices start at 0)
-                            splunk_dt = start_time + timebucket * (counter + 1)
-                            splunk_dt = normalize_time(int(splunk_dt))
-
+                            #splunk needs a string in _raw to render correctly; = is sufficient so write to _raw and again to splunk_function field
                             yield {
-                                '_raw': ds_event,
+                                '_raw': '{}={}'.format(splunk_function, ds_event),
+                                splunk_function: ds_event,
                                 '_time': splunk_dt,
                                 'source': 'dataset_command',
                                 'sourcetype': 'dataset:timeseriesQuery'
-                            }              
+                            }
                                                 
                     else:
                         logging.error('No matches in response')
