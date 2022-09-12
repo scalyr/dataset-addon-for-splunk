@@ -83,9 +83,9 @@ The DataSet Add-on for Splunk collects the following inputs utilizing time-based
 ## SPL Command
 The `| dataset` command allows queries against the DataSet API directly from Splunk's search bar. Optional parameters are supported:
 
-- **method** - Define `query`, `powerQuery` or `timeseries` to call the appropriate REST endpoint. Default is query.
+- **method** - Define `query`, `powerquery` or `timeseries` to call the appropriate REST endpoint. Default is query.
 - **query** - The DataSet [query](https://app.scalyr.com/help/query-language) or filter used to select events. Default is no filter (return all events limited by maxCount).
-- **maxcount** - Number of events to return from DataSet. Default is 100. Not used for timeseries.
+- **maxcount** - Number of events to return from DataSet query or powerquery. Default is 100. Not used for timeseries.
 - **starttime** - The Splunk time picker can be used (not "All Time"), but if starttime is defined it will take precedence to define the [start time](https://app.scalyr.com/help/time-reference) for DataSet events to return. Use epoch time or relative shorthand in the form of a number followed by d, h, m or s (for days, hours, minutes or seconds), e.g.: `24h`. Default is 24h.
 - **endtime** - The Splunk time picker can be used (not "All Time"), but if endtime is defined it will take precedence to define the [end time](https://app.scalyr.com/help/time-reference) for DataSet events to return. Use epoch time or relative shorthand in the form of a number followed by d, h, m or s (for days, hours, minutes or seconds), e.g.: `5m`. Default is current time at search.
 
