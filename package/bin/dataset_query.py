@@ -47,6 +47,11 @@ class DATASET_QUERY_INPUT(smi.Script):
                                          description="The DataSet query exectued to return matching results.",
                                          required_on_create=False,
                                          required_on_edit=False))
+        
+        scheme.add_argument(smi.Argument("dataset_query_columns", title="Columns",
+                                         description="Specified columns to return.",
+                                         required_on_create=False,
+                                         required_on_edit=False))
 
         scheme.add_argument(smi.Argument("max_count", title="Max Count",
                                          description="The maximum number of records to return.",
@@ -99,6 +104,7 @@ class DATASET_QUERY_INPUT(smi.Script):
 
             ds_end_time = input_items.get('end_time')
             ds_query = input_items.get('dataset_query_string')
+            ds_columns = input_items.get('dataset_query_columns')
             ds_max_count = int(input_items.get('max_count'))
 
             api_maxcount = 100
@@ -108,6 +114,8 @@ class DATASET_QUERY_INPUT(smi.Script):
                 ds_payload['endTime'] = ds_et
             if ds_query:
                 ds_payload['filter'] = ds_query
+            if ds_columns:
+                ds_payload['columns'] = ds_columns
             if ds_max_count:
                 api_maxcount = get_maxcount(ds_max_count)
                 ds_payload['maxCount'] = api_maxcount
@@ -140,14 +148,23 @@ class DATASET_QUERY_INPUT(smi.Script):
                         for match_list in matches:
                             ds_event_dict = {}
                             ds_event_dict = match_list
-                            session_key = match_list['session']
 
-                            for session_entry, session_dict in sessions.items():
-                                if session_entry == session_key:
-                                    for key in session_dict:
-                                        ds_event_dict[key] = session_dict[key]
+                            #if columns were given, simply return matches and skip merging session data
+                            #if columns were not given, merge sessions and matches to return all fields
+                            if not ds_columns:
+                                session_key = match_list['session']
 
-                            event_time = int(ds_event_dict['timestamp'])
+                                for session_entry, session_dict in sessions.items():
+                                    if session_entry == session_key:
+                                        for key in session_dict:
+                                            ds_event_dict[key] = session_dict[key]
+
+                            if 'timestamp' in ds_event_dict:
+                                event_time = int(ds_event_dict['timestamp'])
+                            else:
+                                #if no timestamp, use current time in nanoseconds
+                                event_time = int(time.time()) * 1000000000
+
                             get_checkpoint = checkpoint.get(input_name)
 
                             #if checkpoint doesn't exist, set to 0
