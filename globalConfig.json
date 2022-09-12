@@ -497,7 +497,7 @@
                         {
                             "field": "dataset_query_string",
                             "label": "DataSet PowerQuery String",
-                            "help": "If left blank, timestamp and message from all records (limited by max count) are retrieved.",
+                            "help": "DataSet PowerQuery to return results.",
                             "required": true,
                             "type": "text",
                             "validators": [
