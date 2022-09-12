@@ -5,6 +5,7 @@ import sys
 import time
 import datetime
 import json
+from tracemalloc import start
 import requests
 import ast
 from dataset_common import get_url, normalize_time, relative_to_epoch, get_maxcount
@@ -34,7 +35,7 @@ def get_read_token(self):
 @Configuration()
 class DataSetSearch(GeneratingCommand):
     method = Option(doc='''
-        **Syntax: method=(query|powerQuery|timeseriesQuery)
+        **Syntax: method=(query|powerQuery|timeseries)
         **Description:** DataSet endpoint to use: simple query, timeseriesQuery or powerQuery''', 
         require=False, validate=validators.Match('query', '(?i)query|timeseriesQuery|powerQuery'))
     
@@ -62,6 +63,27 @@ class DataSetSearch(GeneratingCommand):
         **Syntax: endtime=<string>
         **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
         require=False, validate=validators.Match('time', '\d*(d|h|m|s)|\d{10,19}'))
+    
+    function = Option(doc='''
+        **Syntax: endtime=<string>
+        **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
+        default='rate', require=False, validate=validators.Match('function', '(?i)(count|mean|min|max|sum|sumPerSecond|median|p10|p50|p90|p95|p9{2,3})(\(\w+\))?'))
+
+    buckets = Option(doc='''
+        **Syntax: endtime=<string>
+        **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
+        default=1, require=False, validate=validators.Integer(minimum=1, maximum=5000))
+    
+    createsummaries = Option(doc='''
+        **Syntax: endtime=<string>
+        **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
+        default=True, require=False, validate=validators.Boolean)
+    
+    onlyusesummaries = Option(doc='''
+        **Syntax: endtime=<string>
+        **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
+        default=False, require=False, validate=validators.Boolean)
+
 
     def generate(self):
         #get datasest environment from conf settings
@@ -92,7 +114,6 @@ class DataSetSearch(GeneratingCommand):
             else:
                 #if epoch time was given, use it
                 start_time = self.starttime
-
         else:
             try:
                 #if Splunk time picker was used, convert provided epoch string to integer and use it
@@ -120,7 +141,7 @@ class DataSetSearch(GeneratingCommand):
         }
 
         #set default values for payload
-        api_maxcount = 100
+        api_maxcount = 100 #used for queries needing recursing calls
         ds_url_endpoint = "query"
 
         #set payload for different API endpoints
@@ -150,9 +171,19 @@ class DataSetSearch(GeneratingCommand):
                     logging.info('powerQuery uses | limit instead of maxCount, adding this to powerQuery filter')
                 if self.columns:
                     ds_payload['query'] += "| columns " + str(self.columns)
+
+            elif ds_method == 'timeseries':
+                ds_url_endpoint = "timeseriesQuery"
+                if self.search:
+                    ds_payload['filter'] = self.search
+                if self.function:
+                    ds_payload['function'] = self.function
+                ds_payload['buckets'] = self.buckets
+                ds_payload['createSummaries'] = self.createsummaries
+                ds_payload['onlyUseSummaries'] = self.onlyusesummaries
                 
         else:
-            #set maxcount if user provided no other arguments
+            #handle options if no API endpoint was defined
             if self.maxcount:
                 api_maxcount = get_maxcount(self.maxcount)
                 ds_payload['maxCount'] = api_maxcount
@@ -244,42 +275,90 @@ class DataSetSearch(GeneratingCommand):
             if ds_url_endpoint == 'powerQuery':
                 r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload)
                 r_json = r.json()
-                if 'cpuUsage' in r_json:
-                    logging.info('cpuUsage: %s ' % r_json['cpuUsage'] )
 
-                #parse results, match returned columns with corresponding values
-                if 'values' in r_json and 'columns' in r_json:
-                    values = r_json['values']
+                #first, validate success
+                if r.ok:                
+                    if 'cpuUsage' in r_json:
+                        logging.info('cpuUsage: %s ' % r_json['cpuUsage'] )
 
-                    for value_list in values:
-                        ds_event_dict = {}
+                    #parse results, match returned columns with corresponding values
+                    if 'values' in r_json and 'columns' in r_json:
+                        values = r_json['values']
 
-                        for counter in range(len(value_list)):
-                            ds_event_dict[r_json['columns'][counter]['name']] = value_list[counter]
+                        for value_list in values:
+                            ds_event_dict = {}
 
-                        #PowerQuery results are returned by default in chronological order
-                        ds_event = json.loads(json.dumps(ds_event_dict))
+                            for counter in range(len(value_list)):
+                                ds_event_dict[r_json['columns'][counter]['name']] = value_list[counter]
 
-                        #if timestamp exists, convert epoch nanoseconds to seconds for Splunk
-                        if 'timestamp' in ds_event:
-                            splunk_dt = normalize_time(int(ds_event['timestamp']))
-                        else:                                
-                            #Splunk does not parse events well without a timestamp, use current time to fix this
-                            splunk_dt = int(time.time())
+                            #PowerQuery results are returned by default in chronological order
+                            ds_event = json.loads(json.dumps(ds_event_dict))
 
-                        yield {
-                            '_raw': ds_event,
-                            '_time': splunk_dt,
-                            'source': 'dataset_command',
-                            'sourcetype': 'dataset:powerQuery'
-                        }              
-                                            
-                else: #if no resulting ['values'] and ['columns']
-                    logging.error('No matches in response')
-                    logging.error(r_json)
-            else:
-                if 'message' in r_json:
-                    yield { '_raw': 'response: %s' % r_json['message']}
+                            #if timestamp exists, convert epoch nanoseconds to seconds for Splunk
+                            if 'timestamp' in ds_event:
+                                splunk_dt = normalize_time(int(ds_event['timestamp']))
+                            else:                                
+                                #Splunk does not parse events well without a timestamp, use current time to fix this
+                                splunk_dt = int(time.time())
+
+                            yield {
+                                '_raw': ds_event,
+                                '_time': splunk_dt,
+                                'source': 'dataset_command',
+                                'sourcetype': 'dataset:powerQuery'
+                            }              
+                                                
+                    else: #if no resulting ['values'] and ['columns']
+                        logging.error('No matches in response')
+                        logging.error(r_json)
+                else:
+                    if 'message' in r_json:
+                        logging.error(r_json['message'])
+                    else:
+                        logging.error("response = {}".format(r_json))
+            
+            #### Handle timeseriesQuery
+            if ds_url_endpoint == 'timeseriesQuery':
+                ts_payload = { "queries": [ds_payload] }
+
+                #calculate time differental for start and end, then divide by number of buckets
+                timedelta = float(end_time) - float(start_time)
+                timebucket = int(timedelta) / int(self.buckets)
+
+                r = requests.post(url=ds_url, headers=ds_headers, json=ts_payload)
+                r_json = r.json()
+
+                 #first, validate success
+                if r.ok:   
+                    if 'cpuUsage' in r_json:
+                        logging.info('cpuUsage: %s ' % r_json['cpuUsage'] )
+
+                    #parse results, match returned columns with corresponding values
+                    if 'results' in r_json:
+                        values = r_json['results'][0]['values']
+
+                        for counter in range(len(values)):
+                            ds_event = str(values[counter])
+
+                            #determine timestamp by adding bucket time to start_time x number of iterations (+1 since indices start at 0)
+                            splunk_dt = start_time + timebucket * (counter + 1)
+                            splunk_dt = normalize_time(int(splunk_dt))
+
+                            yield {
+                                '_raw': ds_event,
+                                '_time': splunk_dt,
+                                'source': 'dataset_command',
+                                'sourcetype': 'dataset:timeseriesQuery'
+                            }              
+                                                
+                    else:
+                        logging.error('No matches in response')
+                        logging.error(r_json)
+                else:
+                    if 'message' in r_json:
+                        logging.error(r_json['message'])
+                    else:
+                        logging.error("response = {}".format(r_json))
 
         except Exception as e:
             logging.error(e)
