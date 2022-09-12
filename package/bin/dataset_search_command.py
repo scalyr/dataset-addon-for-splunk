@@ -66,22 +66,22 @@ class DataSetSearch(GeneratingCommand):
     
     function = Option(doc='''
         **Syntax: endtime=<string>
-        **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
+        **Description:** For timeseriesQuery, define value to compute from matching events. Default is rate.''', 
         default='rate', require=False, validate=validators.Match('function', '(?i)(rate|count|mean|min|max|sum|sumPerSecond|median|p10|p50|p90|p95|p9{2,3})(\(\w+\))?'))
 
     buckets = Option(doc='''
         **Syntax: endtime=<string>
-        **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
+        **Description:** For timeseriesQuery, the number of numeric values to return by dividing time range into equal slices. Default is 1.''', 
         default=1, require=False, validate=validators.Integer(minimum=1, maximum=5000))
     
     createsummaries = Option(doc='''
         **Syntax: endtime=<string>
-        **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
+        **Description:** For timeseriesQuery, specify whether to create summaries to automatically update on ingestion pipeline. Default is true, set to false while testing.''', 
         default=True, require=False, validate=validators.Boolean())
     
     onlyusesummaries = Option(doc='''
         **Syntax: endtime=<string>
-        **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
+        **Description:** For timeseriesQuery, specify whether to only use preexisting timeseries for fastest speed.''', 
         default=False, require=False, validate=validators.Boolean())
 
 
