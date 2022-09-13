@@ -50,18 +50,15 @@ Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/
 
 5. On the inputs page, click Create New Input and select the desired input
 
-![Setup alerts indexing](README_images/setup_alerts.png)
-
 6. For DataSet alerts, enter:
+![Setup alerts indexing](README_images/setup_alerts.png)
 - A name for the input.
 - Interval, in seconds. A good starting point is `300` seconds to collect every five mintues.
 - Splunk index name
 - Start time, in relative shorthand form, e.g.: `24h` for 24 hours before input execution time.
-7. Click Save.
-
-![Setup query indexing](README_images/setup_query.png)
 
 7. For DataSet queries, enter:
+![Setup query indexing](README_images/setup_query.png)
 - A name for the input.
 - Interval, in seconds. A good starting point is `300` seconds to collect every five mintues.
 - Splunk index name
@@ -70,7 +67,15 @@ Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/
 - *(optional)* Query string used to return matching events.
 - *(optional)* Maximum number of events to return.
 
-## Using
+8. For DataSet Power Queries, enter:
+- A name for the input.
+- Interval, in seconds. A good starting point is `300` seconds to collect every five mintues.
+- Splunk index name
+- Start time, in relative shorthand form, e.g.: `24h` for 24 hours before input execution time.
+- *(optional)* End time, in relative shorthand form, e.g.: `5m` for 5 minutes before input execution time.
+- Query string used to return matching events, including commands such as `| columns`, `| limit`, etc.
+
+## Usage
 
 ### Inputs
 The DataSet Add-on for Splunk collects the following inputs utilizing time-based checkpointing to prevent reindexing the same data:
