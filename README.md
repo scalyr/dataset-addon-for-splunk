@@ -85,11 +85,14 @@ The `| dataset` command allows queries against the DataSet API directly from Spl
 
 - **method** - Define `query`, `powerquery` or `timeseries` to call the appropriate REST endpoint. Default is query.
 - **query** - The DataSet [query](https://app.scalyr.com/help/query-language) or filter used to select events. Default is no filter (return all events limited by maxCount).
-- **maxcount** - Number of events to return from DataSet query or powerquery. Default is 100. Not used for timeseries.
 - **starttime** - The Splunk time picker can be used (not "All Time"), but if starttime is defined it will take precedence to define the [start time](https://app.scalyr.com/help/time-reference) for DataSet events to return. Use epoch time or relative shorthand in the form of a number followed by d, h, m or s (for days, hours, minutes or seconds), e.g.: `24h`. Default is 24h.
 - **endtime** - The Splunk time picker can be used (not "All Time"), but if endtime is defined it will take precedence to define the [end time](https://app.scalyr.com/help/time-reference) for DataSet events to return. Use epoch time or relative shorthand in the form of a number followed by d, h, m or s (for days, hours, minutes or seconds), e.g.: `5m`. Default is current time at search.
 
-For timeseries queries, additional parameters include:
+For query and powerquery, additional parameter include:
+- **maxcount** - Number of events to return.
+- **columns** - Specified fields to return from DataSet query (or powerquery, analogous to using `| columns` in a powerquery). Yields performance gains for high volume queries instead of returning and merging all fields.
+
+For timeseries, additional parameters include:
 - **function** - Define value to compute from matching events. Default is rate.
 - **buckets** - The number of numeric values to return by dividing time range into equal slices. Default is 1.
 - **createsummaries** - Specify whether to create summaries to automatically update on ingestion pipeline. Default is true, *be sure to set to false for one-off or while testing new queries*.
