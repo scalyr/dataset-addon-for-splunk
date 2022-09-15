@@ -7,7 +7,7 @@ The DataSet Add-on for Splunk provides integration with [DataSet](https://www.da
 ## Installation
 The included .tgz file is ready for installation in Splunk. The package subdirectory contains all artifacts. To compile, reference Splunk's [UCC Framework instructions](https://splunk.github.io/addonfactory-ucc-generator/how_to_use/) to use `ucc-gen` and `slim package`.
 
-Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons).
+Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons). Note admins require `admin_all_objects` to create secret storage objects and users require `list_storage_passwords` capability to retrieve secrets.
 
 ### Splunk Enterprise
 | Splunk component | Required | Comments |
