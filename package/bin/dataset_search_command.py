@@ -36,7 +36,7 @@ def get_read_token(self):
 class DataSetSearch(GeneratingCommand):
     method = Option(doc='''
         **Syntax: method=(query|powerQuery|timeseries)
-        **Description:** DataSet endpoint to use: simple query, powerQuery or timeseries''', 
+        **Description:** DataSet endpoint to use: query, powerQuery or timeseries''', 
         require=False, validate=validators.Match('query', '(?i)query|powerQuery|timeseries'))
     
     search = Option(doc='''
@@ -93,8 +93,8 @@ class DataSetSearch(GeneratingCommand):
         conf_json = json.loads(conf_j)
         ds_environment = conf_json['dataset_environment']
 
-        #set DataSet url and get API key
-        ds_url = get_url(ds_environment)
+        #set default DataSet url and get API key
+        ds_url = get_url(ds_environment, 'query')
         ds_api_key = get_read_token(self)
 
         #error if no api key provided in settings
@@ -142,14 +142,13 @@ class DataSetSearch(GeneratingCommand):
 
         #set default values for payload
         api_maxcount = 100 #used for queries needing recursing calls
-        ds_url_endpoint = "query"
 
         #set payload for different API endpoints
         if self.method:
             ds_method = self.method.lower()
 
             if ds_method == 'query':
-                ds_url_endpoint = "query"
+                ds_url = get_url(ds_environment, 'query')
                 ds_payload['queryType'] = "log"
                 if self.search:
                     ds_payload['filter'] = self.search
@@ -160,7 +159,7 @@ class DataSetSearch(GeneratingCommand):
                     ds_payload['columns'] = self.columns
 
             elif ds_method == 'powerquery':
-                ds_url_endpoint = "powerQuery"
+                ds_url = get_url(ds_environment, 'powerQuery')
                 if self.search:
                     ds_payload['query'] = self.search
                 else:
@@ -173,7 +172,7 @@ class DataSetSearch(GeneratingCommand):
                     ds_payload['query'] += "| columns " + str(self.columns)
 
             elif ds_method == 'timeseries':
-                ds_url_endpoint = "timeseriesQuery"
+                ds_url = get_url(ds_environment, 'timeseriesQuery')
                 if self.search:
                     ds_payload['filter'] = self.search
                 if self.function:
@@ -184,6 +183,8 @@ class DataSetSearch(GeneratingCommand):
                 
         else:
             #handle options if no API endpoint was defined
+            ds_method = "query"
+            ds_url = get_url(ds_environment, 'query')
             if self.maxcount:
                 api_maxcount = get_maxcount(self.maxcount)
                 ds_payload['maxCount'] = api_maxcount
@@ -191,12 +192,11 @@ class DataSetSearch(GeneratingCommand):
                 ds_payload['columns'] = self.columns
             
             ds_payload['queryType'] = "log"   
-            
-        ds_url += ds_url_endpoint
+
 
         try:
             ##### Handle simple query
-            if ds_url_endpoint == 'query':
+            if ds_method == 'query':
                 #set maxcount if user-provided, else set to dataset default of 100 results
                 if self.maxcount:
                     ds_max_count = self.maxcount
@@ -272,7 +272,7 @@ class DataSetSearch(GeneratingCommand):
                         break
 
             ##### Handle PowerQuery
-            if ds_url_endpoint == 'powerQuery':
+            if ds_method == 'powerquery':
                 r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload)
                 r_json = r.json()
 
@@ -318,7 +318,7 @@ class DataSetSearch(GeneratingCommand):
                         logging.error("response = {}".format(r_json))
             
             #### Handle timeseriesQuery
-            if ds_url_endpoint == 'timeseriesQuery':
+            if ds_method == 'timeseries':
                 #get function used, split before parenthesees
                 splunk_function = re.split("\(", self.function)[0]
                 ts_payload = { "queries": [ds_payload] }

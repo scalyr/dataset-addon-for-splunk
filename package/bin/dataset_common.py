@@ -14,11 +14,8 @@ CONF_NAME = "ta_dataset"
 
 
 #define DataSet API URL for all environments
-def get_url(dataset_environment):
-    if dataset_environment == 'eu':
-        return 'https://app.eu.scalyr.com/api/'
-    else:
-        return 'https://app.scalyr.com/api/'
+def get_url(dataset_environment, ds_api_endpoint):
+    return dataset_environment + "/api/" + ds_api_endpoint
 
 
 #one conf manager to rule them all

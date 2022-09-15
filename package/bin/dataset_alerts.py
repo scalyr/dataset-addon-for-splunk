@@ -77,8 +77,7 @@ class DATASET_ALERTS_INPUT(smi.Script):
             ds_start_time = input_items.get('start_time')
 
             ds_environment = get_environment(session_key, logger)
-            ds_url_endpoint = 'powerQuery'
-            ds_url = get_url(ds_environment) + ds_url_endpoint
+            ds_url = get_url(ds_environment, 'powerQuery')
             ds_api_key = get_token(session_key, logger, 'read')
             ds_headers = { "Authorization": "Bearer " + ds_api_key }
             ds_proxy = get_proxy(session_key, logger)

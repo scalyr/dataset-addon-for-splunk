@@ -52,7 +52,7 @@ def process_event(helper, *args, **kwargs):
     try:
         #ModularAlertBase includes helpers to get settings, alleviating need to use generic SDK or dataset_common methods
         ds_environment = helper.get_global_setting("dataset_environment")
-        ds_url = get_url(ds_environment) + 'addEvents'
+        ds_url = get_url(ds_environment, 'addEvents')
         ds_api_key = helper.get_global_setting("dataset_log_write_access_key")
 
         dataset_serverhost = helper.get_param("dataset_serverhost")

@@ -94,8 +94,7 @@ class DATASET_QUERY_INPUT(smi.Script):
             ds_st = relative_to_epoch(ds_start_time)
 
             ds_environment = get_environment(session_key, logger)
-            ds_url_endpoint = 'query'
-            ds_url = get_url(ds_environment) + ds_url_endpoint
+            ds_url = get_url(ds_environment, 'query')
             ds_api_key = get_token(session_key, logger, 'read')
             ds_headers = { "Authorization": "Bearer " + ds_api_key }
             ds_proxy = get_proxy(session_key, logger)
@@ -105,7 +104,7 @@ class DATASET_QUERY_INPUT(smi.Script):
             ds_end_time = input_items.get('end_time')
             ds_query = input_items.get('dataset_query_string')
             ds_columns = input_items.get('dataset_query_columns')
-            ds_max_count = int(input_items.get('max_count'))
+            ds_max_count = input_items.get('max_count')
 
             api_maxcount = 100
 
@@ -117,6 +116,7 @@ class DATASET_QUERY_INPUT(smi.Script):
             if ds_columns:
                 ds_payload['columns'] = ds_columns
             if ds_max_count:
+                ds_max_count = int(ds_max_count)
                 api_maxcount = get_maxcount(ds_max_count)
                 ds_payload['maxCount'] = api_maxcount
             else:
