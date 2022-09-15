@@ -2,7 +2,7 @@
     "meta": {
         "name": "TA-dataset",
         "displayName": "DataSet Add-on for Splunk",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "restRoot": "TA_dataset",
         "schemaVersion": "0.0.3"
     },
@@ -16,24 +16,19 @@
                     "title": "DataSet Account",
                     "entity": [
                         {
-                            "type": "singleSelect",
                             "field": "dataset_environment",
-                            "label": "DataSet Environment",
+                            "label": "DataSet URL",
+                            "type": "text",
+                            "help": "Enter DataSet URL.",
                             "required": true,
-                            "defaultValue": "us",
-                            "options": {
-                                "disableSearch": true,
-                                "autoCompleteFields": [
-                                    {
-                                        "value": "us",
-                                        "label": "AMER/Default (app.scalyr.com)"
-                                    },
-                                    {
-                                        "value": "eu",
-                                        "label": "EU (app.eu.scalyr.com)"
-                                    }
-                                ]
-                            }
+                            "defaultValue": "https://app.scalyr.com",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^https:\\/{2}(?:\\w|\\.)+\\.\\w{2,}$",
+                                    "errorMsg": "URL must begin with https:// and end with top-level domain. E.g.: https://app.us1.dataset.com"
+                                }
+                            ]
                         },
                         {
                             "field": "dataset_log_read_access_key",
