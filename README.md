@@ -25,7 +25,7 @@ Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/
 
 ## Configuration
 ### Dataset
-1. Navigate to https://app.scalyr.com/keys
+1. Navigate to API Keys.
 
 ![Creating DataSet API keys](README_images/dataset_key.png)
 
@@ -39,14 +39,12 @@ Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/
 ![Configuring DataSet Account](README_images/setup_account.png)
 
 2. In configuration on DataSet Account tab:
-- Select the environment.
+- Enter the DataSet URL (e.g.: `https://app.scalyr.com`).
 - Enter the DataSet read key.
 - Enter the DataSet write key.
 
 3. Optionally, configure logging level and proxy information on the associated tabs.
 4. Click Save.
-
-![Setup new input](README_images/setup_new_input.png)
 
 5. On the inputs page, click Create New Input and select the desired input
 
