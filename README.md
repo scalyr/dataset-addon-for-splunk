@@ -49,6 +49,7 @@ Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/
 5. On the inputs page, click Create New Input and select the desired input
 
 6. For DataSet alerts, enter:
+
 ![Setup alerts indexing](README_images/setup_alerts.png)
 - A name for the input.
 - Interval, in seconds. A good starting point is `300` seconds to collect every five mintues.
@@ -56,6 +57,7 @@ Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/
 - Start time, in relative shorthand form, e.g.: `24h` for 24 hours before input execution time.
 
 7. For DataSet queries, enter:
+
 ![Setup query indexing](README_images/setup_query.png)
 - A name for the input.
 - Interval, in seconds. A good starting point is `300` seconds to collect every five mintues.
