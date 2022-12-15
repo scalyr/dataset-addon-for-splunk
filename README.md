@@ -29,7 +29,7 @@ Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/
 
 ![Creating DataSet API keys](README_images/dataset_key.png)
 
-2. Click Add Key > Add Read Key (required for inputs and search command).
+2. Click Add Key > Add Read Key (required for search command and inputs).
 3. Click Add Key > Add Write Key (required for alert action).
 4. Optionally, click the pencil icon to rename the keys.
 
@@ -89,16 +89,19 @@ The DataSet Add-on for Splunk collects the following inputs utilizing time-based
 ## SPL Command
 The `| dataset` command allows queries against the DataSet API directly from Splunk's search bar. Optional parameters are supported:
 
-- **method** - Define `query`, `powerquery` or `timeseries` to call the appropriate REST endpoint. Default is query.
-- **query** - The DataSet [query](https://app.scalyr.com/help/query-language) or filter used to select events. Default is no filter (return all events limited by maxCount).
+- **method** - Define `query`, `powerquery`, `facet` or `timeseries` to call the appropriate REST endpoint. Default is query.
+- **query** - The DataSet [query](https://app.scalyr.com/help/query-language) or filter used to select events. Default is no filter (return all events limited by time and maxCount).
 - **starttime** - The Splunk time picker can be used (not "All Time"), but if starttime is defined it will take precedence to define the [start time](https://app.scalyr.com/help/time-reference) for DataSet events to return. Use epoch time or relative shorthand in the form of a number followed by d, h, m or s (for days, hours, minutes or seconds), e.g.: `24h`. Default is 24h.
 - **endtime** - The Splunk time picker can be used (not "All Time"), but if endtime is defined it will take precedence to define the [end time](https://app.scalyr.com/help/time-reference) for DataSet events to return. Use epoch time or relative shorthand in the form of a number followed by d, h, m or s (for days, hours, minutes or seconds), e.g.: `5m`. Default is current time at search.
 
-For query and powerquery, additional parameters include:
+For query and powerquery:
 - **maxcount** - Number of events to return.
 - **columns** - Specified fields to return from DataSet query (or powerquery, analogous to using `| columns` in a powerquery). Yields performance gains for high volume queries instead of returning and merging all fields.
 
-For timeseries, additional parameters include:
+For facet:
+- **field** - Define field to get most frequent values of. Default is logfile.
+
+For timeseries:
 - **function** - Define value to compute from matching events. Default is rate.
 - **buckets** - The number of numeric values to return by dividing time range into equal slices. Default is 1.
 - **createsummaries** - Specify whether to create summaries to automatically update on ingestion pipeline. Default is true; recommend setting to false for one-off or while testing new queries.
@@ -123,17 +126,24 @@ Power Query Example 2: `| dataset method=powerQuery search="$serverHost == 'clou
 | sort -DUR 
 | columns 'Request ID' = RID, 'Duration(ms)' = DUR, 'Charged delta (ms)' = deltaDUR, 'Used Memory (MB)' = UMEM, 'Charged delta Memory (MB)' = deltaMEM" starttime=5m`
 
+Facet Query Example:
+`
+| dataset method=facet search="serverHost = *" field=serverHost maxcount=25
+| spath
+| table value, count
+`
+
+Timeseries Query Example:
+`
+| dataset method=timeseries search="serverHost='scalyr-metalog'" function="p90(delayMedian)" starttime="24h" buckets=24 createsummaries=false onlyusesummaries=false
+`
+
 Since events are returned in JSON format, the Splunk [spath command](https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference/Spath) is useful. Additionally, the Splunk [collect command](https://docs.splunk.com/Documentation/Splunk/latest/SearchReference/collect) can be used to add the events to a summary index:
 
 `
 | dataset query="serverHost = * AND Action = 'allow'" maxcount=50 starttime=10m endtime=1m
 | spath
 | collect index=dataset
-`
-
-Timeseries Query Example:
-`
-| dataset method=timeseries search="serverHost='scalyr-metalog'" function="p90(delayMedian)" starttime="24h" buckets=24 createsummaries=false onlyusesummaries=false
 `
 
 ## Alert Action
