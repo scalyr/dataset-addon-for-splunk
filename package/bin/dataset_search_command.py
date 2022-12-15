@@ -32,12 +32,52 @@ def get_read_token(self):
             return token
 
 
+def get_proxy_settings(self):
+        conf = self.service.confs['ta_dataset_settings']['proxy'].content
+        conf_j = json.dumps(conf)
+        conf_json = json.loads(conf_j)
+
+        if 'disabled' in conf_json:
+            proxy_disabled = int(conf_json['disabled'])
+            if proxy_disabled == 1:
+                return None
+            else:
+                proxies = {}
+                if 'proxy_username' in conf_json and 'proxy_password' in conf_json:
+                    proxies['http'] = conf_json['proxy_username'] + ":" + conf_json['proxy_password'] + "@" + conf_json['proxy_url'] + ":" + conf_json['proxy_port']
+                elif 'proxy_username' in conf_json:
+                    proxies['http'] =  conf_json['proxy_username'] + "@" + conf_json['proxy_url'] + ":" + conf_json['proxy_port']
+                elif 'proxy_url' in conf_json and 'proxy_port' in conf_json:
+                    proxies['http'] =  conf_json['proxy_url'] + ":" + conf_json['proxy_port']
+
+                if 'http' in proxies:
+                    #prepend http and https, respectively
+                    proxies['http'] = f"{'http://'}{proxies['http']}"
+                    proxies['https'] = f"{'https://'}{proxies['http']}"
+                    return proxies
+                else:
+                    return None
+
+
+def response_error_exit(self, r_json):
+    error_message = "Request failed, confirm connectivity and check search log"
+    if 'message' in r_json:
+        logging.error(r_json['message'])
+        if r_json['message'].startswith("Couldn\'t decode API token"):
+            error_message = "API token rejected, check add-on configuration" #make API error more user-friendly
+        else:
+            error_message = r_json['message']
+    else:
+       logging.error(r_json)
+    self.error_exit(error='ERROR', message = error_message )
+
+
 @Configuration()
 class DataSetSearch(GeneratingCommand):
     method = Option(doc='''
-        **Syntax: method=(query|powerQuery|timeseries)
-        **Description:** DataSet endpoint to use: query, powerQuery or timeseries''', 
-        require=False, validate=validators.Match('query', '(?i)query|powerQuery|timeseries'))
+        **Syntax: method=(query|powerQuery|facet|timeseries)
+        **Description:** DataSet endpoint to use: query, powerquery, facet or timeseries''', 
+        require=False, validate=validators.Match('query', '(?i)query|powerquery|facet|timeseries'))
     
     search = Option(doc='''
         **Syntax: search=<string>
@@ -63,6 +103,11 @@ class DataSetSearch(GeneratingCommand):
         **Syntax: endtime=<string>
         **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.''', 
         require=False, validate=validators.Match('time', '\d*(d|h|m|s)|\d{10,19}'))
+
+    field = Option(doc='''
+        **Syntax: field=<string>
+        **Description:** For facetQuery, the fielt to get most frequent values of''', 
+        require=False)
     
     function = Option(doc='''
         **Syntax: endtime=<string>
@@ -91,18 +136,22 @@ class DataSetSearch(GeneratingCommand):
         #convert single quote key: value to proper json "key": "value"
         conf_j = json.dumps(conf)
         conf_json = json.loads(conf_j)
-        ds_environment = conf_json['dataset_environment']
+
+        try:
+            ds_environment = conf_json['dataset_environment']
+        except:
+            self.error_exit(error='ERROR', message = "DataSet environment is empty, check add-on configuration")
 
         #set default DataSet url and get API key
         ds_url = get_url(ds_environment, 'query')
         ds_api_key = get_read_token(self)
 
         #error if no api key provided in settings
-        if not ds_api_key:
-            yield { '_raw': 'read api key error, check add-on settings' }
-            sys.exit(0)
+        if ds_api_key is None:
+            self.error_exit(error='ERROR', message = "Read API key is empty, check add-on configuration")
 
         ds_headers = { "Authorization": "Bearer " + ds_api_key }
+        proxy = get_proxy_settings(self)
 
         ##### Parse user-provided options
         #if starttime was given in search, use it
@@ -141,7 +190,7 @@ class DataSetSearch(GeneratingCommand):
         }
 
         #set default values for payload
-        api_maxcount = 100 #used for queries needing recursing calls
+        api_maxcount = 100 #used for queries needing recursive calls
 
         #set payload for different API endpoints
         if self.method:
@@ -180,11 +229,25 @@ class DataSetSearch(GeneratingCommand):
                 ds_payload['buckets'] = self.buckets
                 ds_payload['createSummaries'] = self.createsummaries
                 ds_payload['onlyUseSummaries'] = self.onlyusesummaries
+            
+            elif ds_method == 'facet':
+                ds_url = get_url(ds_environment, 'facetQuery')
+                if self.search:
+                    ds_payload['filter'] = self.search
+                if self.maxcount:
+                    ds_payload['maxCount'] = self.maxcount
+                if self.field:
+                    ds_payload['field'] = self.field
+                else:
+                    #facetquery requires field, set default if not given
+                    ds_payload['field'] = "logfile"
                 
         else:
             #handle options if no API endpoint was defined
             ds_method = "query"
             ds_url = get_url(ds_environment, 'query')
+            if self.search:
+                    ds_payload['filter'] = self.search
             if self.maxcount:
                 api_maxcount = get_maxcount(self.maxcount)
                 ds_payload['maxCount'] = api_maxcount
@@ -192,7 +255,6 @@ class DataSetSearch(GeneratingCommand):
                 ds_payload['columns'] = self.columns
             
             ds_payload['queryType'] = "log"   
-
 
         try:
             ##### Handle simple query
@@ -207,11 +269,12 @@ class DataSetSearch(GeneratingCommand):
                 ds_iterations = math.ceil(ds_max_count / 5000)
                 for count in range(ds_iterations):
                     logging.info("query api {} of {}".format(count+1, ds_iterations))
-                    r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload)
+                    r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy)
                     r_json = r.json()
 
                     #first, validate success
                     if r.ok:
+                        logging.info("Successful response from DataSet")
                         #log any warnings
                         if 'warnings' in r_json :
                             logging.warning(r_json["warnings"])
@@ -219,6 +282,10 @@ class DataSetSearch(GeneratingCommand):
                         if 'matches' in r_json and 'sessions' in r_json:
                             matches = r_json['matches']
                             sessions = r_json['sessions']
+
+                            if len(matches) == 0 and len(sessions) == 0:
+                                logging.warning("DataSet response success, no matches returned")
+                                logging.warning(r_json)
                             
                             for match_list in matches:
                                 ds_event_dict = {}
@@ -252,8 +319,8 @@ class DataSetSearch(GeneratingCommand):
                                 }
 
                         else:
-                            logging.error('No matches and sessions in response')
-                            logging.error(r_json)
+                            logging.warning('DataSet response success, no matches returned')
+                            logging.warning(r_json)
 
                         #after first call, set continuationToken
                         if 'continuationToken' in r_json:
@@ -265,15 +332,11 @@ class DataSetSearch(GeneratingCommand):
                         else:
                             break
                     else:
-                        if 'message' in r_json:
-                            logging.error(r_json['message'])
-                        else:
-                            logging.error("response = {}".format(r_json))
-                        break
+                        response_error_exit(self, r_json)
 
             ##### Handle PowerQuery
             if ds_method == 'powerquery':
-                r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload)
+                r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy)
                 r_json = r.json()
 
                 #first, validate success
@@ -284,6 +347,10 @@ class DataSetSearch(GeneratingCommand):
                     #parse results, match returned columns with corresponding values
                     if 'values' in r_json and 'columns' in r_json:
                         values = r_json['values']
+
+                        if len(values) == 0:
+                            logging.warning("DataSet response success, no matches returned")
+                            logging.warning(r_json)
 
                         for value_list in values:
                             ds_event_dict = {}
@@ -306,16 +373,13 @@ class DataSetSearch(GeneratingCommand):
                                 '_time': splunk_dt,
                                 'source': 'dataset_command',
                                 'sourcetype': 'dataset:powerQuery'
-                            }              
-                                                
+                            }
+
                     else: #if no resulting ['values'] and ['columns']
-                        logging.error('No matches in response')
-                        logging.error(r_json)
+                        logging.warning('DataSet response success, no matches returned')
+                        logging.warning(r_json)
                 else:
-                    if 'message' in r_json:
-                        logging.error(r_json['message'])
-                    else:
-                        logging.error("response = {}".format(r_json))
+                    response_error_exit(self, r_json)
             
             #### Handle timeseriesQuery
             if ds_method == 'timeseries':
@@ -331,7 +395,7 @@ class DataSetSearch(GeneratingCommand):
                 #calculate time differental for start and end, then divide by number of buckets
                 bucket_time = (splunk_end - splunk_start) / int(self.buckets)
 
-                r = requests.post(url=ds_url, headers=ds_headers, json=ts_payload)
+                r = requests.post(url=ds_url, headers=ds_headers, json=ts_payload, proxies=proxy)
                 r_json = r.json()
 
                  #first, validate success
@@ -356,18 +420,52 @@ class DataSetSearch(GeneratingCommand):
                                 'source': 'dataset_command',
                                 'sourcetype': 'dataset:timeseriesQuery'
                             }
-                                                
+
                     else:
-                        logging.error('No matches in response')
-                        logging.error(r_json)
+                        logging.warning('DataSet response success, no matches returned')
+                        logging.warning(r_json)
                 else:
-                    if 'message' in r_json:
-                        logging.error(r_json['message'])
-                    else:
-                        logging.error("response = {}".format(r_json))
+                    response_error_exit(self, r_json)
+            
+            #### Handle facetQuery
+            if ds_method == 'facet':
+                r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy)
+                r_json = r.json()
+
+                #first, validate success
+                if r.ok:                
+                    if 'cpuUsage' in r_json:
+                        logging.info('cpuUsage: %s ' % r_json['cpuUsage'] )
+                    if 'matchCount' in r_json:
+                        logging.info('matchCount: %s ' % r_json['matchCount'] )
+
+                    #parse results, match returned columns with corresponding values
+                    #parse resulting values
+                    if 'values' in r_json:
+                        values = r_json['values']
+
+                        for counter in range(len(values)):
+                            ds_event = values[counter]
+                            #Splunk does not parse events well without a timestamp, use current time to fix this
+                            splunk_dt = int(time.time())
+
+                            yield {
+                                '_raw': ds_event,
+                                '_time': splunk_dt,
+                                'source': 'dataset_command',
+                                'sourcetype': 'dataset:facetQuery'
+                            }      
+                                                
+                    else: #if no resulting ['values'] and ['columns']
+                        logging.warning('DataSet response success, no matches returned')
+                        logging.warning(r_json)
+
+                else:
+                    response_error_exit(self, r_json)
+
 
         except Exception as e:
-            logging.error(e)
+            response_error_exit(self, str(e))
 
 
 dispatch(DataSetSearch, sys.argv, sys.stdin, sys.stdout, __name__)
