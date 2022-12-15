@@ -40,54 +40,17 @@ Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/
 
 2. In configuration on DataSet Account tab:
 - Enter the DataSet URL (e.g.: `https://app.scalyr.com`).
-- Enter the DataSet read key.
-- Enter the DataSet write key.
+- Enter the DataSet read key from above.
+- Enter the DataSet write key from above.
 
 3. Optionally, configure logging level and proxy information on the associated tabs.
 4. Click Save.
-
-5. On the inputs page, click Create New Input and select the desired input
-
-6. For DataSet alerts, enter:
-
-![Setup alerts indexing](README_images/setup_alerts.png)
-- A name for the input.
-- Interval, in seconds. A good starting point is `300` seconds to collect every five mintues.
-- Splunk index name
-- Start time, in relative shorthand form, e.g.: `24h` for 24 hours before input execution time.
-
-7. For DataSet queries, enter:
-
-![Setup query indexing](README_images/setup_query.png)
-- A name for the input.
-- Interval, in seconds. A good starting point is `300` seconds to collect every five mintues.
-- Splunk index name
-- Start time, in relative shorthand form, e.g.: `24h` for 24 hours before input execution time.
-- *(optional)* End time, in relative shorthand form, e.g.: `5m` for 5 minutes before input execution time.
-- *(optional)* Query string used to return matching events.
-- *(optional)* Maximum number of events to return.
-
-8. For DataSet Power Queries, enter:
-- A name for the input.
-- Interval, in seconds. A good starting point is `300` seconds to collect every five mintues.
-- Splunk index name
-- Start time, in relative shorthand form, e.g.: `24h` for 24 hours before input execution time.
-- *(optional)* End time, in relative shorthand form, e.g.: `5m` for 5 minutes before input execution time.
-- Query string used to return matching events, including commands such as `| columns`, `| limit`, etc.
-
-## Usage
-
-### Inputs
-The DataSet Add-on for Splunk collects the following inputs utilizing time-based checkpointing to prevent reindexing the same data:
-
-| Source Type | Description | CIM Data Model |
-| ------ | ------ | ------ |
-| dataset:alerts | Predefined Power Query API call to index [alert state change records](https://app.scalyr.com/help/alerts#logging)  | [Alerts](https://docs.splunk.com/Documentation/CIM/latest/User/Alerts) |
-| dataset:query | User-defined standard [query](https://app.scalyr.com/help/api#query) API call to index events | - |
-| dataset:powerquery | User-defined [PowerQuery](https://app.scalyr.com/help/api#powerquery) API call to index events | - |
+5. To confirm connectivity, simply search `|dataset` and validate results.
 
 ## SPL Command
-The `| dataset` command allows queries against the DataSet API directly from Splunk's search bar. Optional parameters are supported:
+The `| dataset` command allows queries against the DataSet API directly from Splunk's search bar. 
+
+Optional parameters are supported:
 
 - **method** - Define `query`, `powerquery`, `facet` or `timeseries` to call the appropriate REST endpoint. Default is query.
 - **query** - The DataSet [query](https://app.scalyr.com/help/query-language) or filter used to select events. Default is no filter (return all events limited by time and maxCount).
@@ -146,11 +109,51 @@ Since events are returned in JSON format, the Splunk [spath command](https://doc
 | collect index=dataset
 `
 
+## Inputs
+For use cases requiring data indexed in Splunk, optional inputs are provided utilizing time-based checkpointing to prevent reindexing the same data:
+
+| Source Type | Description | CIM Data Model |
+| ------ | ------ | ------ |
+| dataset:alerts | Predefined Power Query API call to index [alert state change records](https://app.scalyr.com/help/alerts#logging)  | [Alerts](https://docs.splunk.com/Documentation/CIM/latest/User/Alerts) |
+| dataset:query | User-defined standard [query](https://app.scalyr.com/help/api#query) API call to index events | - |
+| dataset:powerquery | User-defined [PowerQuery](https://app.scalyr.com/help/api#powerquery) API call to index events | - |
+
+1. On the inputs page, click Create New Input and select the desired input
+
+2. For DataSet alerts, enter:
+
+![Setup alerts indexing](README_images/setup_alerts.png)
+- A name for the input.
+- Interval, in seconds. A good starting point is `300` seconds to collect every five mintues.
+- Splunk index name
+- Start time, in relative shorthand form, e.g.: `24h` for 24 hours before input execution time.
+
+3. For DataSet queries, enter:
+
+![Setup query indexing](README_images/setup_query.png)
+- A name for the input.
+- Interval, in seconds. A good starting point is `300` seconds to collect every five mintues.
+- Splunk index name
+- Start time, in relative shorthand form, e.g.: `24h` for 24 hours before input execution time.
+- *(optional)* End time, in relative shorthand form, e.g.: `5m` for 5 minutes before input execution time.
+- *(optional)* Query string used to return matching events.
+- *(optional)* Maximum number of events to return.
+
+4. For DataSet Power Queries, enter:
+- A name for the input.
+- Interval, in seconds. A good starting point is `300` seconds to collect every five mintues.
+- Splunk index name
+- Start time, in relative shorthand form, e.g.: `24h` for 24 hours before input execution time.
+- *(optional)* End time, in relative shorthand form, e.g.: `5m` for 5 minutes before input execution time.
+- Query string used to return matching events, including commands such as `| columns`, `| limit`, etc.
+
 ## Alert Action
 An alert action allows sending an event to the DataSet [addEvents API](https://app.scalyr.com/help/api#addEvents). 
 
 ## Support
-For support, please open an issue on GitHub.
+To troubleshooting the custom command, check the Job Inspector search log, also available in the internal index: `index=_internal app="TA-dataset" sourcetype=splunk_search_messages`. Common issues include incorrect API key or firewalls blocking outbound traffic on port 443.
+
+For support, open a ticket with support, or open a GitHub issue.
 
 ##### Note
 This add-on was built with the [Splunk Add-on UCC framework](https://splunk.github.io/addonfactory-ucc-generator/).
