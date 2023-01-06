@@ -150,7 +150,9 @@ For use cases requiring data indexed in Splunk, optional inputs are provided uti
 ## Alert Action
 An alert action allows sending an event to the DataSet [addEvents API](https://app.scalyr.com/help/api#addEvents). 
 
-## Support
+## Support and troubleshooting
+Error saving configuration "CSRF validation failed" - this is a Splunk browser issue; try using a private window or clearing cache and cookies then retrying.
+
 To troubleshoot the custom command, check the Job Inspector search log, also available in the internal index: `index=_internal app="TA-dataset" sourcetype=splunk_search_messages`. Common issues include incorrect API key or firewalls blocking outbound traffic on port 443.
 
 For support, open a ticket with support, or open a GitHub issue.
