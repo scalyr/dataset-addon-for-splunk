@@ -7,15 +7,23 @@ from collections import OrderedDict
 
 import import_declare_test
 from solnlib import conf_manager, log
-from solnlib.modular_input import checkpointer
 
 APP_NAME = __file__.split(op.sep)[-3]
 CONF_NAME = "ta_dataset"
 
 
 #define DataSet API URL for all environments
-def get_url(dataset_environment, ds_api_endpoint):
-    return dataset_environment + "/api/" + ds_api_endpoint
+def get_url(base_url, ds_method):
+    if ds_method == "query":
+        ds_api_endpoint = "query"
+    elif ds_method == "powerquery":
+        ds_api_endpoint = "powerQuery"
+    elif ds_method == "facet":
+        ds_api_endpoint = "facetQuery"
+    elif ds_method == "timeseries":
+        ds_api_endpoint = "timeseriesQuery"
+
+    return base_url + "/api/" + ds_api_endpoint
 
 
 #one conf manager to rule them all
@@ -89,6 +97,11 @@ def get_token(session_key, logger, rw):
         sys.exit(1)
 
 def get_proxy(session_key, logger):
+    """
+    This function returns the proxy settings for the addon from configuration file.
+    :param session_key: session key for particular modular input.
+    :return : proxy dictionary.
+    """
     try:
         cfm = get_conf_manager(session_key, logger)
         try:
@@ -125,13 +138,18 @@ def get_proxy(session_key, logger):
 
 
 def normalize_time(ds_time):
+    """
+    This function converts nanoseconds (used by DataSet API) to seconds (used by Splunk)
+    :param ds_time: timestamps nanoseconds
+    :return : timestamp in seconds
+    """
     splunk_dt = ds_time / 1000000000
     return splunk_dt
 
 
 def relative_to_epoch(relative):
     """
-    This function uses return epoch time from a relative time
+    This function returns epoch time from a relative time
     :param relative: shorthand relative time stamp (e.g. "24h" for 24 hours ago)
     :return : time_relative in epoch as an integer
     """
@@ -149,11 +167,3 @@ def relative_to_epoch(relative):
 
     time_relative = time_current - (relative_num * num_seconds)
     return time_relative
-
-
-def get_maxcount(max):
-    #query API returns max 5,000 results per call
-    if max > 5000:
-        return 5000
-    else:
-        return max
