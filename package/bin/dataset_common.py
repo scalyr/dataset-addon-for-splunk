@@ -22,6 +22,8 @@ def get_url(base_url, ds_method):
         ds_api_endpoint = "facetQuery"
     elif ds_method == "timeseries":
         ds_api_endpoint = "timeseriesQuery"
+    elif ds_method == "addevents":
+        ds_api_endpoint = "addEvents"
 
     return base_url + "/api/" + ds_api_endpoint
 
