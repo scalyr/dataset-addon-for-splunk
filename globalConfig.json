@@ -2,7 +2,7 @@
     "meta": {
         "name": "TA-dataset",
         "displayName": "DataSet Add-on for Splunk",
-        "version": "1.4.0",
+        "version": "1.5.0",
         "restRoot": "TA_dataset",
         "schemaVersion": "0.0.3"
     },
@@ -12,12 +12,49 @@
             "description": "Set up your add-on",
             "tabs": [
                 {
-                    "name": "dataset_parameters",
-                    "title": "DataSet Account",
+                    "name": "account",
+                    "title": "Account",
+                    "table": {
+                        "header": [
+                            {
+                                "field": "name",
+                                "label": "Account name"
+                            },
+                            {
+                                "field": "url",
+                                "label": "URL"
+                            }
+                        ],
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ]
+                    },
                     "entity": [
                         {
-                            "field": "dataset_environment",
-                            "label": "DataSet URL",
+                            "field": "name",
+                            "label": "Account name",
+                            "type": "text",
+                            "required": true,
+                            "help": "Enter a unique name for this account.",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 25,
+                                    "errorMsg": "Length of Account name should be between 1 and 25"
+                                },
+                                {
+                                    "type": "regex",
+                                    "pattern": "^[a-zA-Z]\\w*$",
+                                    "errorMsg": "Account name must start with a letter and followed by alphabetic letters, digits or underscores."
+                                }
+                            ]
+                        },
+                        {
+                            "field": "url",
+                            "label": "URL",
                             "type": "text",
                             "help": "Enter DataSet URL.",
                             "required": true,
