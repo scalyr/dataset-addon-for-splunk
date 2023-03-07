@@ -1,10 +1,10 @@
-[dataset_parameters]
-dataset_environment = 
-dataset_log_read_access_key = 
-dataset_log_write_access_key = 
+[account]
+url = <string>
+dataset_log_read_access_key = <string>
+dataset_log_write_access_key = <string>
 
 [logging]
-loglevel = 
+loglevel = <string> loglevel
 
 [proxy]
 proxy_enabled = <bool> Enable or disable proxy.
