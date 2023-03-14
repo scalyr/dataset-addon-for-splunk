@@ -1,0 +1,636 @@
+<form theme="dark" version="1.1">
+  <search id="dataset_base">
+    <query>
+      | dataset method=powerquery search="event.category = * | group pidcount = sum(event.category = 'process'), servicecount = sum(event.category = 'cross_process'), regcount = sum(event.category = 'registry'), portcount = sum(event.category = 'ip' or event.category='dns' or event.category='url'), filecount = sum(event.category = 'file'), endpointcount = estimate_distinct(agent.uuid), proccount = estimate_distinct(src.process.uid)" starttime=24h | spath
+    </query>
+  </search>
+  <search id="dataset_process">
+    <query>
+      | dataset method=powerquery search="src.process.displayName = * | group count = count() by src.process.displayName" starttime=24h | spath | eval proc_name = 'src.process.displayName'
+    </query>
+  </search>
+  <label>Endpoints</label>
+  <fieldset submitButton="false">
+    <input type="checkbox" token="field3" searchWhenChanged="true">
+      <label></label>
+      <choice value="Yes">Show Endpoint Statistics</choice>
+      <change>
+        <condition value="Yes">
+          <set token="showstats"></set>
+        </condition>
+        <condition>
+          <unset token="showstats"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="checkbox" token="field4" searchWhenChanged="true">
+      <label></label>
+      <choice value="Yes">Show Dashboard Help</choice>
+      <change>
+        <condition value="Yes">
+          <set token="showhelp"></set>
+        </condition>
+        <condition>
+          <unset token="showhelp"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel depends="$showhelp$">
+      <html>
+         <h1 style="color:grey">
+           Help: Data Required for the Dashboard
+         </h1>
+         <p style="color:grey">This endpoint dashboard expects: 1. CIM add-on 4.12 or newer installed, 2. Endpoint data (e.g., Sysmon, osquery, CarbonBlack, etc.) onboarded using a CIM-compliant add-on, 3. Endpoint data model accelerated</p>
+       </html>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$showstats$">
+      <title>Process Events - 24 Hours</title>
+      <single>
+        <search base="dataset_base">
+          <query>| stats max(pidcount) as pidcount</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">90</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xdc4e41","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel depends="$showstats$">
+      <title>Service Actions - 24 Hours</title>
+      <single>
+        <search base="dataset_base">
+          <query>| stats max(servicecount) as servicecount</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">90</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xdc4e41","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel depends="$showstats$">
+      <title>Registry Actions - 24 Hours</title>
+      <single>
+        <search base="dataset_base">
+          <query>| stats max(regcount) as regcount</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">90</option>
+        <option name="rangeColors">["0xdc4e41","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel depends="$showstats$">
+      <title>Port Actions - 24 Hours</title>
+      <single>
+        <search base="dataset_base">
+          <query>| stats max(portcount) as portcount</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">90</option>
+        <option name="rangeColors">["0xdc4e41","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel depends="$showstats$">
+      <title>Filesystem Events - 24 Hours</title>
+      <single>
+        <search base="dataset_base">
+          <query>| stats max(filecount) as filecount</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">90</option>
+        <option name="rangeColors">["0xdc4e41","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$showstats$">
+      <title>Endpoints Reporting - 24 Hours</title>
+      <single>
+        <search base="dataset_base">
+          <query>| stats max(endpointcount) as endpointcount</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">90</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xdc4e41","0xf8be34","0x006d9c"]</option>
+        <option name="rangeValues">[1,10]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel depends="$showstats$">
+      <title>Process GUIDs</title>
+      <single>
+        <search>
+          <query>| dataset method=powerquery search="src.process.pid = * | group count = estimate_distinct(src.process.pid)"
+| spath
+| stats max(count) as count</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">90</option>
+        <option name="rangeColors">["0xdc4e41","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$showstats$">
+      <title>Endpoint Events Over Time - 24 Hours</title>
+      <chart>
+        <search>
+          <query>| dataset method=timeseries search="endpoint.name = *" function=count createsummaries=true onlyusesummaries=true starttime=24h buckets=24 
+| spath
+| timechart max(count) as count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_blank">search?q=%60infosec-indexes%60%20(tag=endpoint%20OR%20tag=listening%20OR%20tag=report)%20tag=$click.name2$&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel depends="$showstats$">
+      <title>Processes Over Time - 24 Hours</title>
+      <chart>
+        <search>
+          <query>| dataset method=timeseries search="dst.ip.address = *" function=count createsummaries=true onlyusesummaries=true starttime=24h buckets=24 
+| spath
+| timechart max(count) as count</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_blank">search?q=%60infosec-indexes%60%20tag=process%20tag=report%20dest=$click.name2$&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top 50 Rare Processes - 24 Hours</title>
+      <table>
+        <search base="dataset_process">
+          <query>| table proc_name, count | sort + count | head 50</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">false</option>
+        <format type="color" field="system_count">
+          <colorPalette type="minMidMax" maxColor="#FFFFFF" minColor="#006D9C"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#FFFFFF" minColor="#006D9C"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="user">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <drilldown>
+          <link target="_blank">search?q=%60infosec-indexes%60%20tag=process%20tag=report%20process=%22$click.value$%22&amp;earliest=$field1.earliest$&amp;latest=$field1.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Top 20 Rare Processes - Last 24 Hours</title>
+      <table>
+        <search base="dataset_process">
+          <query>| table proc_name, count | sort + count | head 20</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Processes First Seen in Last 24 Hours v Previous 30 Days</title>
+      <table>
+        <search>
+          <query>| dataset method=powerquery search="src.process.displayName = * | group count = count() by src.process.displayName" starttime=1h
+| spath 
+| eval process = 'src.process.displayName', process_new = 1
+| table process, process_new
+| join type=left process [
+  | dataset method=powerquery search="src.process.displayName = * | group count = count() by src.process.displayName" starttime=2h endtime=1h
+  | spath 
+  | eval process = 'src.process.displayName', process_old = 1
+  | table process, process_old
+]
+| where isnull(process_old)
+| fields + process</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">7</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="process_name">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <drilldown>
+          <link target="_blank">search?q=%60infosec-indexes%60%20tag=process%20tag=report%20process=$click.value$&amp;earliest=-24h@h&amp;latest=now</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Most Active Users</title>
+      <table>
+        <search>
+          <query>| dataset method=powerquery search="event.category = * src.process.user = * | group count = count() by src.process.user, event.category" 
+| spath
+| eval event_type = 'event.category', user='src.process.user'
+| table user, event_type, count | sort - count</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">false</option>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <drilldown>
+          <link target="_blank">/app/InfoSec_App_for_Splunk/user_investigation?drilldown_user=%22$click.value$%22</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <h1>Process Map</h1>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$showhelp$">
+      <html>
+         <h1 style="color:grey">
+           Help: Process Map
+         </h1>
+         <p style="color:grey">Use the filters below to build a process creation map. Click on a process or endpoint name in the tables below to filter the data further.</p>
+       </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Process Map Filters</title>
+      <input type="text" token="process_filter" searchWhenChanged="true">
+        <label>Process Filter</label>
+        <default>$process_filter$</default>
+        <initialValue>*</initialValue>
+      </input>
+      <input type="text" token="endpoint_filter" searchWhenChanged="true">
+        <label>Endpoint Name Filter</label>
+        <default>$endpoint_filter$</default>
+        <initialValue>*</initialValue>
+      </input>
+      <input type="dropdown" token="max_endpoints" searchWhenChanged="true">
+        <label>Endpoints Process Ran on</label>
+        <choice value="999999">Any number of endpoints</choice>
+        <choice value="1">1 endpoint</choice>
+        <choice value="2">2 endpoints or less</choice>
+        <choice value="5">5 endpoints or less</choice>
+        <choice value="10">10 endpoints or less</choice>
+        <default>999999</default>
+        <initialValue>999999</initialValue>
+      </input>
+      <input type="time" token="field2" searchWhenChanged="true">
+        <label>Select Time Range</label>
+        <default>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Processes (with Filters Applied)</title>
+      <table>
+        <search>
+          <query>| dataset method=powerquery search="src.process.displayName = $process_filter$ endpoint.name=$endpoint_filter$ | group endpoints = estimate_distinct(endpoint.name) by src.process.displayName"
+| spath
+| eval process_name = 'src.process.displayName'
+| search endpoints &lt;= $max_endpoints$ 
+| sort endpoints 
+| table process_name, endpoints</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#006D9C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="connections">
+          <colorPalette type="minMidMax" maxColor="#006D9C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="communications">
+          <colorPalette type="minMidMax" maxColor="#006D9C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="times_seen">
+          <colorPalette type="minMidMax" maxColor="#FFFFFF" minColor="#DC4E41"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="endpoints">
+          <colorPalette type="minMidMax" maxColor="#FFFFFF" minColor="#DC4E41"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <drilldown>
+          <eval token="process_filter">replace($click.value$,"\\\\","\\\\")</eval>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Endpoints (with Filters Applied)</title>
+      <table>
+        <search>
+          <query>| dataset method=powerquery search="src.process.displayName = $process_filter$ endpoint.name=$endpoint_filter$ | group count = count() by src.process.displayName, endpoint.name"
+| spath
+| eval process_name = 'src.process.displayName', endpoint = 'endpoint.name'
+| search count &lt;= $max_endpoints$ 
+| stats sum(count) as count by endpoint
+| sort + count</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#006D9C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="communications">
+          <colorPalette type="minMidMax" maxColor="#006D9C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <drilldown>
+          <set token="endpoint_filter">$click.value2$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Processes (Map Shows up to 250 Connections)</title>
+      <viz type="force_directed_viz.force_directed">
+        <search>
+          <query>| dataset method=powerquery search="src.process.displayName = $process_filter$ endpoint.name=$endpoint_filter$ src.process.parent.displayName = * | group count = count() by src.process.displayName, src.process.parent.displayName, endpoint.name"
+| spath
+| eval process_name = 'src.process.displayName', parent_process = 'src.process.parent.displayName', endpoint = 'endpoint.name'
+| search count &lt;= $max_endpoints$ 
+| table process_name, parent_process, count</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="force_directed_viz.force_directed.AttractDistanceMax">200</option>
+        <option name="force_directed_viz.force_directed.AttractDistanceMin">60</option>
+        <option name="force_directed_viz.force_directed.AttractForceStrength">-300</option>
+        <option name="force_directed_viz.force_directed.CollisionIterations">1</option>
+        <option name="force_directed_viz.force_directed.CollisionRadius">20</option>
+        <option name="force_directed_viz.force_directed.CollisionStrength">0.7</option>
+        <option name="force_directed_viz.force_directed.ColorRange1">100</option>
+        <option name="force_directed_viz.force_directed.ColorRange1Code">#65a637</option>
+        <option name="force_directed_viz.force_directed.ColorRange2">500</option>
+        <option name="force_directed_viz.force_directed.ColorRange2Code">#6db7c6</option>
+        <option name="force_directed_viz.force_directed.ColorRange3">1000</option>
+        <option name="force_directed_viz.force_directed.ColorRange3Code">#f7bc38</option>
+        <option name="force_directed_viz.force_directed.ColorRange4">10000</option>
+        <option name="force_directed_viz.force_directed.ColorRange4Code">#f58f39</option>
+        <option name="force_directed_viz.force_directed.ColorRange5">1000000</option>
+        <option name="force_directed_viz.force_directed.ColorRange5Code">#d93f3c</option>
+        <option name="force_directed_viz.force_directed.ForceCollision">20</option>
+        <option name="force_directed_viz.force_directed.LineColor">disabled</option>
+        <option name="force_directed_viz.force_directed.LinkDistance">100</option>
+        <option name="force_directed_viz.force_directed.LinkLength">1</option>
+        <option name="force_directed_viz.force_directed.RepelDistanceMax">50</option>
+        <option name="force_directed_viz.force_directed.RepelDistanceMin">10</option>
+        <option name="force_directed_viz.force_directed.RepelForceStrength">-140</option>
+        <option name="force_directed_viz.force_directed.StrokeWidth">1</option>
+        <option name="force_directed_viz.force_directed.arrows">enabled</option>
+        <option name="force_directed_viz.force_directed.circleSize">5</option>
+        <option name="force_directed_viz.force_directed.panzoom">disabled</option>
+        <option name="force_directed_viz.force_directed.theme">dark</option>
+        <option name="height">708</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$showhelp$">
+      <html>
+         <h1 style="color:grey">
+           Help: Recent Raw Events
+         </h1>
+         <p style="color:grey">Click on a hash value in a raw event to search VirusTotal for the process reputation information</p>
+       </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Recent 50 Events (with Filters Applied)</title>
+      <table>
+        <search>
+          <query>| dataset method=powerquery search="src.process.displayName = $process_filter$ endpoint.name=$endpoint_filter$ src.process.parent.displayName = * | group count = count() by src.process.displayName, src.process.parent.displayName"
+| spath
+| eval process_name = 'src.process.displayName', parent_process = 'src.process.parent.displayName'
+| search count &lt;= $max_endpoints$ 
+| table process_name, parent_process, count | head 50</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <link target="_blank">https://www.virustotal.com/gui/search/$click.value$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>
