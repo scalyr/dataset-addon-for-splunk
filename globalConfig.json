@@ -668,8 +668,8 @@
                     "search": "| rest servicesNS/nobody/TA-dataset/admin/TA_dataset_account splunk_server=local | dedup title",
                     "valueField": "title",
                     "labelField": "title",
-                    "help": "Select the DataSet Account",
-                    "required": true
+                    "required": true,
+                    "help": "Select the DataSet Account"
                 },
                 {
                     "type": "text",
