@@ -299,6 +299,16 @@
                             ]
                         },
                         {
+                            "field": "account",
+                            "label": "Account",
+                            "help": "",
+                            "required": true,
+                            "type": "singleSelect",
+                            "options": {
+                                "referenceName": "account"
+                            }
+                        },
+                        {
                             "field": "interval",
                             "label": "Interval",
                             "type": "text",
@@ -452,6 +462,16 @@
                             ]
                         },
                         {
+                            "field": "account",
+                            "label": "Account",
+                            "help": "",
+                            "required": true,
+                            "type": "singleSelect",
+                            "options": {
+                                "referenceName": "account"
+                            }
+                        },
+                        {
                             "field": "interval",
                             "label": "Interval",
                             "type": "text",
@@ -568,6 +588,16 @@
                             ]
                         },
                         {
+                            "field": "account",
+                            "label": "Account",
+                            "help": "",
+                            "required": true,
+                            "type": "singleSelect",
+                            "options": {
+                                "referenceName": "account"
+                            }
+                        },
+                        {
                             "field": "interval",
                             "label": "Interval",
                             "type": "text",
@@ -629,8 +659,18 @@
         {
             "name": "dataset_event",
             "label": "DataSet Event",
-            "description": "Send events to DataSet",
+            "description": "Send log to DataSet based on the search result",
             "entity": [
+                {
+                    "type": "singleSelectSplunkSearch",
+                    "label": "Select Account",
+                    "field": "account",
+                    "search": "| rest servicesNS/nobody/TA-dataset/admin/TA_dataset_account splunk_server=local | dedup title",
+                    "valueField": "title",
+                    "labelField": "title",
+                    "help": "Select the DataSet Account",
+                    "required": true
+                },
                 {
                     "type": "text",
                     "label": "ServerHost",
