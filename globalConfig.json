@@ -228,6 +228,10 @@
                         "label": "Index"
                     },
                     {
+                        "field": "account",
+                        "label": "DataSet Account"
+                    },
+                    {
                         "field": "disabled",
                         "label": "Status"
                     }
@@ -246,6 +250,10 @@
                         "label": "Index"
                     },
                     {
+                        "field": "account",
+                        "label": "DataSet Account"
+                    },
+                    {
                         "field": "disabled",
                         "label": "Status"
                     },
@@ -256,14 +264,6 @@
                     {
                         "field": "end_time",
                         "label": "End Time"
-                    },
-                    {
-                        "field": "dataset_query_string",
-                        "label": "DataSet Query String"
-                    },
-                    {
-                        "field": "max_count",
-                        "label": "Max Count"
                     }
                 ],
                 "actions": [
@@ -301,7 +301,7 @@
                         {
                             "field": "account",
                             "label": "Account",
-                            "help": "",
+                            "help": "DataSet account",
                             "required": true,
                             "type": "singleSelect",
                             "options": {
