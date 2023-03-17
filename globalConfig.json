@@ -256,14 +256,6 @@
                     {
                         "field": "disabled",
                         "label": "Status"
-                    },
-                    {
-                        "field": "start_time",
-                        "label": "Start Time"
-                    },
-                    {
-                        "field": "end_time",
-                        "label": "End Time"
                     }
                 ],
                 "actions": [
