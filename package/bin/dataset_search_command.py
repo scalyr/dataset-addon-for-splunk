@@ -9,7 +9,7 @@ import requests
 import logging
 import re
 import copy
-from dataset_common import get_url, normalize_time, relative_to_epoch, get_read_token
+from dataset_common import get_url, normalize_time, relative_to_epoch, get_token
 from dataset_api import *
 #From Splunk UCC
 import import_declare_test
@@ -29,7 +29,7 @@ def get_acct_info(self, account=None):
                 for conf in confs:
                     acct_dict[conf.name] = {}
                     acct_dict[conf.name]['base_url'] = conf.url
-                    acct_dict[conf.name]['ds_api_key'] = get_read_token(self, conf.name, logging)
+                    acct_dict[conf.name]['ds_api_key'] = get_token(self, conf.name, "read", logging)
             except:
                 search_error_exit(self, "Unable to retrieve add-on settings, check configuration")
         else:
@@ -40,7 +40,7 @@ def get_acct_info(self, account=None):
                     conf = self.service.confs['ta_dataset_account'][entry]
                     acct_dict[entry] = {}
                     acct_dict[entry]['base_url'] = conf.url
-                    acct_dict[entry]['ds_api_key'] = get_read_token(self, entry, logging)
+                    acct_dict[entry]['ds_api_key'] = get_token(self, entry, "read", logging)
             except:
                 search_error_exit(self, "Account not found in settings")
     #if account is not defined, try to get the first entry (Splunk sorts alphabetically)
@@ -50,7 +50,7 @@ def get_acct_info(self, account=None):
             for conf in confs:
                 acct_dict[conf.name] = {}
                 acct_dict[conf.name]['base_url'] = conf.url
-                acct_dict[conf.name]['ds_api_key'] = get_read_token(self, conf.name, logging)
+                acct_dict[conf.name]['ds_api_key'] = get_token(self, conf.name, "read", logging)
                 break
         except:
             search_error_exit(self, "Unable to retrieve add-on settings, check configuration")
