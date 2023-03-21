@@ -9,7 +9,7 @@ import requests
 import logging
 import re
 import copy
-from dataset_common import get_url, normalize_time, relative_to_epoch, get_token
+from dataset_common import get_url, normalize_time, relative_to_epoch, get_token, get_proxy
 from dataset_api import *
 #From Splunk UCC
 import import_declare_test
@@ -119,36 +119,6 @@ def get_search_arguments(self):
         return (ds_account, ds_method, ds_search, ds_columns, ds_maxcount, f_field, ts_function, ts_buckets, ts_create_summ, ts_use_summ)
 
 
-def get_proxy_settings(self):
-        conf = self.service.confs['ta_dataset_settings']['proxy'].content
-        conf_j = json.dumps(conf)
-        conf_json = json.loads(conf_j)
-
-        if 'proxy_enabled' in conf_json:
-            proxy_enabled = int(conf_json['disabled'])
-
-            if proxy_enabled == 0:
-                return None
-            else:
-                proxies = {}
-                if 'proxy_username' in conf_json and 'proxy_password' in conf_json:
-                    proxies['http'] = conf_json['proxy_username'] + ":" + conf_json['proxy_password'] + "@" + conf_json['proxy_url'] + ":" + conf_json['proxy_port']
-                elif 'proxy_username' in conf_json:
-                    proxies['http'] =  conf_json['proxy_username'] + "@" + conf_json['proxy_url'] + ":" + conf_json['proxy_port']
-                elif 'proxy_url' in conf_json and 'proxy_port' in conf_json:
-                    proxies['http'] =  conf_json['proxy_url'] + ":" + conf_json['proxy_port']
-
-                if 'http' in proxies:
-                    #prepend http and https, respectively
-                    proxies['http'] = f"{'http://'}{proxies['http']}"
-                    proxies['https'] = f"{'https://'}{proxies['http']}"
-                    return proxies
-                else:
-                    return None
-        else:
-            return None
-
-
 def search_error_exit(self, r_json):
     if 'message' in r_json:
         logging.error(r_json['message'])
@@ -233,7 +203,7 @@ class DataSetSearch(GeneratingCommand):
         ds_account, ds_method, ds_search, ds_columns, ds_maxcount, f_field, ts_function, ts_buckets, ts_create_summ, ts_use_summ = get_search_arguments(self)
         ds_payload = build_payload(ds_start, ds_end, ds_method, ds_search, ds_columns, ds_maxcount, f_field, ts_function, ts_buckets, ts_create_summ, ts_use_summ)
         acct_dict = get_acct_info(self, ds_account)
-        proxy = get_proxy_settings(self)
+        proxy = get_proxy(self.service.token, logging)
 
         for ds_acct in acct_dict.keys():
             ds_url = get_url(acct_dict[ds_acct]['base_url'], ds_method)
