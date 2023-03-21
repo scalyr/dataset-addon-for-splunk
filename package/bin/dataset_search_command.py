@@ -9,15 +9,17 @@ import requests
 import logging
 import re
 import copy
-from dataset_common import get_url, normalize_time, relative_to_epoch, timeseries_timestamper
+from dataset_common import get_url, normalize_time, relative_to_epoch, get_read_token
 from dataset_api import *
 #From Splunk UCC
 import import_declare_test
 #Splunk Enterprise SDK
 from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration, Option, validators
+from splunklib import setup_logging
 
 
 def get_acct_info(self, account=None):
+    logging.debug("DataSetFunction={}, startTime={}".format("get_acct_info", time.time()))
     acct_dict = {}
     if account is not None:
         #wildcard to use all accounts
@@ -27,7 +29,7 @@ def get_acct_info(self, account=None):
                 for conf in confs:
                     acct_dict[conf.name] = {}
                     acct_dict[conf.name]['base_url'] = conf.url
-                    acct_dict[conf.name]['ds_api_key'] = get_read_token(self, conf.name)
+                    acct_dict[conf.name]['ds_api_key'] = get_read_token(self, conf.name, logging)
             except:
                 search_error_exit(self, "Unable to retrieve add-on settings, check configuration")
         else:
@@ -38,7 +40,7 @@ def get_acct_info(self, account=None):
                     conf = self.service.confs['ta_dataset_account'][entry]
                     acct_dict[entry] = {}
                     acct_dict[entry]['base_url'] = conf.url
-                    acct_dict[entry]['ds_api_key'] = get_read_token(self, entry)
+                    acct_dict[entry]['ds_api_key'] = get_read_token(self, entry, logging)
             except:
                 search_error_exit(self, "Account not found in settings")
     #if account is not defined, try to get the first entry (Splunk sorts alphabetically)
@@ -48,25 +50,13 @@ def get_acct_info(self, account=None):
             for conf in confs:
                 acct_dict[conf.name] = {}
                 acct_dict[conf.name]['base_url'] = conf.url
-                acct_dict[conf.name]['ds_api_key'] = get_read_token(self, conf.name)
+                acct_dict[conf.name]['ds_api_key'] = get_read_token(self, conf.name, logging)
                 break
         except:
             search_error_exit(self, "Unable to retrieve add-on settings, check configuration")
+    end = time.time()
+    logging.debug("DataSetFunction={}, endTime={}".format("get_acct_info", time.time()))
     return(acct_dict)
-
-
-def get_read_token(self, account):
-    try:
-        #use Python SDK secrets retrieval
-        for credential in self.service.storage_passwords:
-            if credential.realm == "__REST_CREDENTIAL__#TA-dataset#configs/conf-ta_dataset_account" and credential.username.startswith(account):
-                cred = credential.content.get('clear_password')
-                if 'dataset_log_read_access_key' in cred:
-                    cred_json = json.loads(cred)
-                    token = cred_json['dataset_log_read_access_key']
-                    return token
-    except:
-        search_error_exit(self, "Unable to retrieve API token, check configuration")
 
 
 def get_search_times(self):
@@ -126,7 +116,6 @@ def get_search_arguments(self):
         ts_buckets = self.buckets
         ts_create_summ = self.createsummaries
         ts_use_summ = self.onlyusesummaries
-
         return (ds_account, ds_method, ds_search, ds_columns, ds_maxcount, f_field, ts_function, ts_buckets, ts_create_summ, ts_use_summ)
 
 
@@ -259,7 +248,9 @@ class DataSetSearch(GeneratingCommand):
                         curr_payload = ds_payload.copy()
                         curr_maxcount = copy.copy(ds_maxcount)
 
-                        r = requests.post(url=ds_url, headers=ds_headers, json=curr_payload, proxies=proxy)
+                        logging.debug("DataSetFunction=sendRequest, destination={}, startTime={}".format(ds_url, time.time()))
+                        r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy)
+                        logging.debug("DataSetFunction=getResponse, elapsed={}".format(r.elapsed))
                         r_json = r.json()
 
                         if r.ok:
@@ -277,14 +268,8 @@ class DataSetSearch(GeneratingCommand):
                                 
                                 for match_list in matches:
                                     ds_event, splunk_dt = parse_query(ds_columns, match_list, sessions)
+                                    yield self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='_json', account=ds_account, _raw=ds_event)
 
-                                    yield {
-                                        '_raw': ds_event,
-                                        '_time': splunk_dt,
-                                        'source': 'dataset:command',
-                                        'sourcetype': 'dataset:query',
-                                        'account': ds_acct
-                                    }
                             else:
                                 logging.warning('DataSet response success, no matches returned')
                                 logging.warning(r_json)
@@ -296,13 +281,17 @@ class DataSetSearch(GeneratingCommand):
                                 curr_maxcount = curr_maxcount - ds_api_max
                                 if curr_maxcount > 0 and curr_maxcount < 5000:
                                     curr_payload['maxCount'] = curr_maxcount
+
                         else:
                             search_error_exit(self, r_json)
 
+                        logging.debug("DataSetFunction=completeEvents, startTime={}".format(time.time()))
                         GeneratingCommand.flush
 
                 else:
+                    logging.debug("DataSetFunction=makeRequest, destination={}, startTime={}".format(ds_url, time.time()))
                     r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy)
+                    logging.debug("DataSetFunction=getResponse, elapsed={}".format(r.elapsed))
                     r_json = r.json()
 
                     if r.ok:
@@ -311,36 +300,23 @@ class DataSetSearch(GeneratingCommand):
                             if 'values' in r_json and 'columns' in r_json:
                                 for value_list in r_json['values']:
                                     ds_event, splunk_dt = parse_powerquery(value_list, r_json['columns'])
-
-                                    yield {
-                                        '_raw': ds_event,
-                                        '_time': splunk_dt,
-                                        'source': 'dataset_command',
-                                        'sourcetype': 'dataset:powerQuery',
-                                        'account': ds_acct
-                                    }
+                                    yield self.gen_record(_time=splunk_dt, source='dataset_command', sourcetype='dataset:powerQuery', account=ds_account, _raw=ds_event)
+                                    
                             else: #if no resulting ['values'] and ['columns']
                                 logging.warning('DataSet response success, no matches returned')
 
                         elif ds_method == 'timeseries':
                             if 'results' in r_json:
-                                bucket_time = timeseries_timestamper(ds_start, ds_end, ts_buckets, self.logger)
+                                bucket_time = get_bucket_increments(ds_start, ds_end, ts_buckets)
                                 values = r_json['results'][0]['values']
                                 for counter in range(len(values)):
                                     ds_event = values[counter]
                                     splunk_function = re.split("\(", self.function)[0]
                                     #determine timestamp by adding bucket_time to start_time x number of iterations (+1 since indices start at 0)
-                                    splunk_dt = ds_start + bucket_time * (counter + 1)
-
+                                    splunk_dt = ds_start + (bucket_time * (counter + 1))
                                     #splunk needs a string in _raw to render correctly; = is sufficient so write to _raw and again to splunk_function field
-                                    yield {
-                                        '_raw': '{}={}'.format(splunk_function, ds_event),
-                                        splunk_function: ds_event,
-                                        '_time': splunk_dt,
-                                        'source': 'dataset_command',
-                                        'sourcetype': 'dataset:timeseriesQuery',
-                                        'account': ds_acct
-                                    }
+                                    yield self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='dataset:timeseriesQuery', account=ds_account, _raw='{}={}'.format(splunk_function, ds_event), splunk_function=ds_event)
+
                             else:
                                 logging.warning('DataSet response success, no matches returned')
                         
@@ -351,25 +327,19 @@ class DataSetSearch(GeneratingCommand):
                             #parse results
                             if 'values' in r_json:
                                 values = r_json['values']
-
                                 for counter in range(len(values)):
                                     ds_event = values[counter]
                                     #Splunk does not parse events well without a timestamp, use current time to fix this
                                     splunk_dt = int(time.time())
+                                    yield self.gen_record(_time=splunk_dt, source='dataset_command', sourcetype='dataset:facetQuery', account=ds_account, _raw=ds_event)
 
-                                    yield {
-                                        '_raw': ds_event,
-                                        '_time': splunk_dt,
-                                        'source': 'dataset_command',
-                                        'sourcetype': 'dataset:facetQuery',
-                                        'account': ds_acct
-                                    }          
                             else: #if no resulting ['values']
                                 logging.warning('DataSet response success, no matches returned')
 
                     else:
                         search_error_exit(self, r_json)
-
+                    
+                    logging.debug("DataSetFunction=completeEvents, startTime={}".format(time.time()))
                     GeneratingCommand.flush
             except Exception as e:
                 search_error_exit(self, str(e))
