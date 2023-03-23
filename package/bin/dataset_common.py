@@ -65,39 +65,6 @@ def get_log_level(session_key, logger):
         return 'INFO'
 
 
-def get_environment(session_key, logger):
-    """
-    This function returns the environmentfrom configuration file.
-    :param session_key: session key for particular modular input.
-    :return : environment as string, e.g. 'us'
-    """
-    try:
-        cfm = get_conf_manager(session_key, logger)
-        environment_details = cfm.get_conf(CONF_NAME + "_settings").get("dataset_parameters")
-        environment = environment_details.get('dataset_environment')
-        return environment
-
-    except Exception:
-        logger.error("Failed to fetch environment. Check configuration.")
-        sys.exit(1)
-
-
-def get_token(session_key, logger, rw):
-    """
-    This function retrieves API key details from addon configuration file.
-    :param rw: 'read' or 'write'.
-    :return : API key as a string.    
-    """
-    try:
-        cfm = get_conf_manager(session_key, logger)
-        token_details = cfm.get_conf(CONF_NAME + "_settings").get("dataset_parameters")
-        token = token_details.get('dataset_log_' + rw + '_access_key')
-        return token
-
-    except Exception as e:
-        logger.error("Failed to fetch API key. Check configuration.")
-        sys.exit(1)
-
 def get_proxy(session_key, logger):
     """
     This function returns the proxy settings for the addon from configuration file.
@@ -114,6 +81,7 @@ def get_proxy(session_key, logger):
             return None
 
         if int(proxy_enabled) == 0:
+            logger.warning("GOT IT NO PROXY!")
             return None
         else:
             proxy_url = proxy_details.get('proxy_url')
@@ -132,11 +100,74 @@ def get_proxy(session_key, logger):
                 proxies['http'] = proxy_type + "://" + proxies['http']
             
             proxies['https'] = proxies['http']
+            logger.warning("GOT IT! {}".format(proxies))
             return proxies
 
     except Exception:
         logger.info("Failed to fetch proxy information.")
         return(None)
+    
+
+def get_acct_info(self, logger, account=None):
+    logger.debug("DataSetFunction={}, startTime={}".format("get_acct_info", time.time()))
+    acct_dict = {}
+    if account is not None:
+        #wildcard to use all accounts
+        if account == "*":
+            try:
+                confs = self.service.confs['ta_dataset_account']
+                for conf in confs:
+                    acct_dict[conf.name] = {}
+                    acct_dict[conf.name]['base_url'] = conf.url
+                    acct_dict[conf.name]['ds_api_key'] = get_token(self, conf.name, "read", logger)
+            except:
+                logger.error("Unable to retrieve add-on settings, check configuration")
+                return None
+        else:
+            try:
+                #remove spaces and split by commas
+                account = account.replace(' ', '').split(",")
+                for entry in account:
+                    conf = self.service.confs['ta_dataset_account'][entry]
+                    acct_dict[entry] = {}
+                    acct_dict[entry]['base_url'] = conf.url
+                    acct_dict[entry]['ds_api_key'] = get_token(self, entry, "read", logger)
+            except:
+                logger.error("Account not found in settings")
+                return None
+    #if account is not defined, try to get the first entry (Splunk sorts alphabetically)
+    else:
+        try:
+            confs = self.service.confs['ta_dataset_account']
+            for conf in confs:
+                acct_dict[conf.name] = {}
+                acct_dict[conf.name]['base_url'] = conf.url
+                acct_dict[conf.name]['ds_api_key'] = get_token(self, conf.name, "read", logger)
+                break
+        except:
+            logger.error("Unable to retrieve add-on settings, check configuration")
+            return None
+    logger.debug("DataSetFunction={}, endTime={}".format("get_acct_info", time.time()))
+    return(acct_dict)
+
+
+def get_token(self, account, rw, logger):
+    try:
+        #use Python SDK secrets retrieval
+        for credential in self.service.storage_passwords:
+            if credential.realm == "__REST_CREDENTIAL__#TA-dataset#configs/conf-ta_dataset_account".format(APP_NAME, CONF_NAME) and credential.username.startswith(account):
+                cred = credential.content.get('clear_password')
+                if rw == 'read':
+                    if 'dataset_log_read_access_key' in cred:
+                        cred_json = json.loads(cred)
+                        token = cred_json['dataset_log_read_access_key']
+                elif rw == 'write':
+                     if 'dataset_log_write_access_key' in cred:
+                        cred_json = json.loads(cred)
+                        token = cred_json['dataset_log_write_access_key']                   
+                return token
+    except:
+        logger.error(self, "Unable to retrieve API token, check configuration")
 
 
 def normalize_time(ds_time):
