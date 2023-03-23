@@ -9,54 +9,13 @@ import requests
 import logging
 import re
 import copy
-from dataset_common import get_url, normalize_time, relative_to_epoch, get_token, get_proxy
+from dataset_common import get_url, get_acct_info, get_token, get_proxy, normalize_time, relative_to_epoch
 from dataset_api import *
 #From Splunk UCC
 import import_declare_test
 #Splunk Enterprise SDK
 from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration, Option, validators
 from splunklib import setup_logging
-
-
-def get_acct_info(self, account=None):
-    logging.debug("DataSetFunction={}, startTime={}".format("get_acct_info", time.time()))
-    acct_dict = {}
-    if account is not None:
-        #wildcard to use all accounts
-        if account == "*":
-            try:
-                confs = self.service.confs['ta_dataset_account']
-                for conf in confs:
-                    acct_dict[conf.name] = {}
-                    acct_dict[conf.name]['base_url'] = conf.url
-                    acct_dict[conf.name]['ds_api_key'] = get_token(self, conf.name, "read", logging)
-            except:
-                search_error_exit(self, "Unable to retrieve add-on settings, check configuration")
-        else:
-            try:
-                #remove spaces and split by commas
-                account = account.replace(' ', '').split(",")
-                for entry in account:
-                    conf = self.service.confs['ta_dataset_account'][entry]
-                    acct_dict[entry] = {}
-                    acct_dict[entry]['base_url'] = conf.url
-                    acct_dict[entry]['ds_api_key'] = get_token(self, entry, "read", logging)
-            except:
-                search_error_exit(self, "Account not found in settings")
-    #if account is not defined, try to get the first entry (Splunk sorts alphabetically)
-    else:
-        try:
-            confs = self.service.confs['ta_dataset_account']
-            for conf in confs:
-                acct_dict[conf.name] = {}
-                acct_dict[conf.name]['base_url'] = conf.url
-                acct_dict[conf.name]['ds_api_key'] = get_token(self, conf.name, "read", logging)
-                break
-        except:
-            search_error_exit(self, "Unable to retrieve add-on settings, check configuration")
-    end = time.time()
-    logging.debug("DataSetFunction={}, endTime={}".format("get_acct_info", time.time()))
-    return(acct_dict)
 
 
 def get_search_times(self):
@@ -202,8 +161,10 @@ class DataSetSearch(GeneratingCommand):
         ds_start, ds_end = get_search_times(self)
         ds_account, ds_method, ds_search, ds_columns, ds_maxcount, f_field, ts_function, ts_buckets, ts_create_summ, ts_use_summ = get_search_arguments(self)
         ds_payload = build_payload(ds_start, ds_end, ds_method, ds_search, ds_columns, ds_maxcount, f_field, ts_function, ts_buckets, ts_create_summ, ts_use_summ)
-        acct_dict = get_acct_info(self, ds_account)
         proxy = get_proxy(self.service.token, logging)
+        acct_dict = get_acct_info(self, logging, ds_account)
+        if acct_dict is None:
+            search_error_exit(self, "Account token error, review search log for details")
 
         for ds_acct in acct_dict.keys():
             ds_url = get_url(acct_dict[ds_acct]['base_url'], ds_method)
