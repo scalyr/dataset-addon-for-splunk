@@ -180,7 +180,7 @@ class DataSetSearch(GeneratingCommand):
                         curr_maxcount = copy.copy(ds_maxcount)
 
                         logging.debug("DataSetFunction=sendRequest, destination={}, startTime={}".format(ds_url, time.time()))
-                        r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy)
+                        r = requests.post(url=ds_url, headers=ds_headers, json=curr_payload, proxies=proxy)
                         logging.debug("DataSetFunction=getResponse, elapsed={}".format(r.elapsed))
                         r_json = r.json()
 
