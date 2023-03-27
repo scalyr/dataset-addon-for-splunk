@@ -137,7 +137,6 @@ class DATASET_POWERQUERY_INPUT(smi.Script):
                                 event = smi.Event(
                                     stanza=input_name,
                                     data=json.dumps(ds_event),
-                                    source=input_name,
                                     sourcetype='dataset:powerquery',
                                     time=splunk_dt
                                 )
