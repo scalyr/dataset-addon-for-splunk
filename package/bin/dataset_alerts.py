@@ -109,7 +109,7 @@ class DATASET_ALERTS_INPUT(smi.Script):
                                 checkpoint.update(input_name, {"timestamp": 0})
                                 checkpoint_time = 0
                             else:
-                                checkpoint_time = int(get_checkpoint["timestamp"])
+                                checkpoint_time = float(get_checkpoint["timestamp"])
 
                             if splunk_dt > checkpoint_time:
                                 #if greater than current checkpoint, write event and update checkpoint
