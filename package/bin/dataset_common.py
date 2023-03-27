@@ -81,7 +81,6 @@ def get_proxy(session_key, logger):
             return None
 
         if int(proxy_enabled) == 0:
-            logger.warning("GOT IT NO PROXY!")
             return None
         else:
             proxy_url = proxy_details.get('proxy_url')
@@ -100,7 +99,6 @@ def get_proxy(session_key, logger):
                 proxies['http'] = proxy_type + "://" + proxies['http']
             
             proxies['https'] = proxies['http']
-            logger.warning("GOT IT! {}".format(proxies))
             return proxies
 
     except Exception:
