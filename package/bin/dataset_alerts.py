@@ -98,6 +98,20 @@ class DATASET_ALERTS_INPUT(smi.Script):
                 r_json = r.json() #parse results json
 
                 if r.ok:
+                    #log information from results
+                    if 'status' in r_json:
+                        logger.info("response status={}".format(r_json['status']))
+                    
+                    if 'warnings' in r_json:
+                        for warning in r_json['warnings']:
+                            logger.warning("response warning={}".format(warning))
+                        
+                    if 'matchingEvents' in r_json:
+                        logger.info("response matches={}".format(r_json['matchingEvents']))
+                        
+                    if 'cpuUsage' in r_json:
+                        logger.info('cpuUsage={}'.format(r_json['cpuUsage']))
+
                     #parse results, match returned columns with corresponding values
                     if 'values' in r_json and 'columns' in r_json:
                         for value_list in r_json['values']:
@@ -119,13 +133,13 @@ class DATASET_ALERTS_INPUT(smi.Script):
                                     sourcetype='dataset:alerts',
                                     time=splunk_dt
                                 )
-                                logger.debug("writing event with splunk_dt=%s and checkpoint=%s" % (str(splunk_dt), str(checkpoint_time)))
+                                logger.debug("writing event with splunk_dt={}, checkpoint={}".format(splunk_dt,checkpoint_time))
                                 ew.write_event(event)
 
-                                logger.debug("saving checkpoint %s" % (str(splunk_dt)))
+                                logger.debug("saving checkpoint {}".format(splunk_dt))
                                 checkpoint.update(input_name, {"timestamp": splunk_dt})
                             else:
-                                logger.debug("skipping due to splunk_dt=%s is less than checkpoint=%s" % (str(splunk_dt), str(checkpoint_time)))
+                                logger.debug("skipping due to splunk_dt={} is less than checkpoint={}".format(splunk_dt, checkpoint_time))
                             
                     else: #if no resulting ['values'] and ['columns']
                         logger.warning('DataSet response success, no matches returned')
