@@ -102,8 +102,6 @@ class DATASET_ALERTS_INPUT(smi.Script):
                     if 'values' in r_json and 'columns' in r_json:
                         for value_list in r_json['values']:
                             ds_event, splunk_dt = parse_powerquery(value_list, r_json['columns'])
-                            #check event time against checkpoint - PowerQuery results are returned by default in chronological order
-                            event_time = int(ds_event["timestamp"])
                             get_checkpoint = checkpoint.get(input_name)
 
                             #if checkpoint doesn't exist, set to 0
@@ -113,7 +111,7 @@ class DATASET_ALERTS_INPUT(smi.Script):
                             else:
                                 checkpoint_time = int(get_checkpoint["timestamp"])
 
-                            if event_time > checkpoint_time or event_time == checkpoint_time or event_time < checkpoint_time:
+                            if splunk_dt > checkpoint_time:
                                 #if greater than current checkpoint, write event and update checkpoint
                                 event = smi.Event(
                                     stanza=input_name,
@@ -121,13 +119,13 @@ class DATASET_ALERTS_INPUT(smi.Script):
                                     sourcetype='dataset:alerts',
                                     time=splunk_dt
                                 )
-                                logger.debug("writing event with event_time=%s and checkpoint=%s" % (str(event_time), str(checkpoint_time)))
+                                logger.debug("writing event with splunk_dt=%s and checkpoint=%s" % (str(splunk_dt), str(checkpoint_time)))
                                 ew.write_event(event)
 
-                                logger.debug("saving checkpoint %s" % (str(event_time)))
-                                checkpoint.update(input_name, {"timestamp": event_time})
+                                logger.debug("saving checkpoint %s" % (str(splunk_dt)))
+                                checkpoint.update(input_name, {"timestamp": splunk_dt})
                             else:
-                                logger.debug("skipping due to event_time=%s is less than checkpoint=%s" % (str(event_time), str(checkpoint_time)))
+                                logger.debug("skipping due to splunk_dt=%s is less than checkpoint=%s" % (str(splunk_dt), str(checkpoint_time)))
                             
                     else: #if no resulting ['values'] and ['columns']
                         logger.warning('DataSet response success, no matches returned')
