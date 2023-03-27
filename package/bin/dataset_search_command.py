@@ -8,7 +8,6 @@ import math
 import requests
 import logging
 import re
-import copy
 from dataset_common import get_url, get_acct_info, get_token, get_proxy, normalize_time, relative_to_epoch
 from dataset_api import *
 #From Splunk UCC
@@ -176,11 +175,9 @@ class DataSetSearch(GeneratingCommand):
                     ds_api_max = query_api_max()
                     ds_iterations = math.ceil(ds_maxcount / ds_api_max)
                     for count in range(ds_iterations):
-                        curr_payload = ds_payload.copy()
-                        curr_maxcount = copy.copy(ds_maxcount)
-
+                        logging.info("query api {} of {}".format(count+1, ds_iterations))
                         logging.debug("DataSetFunction=sendRequest, destination={}, startTime={}".format(ds_url, time.time()))
-                        r = requests.post(url=ds_url, headers=ds_headers, json=curr_payload, proxies=proxy)
+                        r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy)
                         logging.debug("DataSetFunction=getResponse, elapsed={}".format(r.elapsed))
                         r_json = r.json()
 
@@ -207,11 +204,11 @@ class DataSetSearch(GeneratingCommand):
 
                             #after first call, set continuationToken
                             if 'continuationToken' in r_json:
-                                curr_payload['continuationToken'] = r_json['continuationToken']
-                                #reduce curr_maxcount for each call, then for last call set payload to only return remaining # of desired results
-                                curr_maxcount = curr_maxcount - ds_api_max
-                                if curr_maxcount > 0 and curr_maxcount < 5000:
-                                    curr_payload['maxCount'] = curr_maxcount
+                                ds_payload['continuationToken'] = r_json['continuationToken']
+                                #reduce maxcount for each call, then for last call set payload to only return remaining # of desired results
+                                ds_maxcount = ds_maxcount - ds_api_max
+                                if ds_maxcount > 0 and ds_maxcount < 5000:
+                                    ds_payload['maxCount'] = ds_maxcount
 
                         else:
                             search_error_exit(self, r_json)
