@@ -207,7 +207,7 @@ class DataSetSearch(GeneratingCommand):
                                 ds_payload['continuationToken'] = r_json['continuationToken']
                                 #reduce maxcount for each call, then for last call set payload to only return remaining # of desired results
                                 ds_maxcount = ds_maxcount - ds_api_max
-                                if ds_maxcount > 0 and ds_maxcount < 5000:
+                                if ds_maxcount > 0 and ds_maxcount < ds_api_max:
                                     ds_payload['maxCount'] = ds_maxcount
 
                         else:
