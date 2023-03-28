@@ -153,7 +153,7 @@ def get_token(self, account, rw, logger):
     try:
         #use Python SDK secrets retrieval
         for credential in self.service.storage_passwords:
-            if credential.realm == "__REST_CREDENTIAL__#TA-dataset#configs/conf-ta_dataset_account".format(APP_NAME, CONF_NAME) and credential.username.startswith(account):
+            if credential.realm == "__REST_CREDENTIAL__#{}#configs/conf-{}_account".format(APP_NAME, CONF_NAME) and credential.username.startswith(account):
                 cred = credential.content.get('clear_password')
                 if rw == 'read':
                     if 'dataset_log_read_access_key' in cred:
