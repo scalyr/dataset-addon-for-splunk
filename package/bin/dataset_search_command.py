@@ -14,7 +14,6 @@ from dataset_api import *
 import import_declare_test
 #Splunk Enterprise SDK
 from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration, Option, validators
-from splunklib import setup_logging
 
 
 def get_search_times(self):
