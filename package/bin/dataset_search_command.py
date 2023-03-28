@@ -242,8 +242,11 @@ class DataSetSearch(GeneratingCommand):
                                     #determine timestamp by adding bucket_time to start_time x number of iterations (+1 since indices start at 0)
                                     splunk_dt = ds_start + (bucket_time * (counter + 1))
                                     #splunk needs a string in _raw to render correctly; = is sufficient so write to _raw and again to splunk_function field
-                                    yield self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='dataset:timeseriesQuery', account=ds_account, _raw='{}={}'.format(splunk_function, ds_event), splunk_function=ds_event)
-
+                                    #add_field needs to be used to append variable field splunk_function
+                                    record = self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='dataset:timeseriesQuery', account=ds_account, _raw='{}={}'.format(splunk_function, ds_event))
+                                    self.add_field(record, splunk_function, ds_event)
+                                    yield record
+                                    
                             else:
                                 logging.warning('DataSet response success, no matches returned')
                         
