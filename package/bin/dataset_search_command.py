@@ -165,8 +165,11 @@ class DataSetSearch(GeneratingCommand):
             search_error_exit(self, "Account token error, review search log for details")
 
         for ds_acct in acct_dict.keys():
-            ds_url = get_url(acct_dict[ds_acct]['base_url'], ds_method)
-            ds_headers = { "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'] }
+            try:
+                ds_url = get_url(acct_dict[ds_acct]['base_url'], ds_method)
+                ds_headers = { "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'] }
+            except:
+                search_error_exit(self, "Splunk configuration error, see search log for details.")
 
             try:
                 if ds_method == 'query':
