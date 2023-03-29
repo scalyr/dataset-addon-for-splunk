@@ -169,11 +169,11 @@ An alert action allows sending an event to the DataSet [addEvents API](https://a
 ## Support and troubleshooting
 Error saving configuration "CSRF validation failed" - This is a Splunk browser issue; try reloading the page, using a private window or clearing cache and cookies then retrying.
 
-To troubleshoot the custom command, check the Job Inspector search log, also available in the internal index: `index=_internal app="TA-dataset" sourcetype=splunk_search_messages`. Common issues include missing or incorrect API key, firewalls blocking outbound traffic on port 443, or incorrect account name.
+Search error `Splunk configuration error, see search log for details.` - API token was unable to be retrieved. Common issues include user role missing list_storage_passwords permission, API token not set or incorrect account name given that has not been configured. Review search log for errors returned by Splunk.
 
-`Account token error, review search log for details` - API token was not configured or account name withou
+To troubleshoot the custom command, check the Job Inspector search log, also available in the internal index: `index=_internal app="TA-dataset" sourcetype=splunk_search_messages`.
 
-For support, open a ticket with DataSet (or SentinelOne for XDR) support, or open a GitHub issue.
+For support, open a ticket with DataSet (or SentinelOne for XDR) support including any logged errors, or open a GitHub issue.
 
 ##### Note
 This add-on was built with the [Splunk Add-on UCC framework](https://splunk.github.io/addonfactory-ucc-generator/) and uses the [Splunk Enterprise Python SDK](https://github.com/splunk/splunk-sdk-python).
