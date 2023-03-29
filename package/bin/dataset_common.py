@@ -118,8 +118,8 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[conf.name] = {}
                     acct_dict[conf.name]['base_url'] = conf.url
                     acct_dict[conf.name]['ds_api_key'] = get_token(self, conf.name, "read", logger)
-            except:
-                logger.error("Unable to retrieve add-on settings, check configuration")
+            except Exception as e:
+                logger.error("Error retrieving add-on settings, error = {}".format(e))
                 return None
         else:
             try:
@@ -130,8 +130,8 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[entry] = {}
                     acct_dict[entry]['base_url'] = conf.url
                     acct_dict[entry]['ds_api_key'] = get_token(self, entry, "read", logger)
-            except:
-                logger.error("Account not found in settings")
+            except Exception as e:
+                logger.error("Error retrieving account settings, error = {}".format(e))
                 return None
     #if account is not defined, try to get the first entry (Splunk sorts alphabetically)
     else:
@@ -142,9 +142,8 @@ def get_acct_info(self, logger, account=None):
                 acct_dict[conf.name]['base_url'] = conf.url
                 acct_dict[conf.name]['ds_api_key'] = get_token(self, conf.name, "read", logger)
                 break
-        except:
-            logger.error("Unable to retrieve add-on settings, check configuration")
-            return None
+        except Exception as e:
+            logger.error("Error retrieving settings, error = {}".format(e))
     logger.debug("DataSetFunction={}, endTime={}".format("get_acct_info", time.time()))
     return(acct_dict)
 
