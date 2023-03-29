@@ -3,7 +3,9 @@ import uuid
 import datetime
 import json
 import requests
-from dataset_common import get_url
+import logging
+from dataset_common import *
+from dataset_api import *
 
 def process_event(helper, *args, **kwargs):
     """
@@ -16,6 +18,9 @@ def process_event(helper, *args, **kwargs):
     [sample_code_macro:start]
 
     # The following example gets the alert action parameters and prints them to the log
+    account = helper.get_param("account")
+    helper.log_info("account={}".format(account))
+
     dataset_serverhost = helper.get_param("dataset_serverhost")
     helper.log_info("dataset_serverhost={}".format(dataset_serverhost))
 
@@ -45,22 +50,23 @@ def process_event(helper, *args, **kwargs):
     [sample_code_macro:end]
     """
 
-    helper.set_log_level(helper.log_level)
-    helper.log_debug("Alert action dataset_event started.")
-
     # TODO: Implement your alert action logic here
+    account = helper.get_param("account")
+
     try:
-        #ModularAlertBase includes helpers to get settings, alleviating need to use generic SDK or dataset_common methods
-        ds_environment = helper.get_global_setting("dataset_environment")
-        ds_url = get_url(ds_environment, 'addEvents')
-        ds_api_key = helper.get_global_setting("dataset_log_write_access_key")
+        ds_user_cred = helper.get_user_credential_by_account_id(account)
+        acct_dict = {}
+        acct_dict[account] = {}
+        acct_dict[account]['base_url'] = ds_user_cred['url']
+        acct_dict[account]['ds_api_key'] = ds_user_cred['dataset_log_write_access_key']
+
+        ds_url = get_url(acct_dict[account]['base_url'], 'addevents')
+        ds_headers = { "Authorization": "Bearer " + acct_dict[account]['ds_api_key'] }
 
         dataset_serverhost = helper.get_param("dataset_serverhost")
         dataset_severity = int(helper.get_param('dataset_severity'))
         dataset_message = helper.get_param('dataset_message')
-
         ds_uuid = str(uuid.uuid4())
-        ds_headers = { "Authorization": "Bearer " + ds_api_key }
 
         events = helper.get_events()
         counter = 1
@@ -70,7 +76,6 @@ def process_event(helper, *args, **kwargs):
         ds_event_dict["threads"] = []
 
         for event in events:
-
             if counter == 1:
                 #on first event, format payload for DataSet addEvents API
                 ds_event_dict["session"] = ds_uuid
@@ -103,9 +108,11 @@ def process_event(helper, *args, **kwargs):
             counter +=1
 
         ds_payload = json.loads(json.dumps(ds_event_dict))
+        helper.log_debug("payload = {}".format(ds_payload))
         #ModularAlertBase includes send_http_request method which includes helpers to handle proxy configuration
         r = helper.send_http_request(ds_url, 'POST', parameters=None, payload=ds_payload, headers=ds_headers)
-        helper.log_debug("response = %s" % r.text)
+        helper.log_debug("response={}".format(r.text))
+        helper.log_debug("elapsed={}".format(r.elapsed))
         
     except Exception as e:
         helper.log_error(e)

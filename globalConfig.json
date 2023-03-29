@@ -2,7 +2,7 @@
     "meta": {
         "name": "TA-dataset",
         "displayName": "DataSet Add-on for Splunk",
-        "version": "1.4.0",
+        "version": "1.5.0",
         "restRoot": "TA_dataset",
         "schemaVersion": "0.0.3"
     },
@@ -12,12 +12,49 @@
             "description": "Set up your add-on",
             "tabs": [
                 {
-                    "name": "dataset_parameters",
-                    "title": "DataSet Account",
+                    "name": "account",
+                    "title": "Account",
+                    "table": {
+                        "header": [
+                            {
+                                "field": "name",
+                                "label": "Account name"
+                            },
+                            {
+                                "field": "url",
+                                "label": "URL"
+                            }
+                        ],
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ]
+                    },
                     "entity": [
                         {
-                            "field": "dataset_environment",
-                            "label": "DataSet URL",
+                            "field": "name",
+                            "label": "Account name",
+                            "type": "text",
+                            "required": true,
+                            "help": "Enter a unique name for this account.",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 25,
+                                    "errorMsg": "Length of Account name should be between 1 and 25"
+                                },
+                                {
+                                    "type": "regex",
+                                    "pattern": "^[a-zA-Z]\\w*$",
+                                    "errorMsg": "Account name must start with a letter and followed by alphabetic letters, digits or underscores."
+                                }
+                            ]
+                        },
+                        {
+                            "field": "url",
+                            "label": "URL",
                             "type": "text",
                             "help": "Enter DataSet URL.",
                             "required": true,
@@ -191,6 +228,10 @@
                         "label": "Index"
                     },
                     {
+                        "field": "account",
+                        "label": "DataSet Account"
+                    },
+                    {
                         "field": "disabled",
                         "label": "Status"
                     }
@@ -209,24 +250,12 @@
                         "label": "Index"
                     },
                     {
+                        "field": "account",
+                        "label": "DataSet Account"
+                    },
+                    {
                         "field": "disabled",
                         "label": "Status"
-                    },
-                    {
-                        "field": "start_time",
-                        "label": "Start Time"
-                    },
-                    {
-                        "field": "end_time",
-                        "label": "End Time"
-                    },
-                    {
-                        "field": "dataset_query_string",
-                        "label": "DataSet Query String"
-                    },
-                    {
-                        "field": "max_count",
-                        "label": "Max Count"
                     }
                 ],
                 "actions": [
@@ -260,6 +289,16 @@
                                     "errorMsg": "Length of input name should be between 1 and 100"
                                 }
                             ]
+                        },
+                        {
+                            "field": "account",
+                            "label": "Account",
+                            "help": "DataSet account",
+                            "required": true,
+                            "type": "singleSelect",
+                            "options": {
+                                "referenceName": "account"
+                            }
                         },
                         {
                             "field": "interval",
@@ -415,6 +454,16 @@
                             ]
                         },
                         {
+                            "field": "account",
+                            "label": "Account",
+                            "help": "",
+                            "required": true,
+                            "type": "singleSelect",
+                            "options": {
+                                "referenceName": "account"
+                            }
+                        },
+                        {
                             "field": "interval",
                             "label": "Interval",
                             "type": "text",
@@ -531,6 +580,16 @@
                             ]
                         },
                         {
+                            "field": "account",
+                            "label": "Account",
+                            "help": "",
+                            "required": true,
+                            "type": "singleSelect",
+                            "options": {
+                                "referenceName": "account"
+                            }
+                        },
+                        {
                             "field": "interval",
                             "label": "Interval",
                             "type": "text",
@@ -592,8 +651,18 @@
         {
             "name": "dataset_event",
             "label": "DataSet Event",
-            "description": "Send events to DataSet",
+            "description": "Send log to DataSet based on the search result",
             "entity": [
+                {
+                    "type": "singleSelectSplunkSearch",
+                    "label": "Select Account",
+                    "field": "account",
+                    "search": "| rest servicesNS/nobody/TA-dataset/admin/TA_dataset_account splunk_server=local | dedup title",
+                    "valueField": "title",
+                    "labelField": "title",
+                    "required": true,
+                    "help": "Select the DataSet Account"
+                },
                 {
                     "type": "text",
                     "label": "ServerHost",
