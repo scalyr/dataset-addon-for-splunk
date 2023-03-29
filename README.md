@@ -1,59 +1,75 @@
 #  DataSet Add-on for Splunk
-The DataSet Add-on for Splunk provides integration with [DataSet](https://www.dataset.com) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
-- SPL custom command to query DataSet directly from the Splunk UI without having to reindex data to Splunk.
-- Inputs to index alerts as CIM-compliant, or user-defined query results, from DataSet to Splunk.
-- Alert action to send events from Splunk to DataSet.
+The DataSet Add-on for Splunk provides integration with [DataSet](https://www.dataset.com) and [XDR](https://www.sentinelone.com/platform/xdr-ingestion) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
+- SPL custom command to query directly from the Splunk UI.
+- Inputs to index alerts as CIM-compliant, or any user-defined query results.
+- Alert action to send events from Splunk.
 
 ## Installation
-The included .tgz file is ready for installation in Splunk. The package subdirectory contains all artifacts. To compile, reference Splunk's [UCC Framework instructions](https://splunk.github.io/addonfactory-ucc-generator/how_to_use/) to use `ucc-gen` and `slim package`.
+The add-on can be installed from [Splunkbase](https://splunkbase.splunk.com/app/6575) or manually via the .tgz file. For those looking to customize, the package subdirectory contains all artifacts. To compile, reference Splunk's [UCC Framework instructions](https://splunk.github.io/addonfactory-ucc-generator/how_to_use/) to use `ucc-gen` and `slim package`.
 
-Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons). Note admins require `admin_all_objects` to create secret storage objects and users require `list_storage_passwords` capability to retrieve secrets.
+Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons). 
+
+## Permissions
+The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_objects` to create secret storage objects and users require `list_storage_passwords` capability to retrieve secrets.
 
 ### Splunk Enterprise
 | Splunk component | Required | Comments |
 | ------ | ------ | ------ |
 | Search heads | Yes | Required to use the custom search command. |
 | Indexers | No | Parsing is performed during data collection. | 
-| Forwarders | Yes | For distributed deployments, this add-on requires heavy forwarders for modular inputs. |
+| Forwarders | Optional | For distributed deployments, if the modular inputs are used, this add-on is installed on heavy forwarders. |
 
 ### Splunk Cloud
 | Splunk component | Required | Comments |
 | ------ | ------ | ------ |
 | Search heads | Yes | Required to use the custom search command. Splunk Cloud Victoria Experience also handles modular inputs on the search heads. |
 | Indexers | No | Parsing is performed during data collection. | 
-| Inputs Data Manager | Yes | For Splunk Cloud Classic Experience, this add-on requires an IDM for modular inputs. |
+| Inputs Data Manager | Optional | For Splunk Cloud Classic Experience, if the modular inputs are used, this add-on is installed on an IDM. |
 
 ## Configuration
-### Dataset
-1. Navigate to API Keys.
+### XDR
+1. From the SentinelOne console, ensure Enhanced Deep Visibility is enabled by clicking your name > My User > Change Deep Visibility Mode > Enhanced.
+
+![Setting Enhanced Deep Visibility](README_images/setup_enhanced_dv.png)
+
+2. Open Enhanced Deep Visibility.
+3. Continue following the DataSet instructions below.
+
+### Dataset (or XDR continued)
+1. Make note of the URL (e.g. `https://app.scalyr.com` or `https://xdr.us1.sentinelone.net`). For XDR users, note this differs from the core SentinelOne console URL.
+2. Navigate to API Keys.
 
 ![Creating DataSet API keys](README_images/dataset_key.png)
 
-2. Click Add Key > Add Read Key (required for search command and inputs).
-3. Click Add Key > Add Write Key (required for alert action).
-4. Optionally, click the pencil icon to rename the keys.
+3. Click Add Key > Add Read Key (required for search command and inputs).
+4. Click Add Key > Add Write Key (required for alert action).
+5. Optionally, click the pencil icon to rename the keys.
 
 ### Splunk
 1. In Splunk, open the Add-on
 
 ![Configuring DataSet Account](README_images/setup_account.png)
 
-2. In configuration on DataSet Account tab:
-- Enter the DataSet URL (e.g.: `https://app.scalyr.com`).
-- Enter the DataSet read key from above.
-- Enter the DataSet write key from above.
+2. On the configuration > account tab:
+- Click Add
+- Enter a user-friendly account name. For multiple accounts, the account name can be used in queries (more details below).
+- Enter the full URL noted above (e.g.: `https://app.scalyr.com` or `https://xdr.us1.sentinelone.net`).
+- Enter the DataSet read key from above (required for searching)
+- Enter the DataSet write key from above (only required for alert actions).
+- Click Save
 
 3. Optionally, configure logging level and proxy information on the associated tabs.
 4. Click Save.
-5. To confirm connectivity, simply search `|dataset` and validate results.
+5. The included DataSet by Example dashboard can be used to confirm connectivity and also shows example searches to get started.
 
 ## SPL Command
-The `| dataset` command allows queries against the DataSet API directly from Splunk's search bar. 
+The `| dataset` command allows queries against the [DataSet APIs](https://app.scalyr.com/help/api) directly from Splunk's search bar. 
 
 Optional parameters are supported:
 
+- **account** - If multiple accounts are used, the account name as configured in setup can be specified (`emea` in the screenshot above). If multiple accounts are configured but not specified in search, the first result (by alphanumeric name) is used. To search across all accounts, `account=*` can be used. 
 - **method** - Define `query`, `powerquery`, `facet` or `timeseries` to call the appropriate REST endpoint. Default is query.
-- **query** - The DataSet [query](https://app.scalyr.com/help/query-language) or filter used to select events. Default is no filter (return all events limited by time and maxCount).
+- **query** - The DataSet [query](https://app.scalyr.com/help/query-language) filter used to select events. Default is no filter (return all events limited by time and maxCount).
 - **starttime** - The Splunk time picker can be used (not "All Time"), but if starttime is defined it will take precedence to define the [start time](https://app.scalyr.com/help/time-reference) for DataSet events to return. Use epoch time or relative shorthand in the form of a number followed by d, h, m or s (for days, hours, minutes or seconds), e.g.: `24h`. Default is 24h.
 - **endtime** - The Splunk time picker can be used (not "All Time"), but if endtime is defined it will take precedence to define the [end time](https://app.scalyr.com/help/time-reference) for DataSet events to return. Use epoch time or relative shorthand in the form of a number followed by d, h, m or s (for days, hours, minutes or seconds), e.g.: `5m`. Default is current time at search.
 
@@ -83,7 +99,7 @@ Power Query Example 1: `| dataset method=powerquery search="dataset = \"accesslo
 
 ![SPL Power Query example](README_images/spl_powerquery.png)
 
-Power Query Example 2: `| dataset method=powerQuery search="$serverHost == 'cloudWatchLogs' 
+Power Query Example 2: `| dataset account=emea method=powerQuery search="$serverHost == 'cloudWatchLogs' 
 | parse 'RequestId: $RID$ Duration: $DUR$ ms Billed Duration: $BDUR$ ms Memory Size: $MEM$ MB Max Memory Used: $UMEM$ MB' 
 | let deltaDUR= BDUR - DUR, deltaMEM = MEM - UMEM 
 | sort -DUR 
@@ -91,7 +107,7 @@ Power Query Example 2: `| dataset method=powerQuery search="$serverHost == 'clou
 
 Facet Query Example:
 `
-| dataset method=facet search="serverHost = *" field=serverHost maxcount=25
+| dataset account=* method=facet search="serverHost = *" field=serverHost maxcount=25
 | spath
 | table value, count
 `
@@ -151,12 +167,14 @@ For use cases requiring data indexed in Splunk, optional inputs are provided uti
 An alert action allows sending an event to the DataSet [addEvents API](https://app.scalyr.com/help/api#addEvents). 
 
 ## Support and troubleshooting
-Error saving configuration "CSRF validation failed" - this is a Splunk browser issue; try using a private window or clearing cache and cookies then retrying.
+Error saving configuration "CSRF validation failed" - This is a Splunk browser issue; try reloading the page, using a private window or clearing cache and cookies then retrying.
 
-To troubleshoot the custom command, check the Job Inspector search log, also available in the internal index: `index=_internal app="TA-dataset" sourcetype=splunk_search_messages`. Common issues include incorrect API key or firewalls blocking outbound traffic on port 443.
+To troubleshoot the custom command, check the Job Inspector search log, also available in the internal index: `index=_internal app="TA-dataset" sourcetype=splunk_search_messages`. Common issues include missing or incorrect API key, firewalls blocking outbound traffic on port 443, or incorrect account name.
 
-For support, open a ticket with support, or open a GitHub issue.
+`Account token error, review search log for details` - API token was not configured or account name withou
+
+For support, open a ticket with DataSet (or SentinelOne for XDR) support, or open a GitHub issue.
 
 ##### Note
-This add-on was built with the [Splunk Add-on UCC framework](https://splunk.github.io/addonfactory-ucc-generator/).
+This add-on was built with the [Splunk Add-on UCC framework](https://splunk.github.io/addonfactory-ucc-generator/) and uses the [Splunk Enterprise Python SDK](https://github.com/splunk/splunk-sdk-python).
 Splunk is a trademark or registered trademark of Splunk Inc. in the United States and other countries.
