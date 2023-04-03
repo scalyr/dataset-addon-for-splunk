@@ -7,6 +7,7 @@ import json
 import requests
 import traceback
 import math
+import copy
 
 from dataset_common import *
 from dataset_api import *
@@ -98,7 +99,7 @@ class DATASET_QUERY_INPUT(smi.Script):
             else:
                 ds_et = relative_to_epoch("1s")
             if maxcount:
-                ds_maxcount = int(ds_max_count)
+                ds_maxcount = int(maxcount)
             else:
                 ds_maxcount = get_maxcount(0)
 
@@ -107,6 +108,8 @@ class DATASET_QUERY_INPUT(smi.Script):
             proxy = get_proxy(session_key, logger)
             acct_dict = get_acct_info(self, logger, ds_account)
             for ds_acct in acct_dict.keys():
+                curr_payload = copy.deepcopy(ds_payload)
+                curr_maxcount = copy.copy(ds_maxcount)
                 ds_url = get_url(acct_dict[ds_acct]['base_url'], 'query')
                 ds_headers = { "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'] }
 
@@ -123,7 +126,7 @@ class DATASET_QUERY_INPUT(smi.Script):
                 for count in range(ds_iterations):
                     logger.info("query api {} of {}".format(count+1, ds_iterations))
                     logger.debug("DataSetFunction=sendRequest, destination={}, startTime={}".format(ds_url, time.time()))
-                    r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy)
+                    r = requests.post(url=ds_url, headers=ds_headers, json=curr_payload, proxies=proxy)
                     logger.debug("DataSetFunction=getResponse, elapsed={}".format(r.elapsed))
                     r_json = r.json()
 
@@ -172,11 +175,11 @@ class DATASET_QUERY_INPUT(smi.Script):
 
                         #after first call, set continuationToken
                         if 'continuationToken' in r_json:
-                            ds_payload['continuationToken'] = r_json['continuationToken']
+                            curr_payload['continuationToken'] = r_json['continuationToken']
                             #reduce maxcount for each call, then for last call set payload to only return remaining # of desired results
-                            ds_maxcount = ds_maxcount - ds_api_max
-                            if ds_maxcount > 0 and ds_maxcount < ds_api_max:
-                                ds_payload['maxCount'] = ds_maxcount
+                            curr_maxcount = curr_maxcount - ds_api_max
+                            if curr_maxcount > 0 and curr_maxcount < ds_api_max:
+                                curr_payload['maxCount'] = curr_maxcount
 
                     else:
                         logger.warning(r_json)
