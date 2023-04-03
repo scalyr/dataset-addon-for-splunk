@@ -8,6 +8,7 @@ import math
 import requests
 import logging
 import re
+import copy
 from dataset_common import get_url, get_acct_info, get_token, get_proxy, normalize_time, relative_to_epoch
 from dataset_api import *
 #From Splunk UCC
@@ -173,13 +174,16 @@ class DataSetSearch(GeneratingCommand):
 
             try:
                 if ds_method == 'query':
-                    #Determine how many recursive calls to accomodate desired number of results
+                    #use copies for each account, which may have recursive calls
+                    curr_payload = copy.deepcopy(ds_payload)
+                    curr_maxcount = copy.copy(ds_maxcount)
+                    #Each account may have recursive calls; use copies for account to start fresh
                     ds_api_max = query_api_max()
                     ds_iterations = math.ceil(ds_maxcount / ds_api_max)
                     for count in range(ds_iterations):
                         logging.info("query api {} of {}".format(count+1, ds_iterations))
                         logging.debug("DataSetFunction=sendRequest, destination={}, startTime={}".format(ds_url, time.time()))
-                        r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy)
+                        r = requests.post(url=ds_url, headers=ds_headers, json=curr_payload, proxies=proxy)
                         logging.debug("DataSetFunction=getResponse, elapsed={}".format(r.elapsed))
                         r_json = r.json()
 
@@ -198,7 +202,7 @@ class DataSetSearch(GeneratingCommand):
                                 
                                 for match_list in matches:
                                     ds_event, splunk_dt = parse_query(ds_columns, match_list, sessions)
-                                    yield self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='_json', account=ds_account, _raw=ds_event)
+                                    yield self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='dataset:query', account=ds_acct, _raw=ds_event)
 
                             else:
                                 logging.warning('DataSet response success, no matches returned')
@@ -206,11 +210,11 @@ class DataSetSearch(GeneratingCommand):
 
                             #after first call, set continuationToken
                             if 'continuationToken' in r_json:
-                                ds_payload['continuationToken'] = r_json['continuationToken']
+                                curr_payload['continuationToken'] = r_json['continuationToken']
                                 #reduce maxcount for each call, then for last call set payload to only return remaining # of desired results
-                                ds_maxcount = ds_maxcount - ds_api_max
-                                if ds_maxcount > 0 and ds_maxcount < ds_api_max:
-                                    ds_payload['maxCount'] = ds_maxcount
+                                curr_maxcount = curr_maxcount - ds_api_max
+                                if curr_maxcount > 0 and curr_maxcount < ds_api_max:
+                                    curr_payload['maxCount'] = curr_maxcount
 
                         else:
                             search_error_exit(self, r_json)
@@ -230,7 +234,7 @@ class DataSetSearch(GeneratingCommand):
                             if 'values' in r_json and 'columns' in r_json:
                                 for value_list in r_json['values']:
                                     ds_event, splunk_dt = parse_powerquery(value_list, r_json['columns'])
-                                    yield self.gen_record(_time=splunk_dt, source='dataset_command', sourcetype='dataset:powerQuery', account=ds_account, _raw=ds_event)
+                                    yield self.gen_record(_time=splunk_dt, source='dataset_command', sourcetype='dataset:powerQuery', account=ds_acct, _raw=ds_event)
                                     
                             else: #if no resulting ['values'] and ['columns']
                                 logging.warning('DataSet response success, no matches returned')
@@ -246,7 +250,7 @@ class DataSetSearch(GeneratingCommand):
                                     splunk_dt = ds_start + (bucket_time * (counter + 1))
                                     #splunk needs a string in _raw to render correctly; = is sufficient so write to _raw and again to splunk_function field
                                     #add_field needs to be used to append variable field splunk_function
-                                    record = self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='dataset:timeseriesQuery', account=ds_account, _raw='{}={}'.format(splunk_function, ds_event))
+                                    record = self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='dataset:timeseriesQuery', account=ds_acct, _raw='{}={}'.format(splunk_function, ds_event))
                                     self.add_field(record, splunk_function, ds_event)
                                     yield record
                                     
@@ -264,7 +268,7 @@ class DataSetSearch(GeneratingCommand):
                                     ds_event = values[counter]
                                     #Splunk does not parse events well without a timestamp, use current time to fix this
                                     splunk_dt = int(time.time())
-                                    yield self.gen_record(_time=splunk_dt, source='dataset_command', sourcetype='dataset:facetQuery', account=ds_account, _raw=ds_event)
+                                    yield self.gen_record(_time=splunk_dt, source='dataset_command', sourcetype='dataset:facetQuery', account=ds_acct, _raw=ds_event)
 
                             else: #if no resulting ['values']
                                 logging.warning('DataSet response success, no matches returned')
