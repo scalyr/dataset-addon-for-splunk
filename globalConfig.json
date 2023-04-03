@@ -2,7 +2,7 @@
     "meta": {
         "name": "TA-dataset",
         "displayName": "DataSet Add-on for Splunk",
-        "version": "1.5.0",
+        "version": "1.5.1",
         "restRoot": "TA_dataset",
         "schemaVersion": "0.0.3"
     },
