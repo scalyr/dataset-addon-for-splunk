@@ -1,0 +1,137 @@
+<form version="1.1">
+  <label>Performance Comparison</label>
+  <fieldset submitButton="false"></fieldset>
+<row depends="$invisible$">
+  <panel>
+    <html>
+        <style>
+          #baseQuery        .splunk-textinput input{  width: 600px; !important; }
+          .dashboard-panel h2{
+            background:#0000ff !important;
+            color:white !important;
+            text-align: left !important;
+            font-weight: bold !important;
+            border-top-right-radius: 15px;
+            border-top-left-radius: 15px;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Splunk Index Seach</title>
+      <input type="time" token="splk_time" searchWhenChanged="true">
+        <label></label>
+        <default>
+          <earliest>-6h@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <table>
+        <title>($splk_timing$ seconds)</title>
+        <search>
+          <done>
+            <set token="splk_timing">$job.runDuration$</set>
+            <set token="splk_count">$job.resultCount$</set>
+          </done>
+          <query>index=dataset logfile="slo_tx" | spath | stats count by attributes.statusCode | addcoltotals  labelfield=attributes.statusCode label="Total"</query>
+          <earliest>$splk_time.earliest$</earliest>
+          <latest>$splk_time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <format type="number" field="count">
+          <option name="precision">0</option>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <title>DataSet PowerQuery Search</title>
+      <input type="time" token="pq_time">
+        <label></label>
+        <default>
+          <earliest>-6h@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <table>
+        <title>($pq_timing$ seconds)</title>
+        <search>
+          <done>
+            <set token="pq_timing">$job.runDuration$</set>
+            <set token="pq_count">$job.resultCount$</set>
+          </done>
+          <query>| dataset method="powerquery" search="logfile='slo_tx' | group count=count() by statusCode" | spath | table statusCode count | addcoltotals  labelfield=statusCode label="Total"</query>
+          <earliest>$pq_time.earliest$</earliest>
+          <latest>$pq_time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <format type="number" field="count">
+          <option name="precision">0</option>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Estimated Splunk Data Volume  [   len(_raw)   ]</title>
+      <single>
+        <title>($splk_timing2$ seconds)</title>
+        <search>
+          <query>index=dataset logfile="slo_tx" 
+| eval esize=len(_raw) 
+| stats count as count avg(esize) as avg 
+| eval bytes=count*avg 
+| eval kb=bytes/1024 
+| eval mb=kb/1024 
+| eval gb=mb/1024 
+| eval tb=gb/1024 
+| stats values(gb) as GB 
+| eval GB=round(GB,4)</query>
+          <earliest>$splk_time.earliest$</earliest>
+          <latest>$splk_time.latest$</latest>
+          <done>
+            <set token="splk_timing2">$job.runDuration$</set>
+            <set token="splk_count2">$job.resultCount$</set>
+          </done>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0.0000</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="unit">GB</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Estimated DataSet Data Volume   [   len(message)   ]</title>
+      <single>
+        <title>($pq_timing$ seconds)</title>
+        <search>
+          <query>| dataset method="powerquery" search="logfile='slo_tx' | let msg_size=len(message) | group esize=sum(msg_size)" 
+| spath 
+
+| stats count as count avg(esize) as avg 
+| eval bytes=count*avg 
+| eval kb=bytes/1024 
+| eval mb=kb/1024 
+| eval gb=mb/1024 
+| eval tb=gb/1024 
+| stats values(gb) as GB 
+| eval GB=round(GB,4)</query>
+          <earliest>$pq_time.earliest$</earliest>
+          <latest>$pq_time.latest$</latest>
+          <done>
+            <set token="pq_timing2">$job.runDuration$</set>
+            <set token="pq_count2">$job.resultCount$</set>
+          </done>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0.0000</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="unit">GB</option>
+      </single>
+    </panel>
+  </row>
+</form>
