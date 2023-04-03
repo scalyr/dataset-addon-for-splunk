@@ -1,0 +1,62 @@
+<form version="1.1">
+  <label>Ingestion Summary</label>
+  <description>This dashboard is provided to estimate daily ingestion for various sources of data in Splunk.</description>
+  <search id="base_search">
+    <query>index="_internal" source="*metrics.log" group="per_sourcetype_thruput" 
+| bucket _time span=1d
+| eval GB=kb/1024/1024
+| stats sum(GB) as "GB Ingest" avg(GB) as "Average GB" max(GB) as "Max GB" avg(eps) as "Events per Second" by _time, series 
+| stats sum("GB Ingest") as "Total Ingest(GB)", avg("GB Ingest") as "Daily Avg Ingest(GB)", max("GB Ingest") as "Daily Max Ingest(GB)" by series
+| eval "Total Ingest(GB)"=round('Total Ingest(GB)',4), "Daily Avg Ingest(GB)"=round('Daily Avg Ingest(GB)',4), "Daily Max Ingest(GB)"=round('Daily Max Ingest(GB)',4), "Events per Second"=round('Events per Second',4)
+| rename series as sourcetype
+| sort -"Total Ingest(GB)"</query>
+    <earliest>$myTime.earliest$</earliest>
+    <latest>$myTime.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="myTime" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Ingestion by sourcetype</title>
+      <chart>
+        <search base="base_search">
+          <query/>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <search base="base_search">
+          <query/>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>
