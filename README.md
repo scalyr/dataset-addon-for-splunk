@@ -9,7 +9,7 @@ The add-on can be installed from [Splunkbase](https://splunkbase.splunk.com/app/
 
 Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons). 
 
-## Permissions
+## Splunk Permission Requirements
 The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_objects` to create secret storage objects and users require `list_storage_passwords` capability to retrieve secrets.
 
 ### Splunk Enterprise
@@ -35,7 +35,7 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 2. Open Enhanced Deep Visibility.
 3. Continue following the DataSet instructions below.
 
-### Dataset (or XDR continued)
+### Dataset (and XDR continued)
 1. Make note of the URL (e.g. `https://app.scalyr.com` or `https://xdr.us1.sentinelone.net`). For XDR users, note this differs from the core SentinelOne console URL.
 2. Navigate to API Keys.
 
@@ -88,6 +88,9 @@ For timeseries:
 
 For all queries, be sure to `"`wrap the entire query in double quotes, and use `'`single quotes`'` inside`"` or double quotes `\"`escaped with a backslash`\"`, as shown in the following examples.
 
+For powerqueries using timebucket functions, return the time field as `timestamp`. This field is use to timestamp events in Splunk as `_time`.
+
+### Search Examples
 Query Example:
 `| dataset method=query search="serverHost = * AND Action = 'allow'" maxcount=50 starttime=10m endtime=1m`
 
@@ -164,7 +167,7 @@ For use cases requiring data indexed in Splunk, optional inputs are provided uti
 - Query string used to return matching events, including commands such as `| columns`, `| limit`, etc.
 
 ## Alert Action
-An alert action allows sending an event to the DataSet [addEvents API](https://app.scalyr.com/help/api#addEvents). 
+An alert action allows sending an event to the DataSet [addEvents API](https://app.scalyr.com/help/api#addEvents).
 
 ## Support and troubleshooting
 Error saving configuration "CSRF validation failed" - This is a Splunk browser issue; try reloading the page, using a private window or clearing cache and cookies then retrying.
@@ -174,6 +177,13 @@ Search errors `Account token error, review search log for details` or `Splunk co
 To troubleshoot the custom command, check the Job Inspector search log, also available in the internal index: `index=_internal app="TA-dataset" sourcetype=splunk_search_messages`.
 
 For support, open a ticket with DataSet (or SentinelOne for XDR) support including any logged errors, or open a GitHub issue.
+
+## Additional Notes
+Though not typically an issue for users, DataSet does have [API rate limiting](https://app.scalyr.com/help/api#rateLimiting). If issues are encountered, open a case with support to review and potentially increase limits.
+
+DataSet API PowerQueries limit search filters to 5,000 characters.
+
+If Splunk events all show the same time, ensure results are returning a `timestamp` field. This is used to timestamp events as _time in Splunk.
 
 ##### Note
 This add-on was built with the [Splunk Add-on UCC framework](https://splunk.github.io/addonfactory-ucc-generator/) and uses the [Splunk Enterprise Python SDK](https://github.com/splunk/splunk-sdk-python).
