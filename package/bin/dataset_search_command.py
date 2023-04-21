@@ -225,7 +225,9 @@ class DataSetSearch(GeneratingCommand):
                     for i in range(len(values)):
                         value = values[i]
                         splunk_dt = int(time.time())
-                        ds_event = {'count': value.count, 'value': value.value}
+                        #Strip double quotes around value
+                        splunk_value = value.value.strip('\"')
+                        ds_event = {'count': value.count, 'value': splunk_value}
                         yield self.gen_record(_time=splunk_dt, source='dataset_command', sourcetype='dataset:facetQuery', account=ds_acct, _raw=ds_event)
 
                     logging.debug("DataSetFunction=completeEvents, startTime={}".format(time.time()))

@@ -49,14 +49,15 @@ def ds_lrq_run_loop(client, body: PostQueriesLaunchQueryRequestBody):
     body.query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority.HIGH
     response = post_queries.sync_detailed(client = client, json_body = body)
     result = response.parsed
+    forward_tag = response.headers["x-dataset-query-forward-tag"]
     steps_done = result.steps_completed
     steps_total = result.steps_total
     query_id = result.id
     while (steps_done < steps_total):
-        response = get_queries.sync_detailed(id = query_id, query_type=body.query_type, client = client, last_step_seen = steps_done)
+        response = get_queries.sync_detailed(id = query_id, query_type=body.query_type, client = client, last_step_seen = steps_done, forward_tag = forward_tag)
         result = response.parsed
         steps_done = result.steps_completed
-    delete_queries.sync_detailed(id = query_id, client = client)
+    delete_queries.sync_detailed(id = query_id, client = client, forward_tag = forward_tag)
 
     return result
 
@@ -150,6 +151,8 @@ def parse_query(ds_columns, match_list, sessions):
 # Extracts event timestamp from the Dataset event dictionary and converts it to seconds
 def parse_splunk_dt(ds_event):
     #if timestamp exists, convert epoch nanoseconds to seconds for Splunk
+    if '_time' in ds_event:
+        splunk_dt = normalize_time(int(ds_event['_time']))
     if 'timestamp' in ds_event:
         splunk_dt = normalize_time(int(ds_event['timestamp']))
     else:

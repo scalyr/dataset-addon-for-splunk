@@ -16,6 +16,7 @@ def _get_kwargs(
     *,
     client: Client,
     last_step_seen: int,
+    forward_tag: str,
 ) -> Dict[str, Any]:
     url = "{}/v2/api/queries/{id}".format(client.base_url, id=id)
 
@@ -24,6 +25,8 @@ def _get_kwargs(
 
     params: Dict[str, Any] = {}
     params["lastStepSeen"] = last_step_seen
+
+    headers["x-dataset-query-forward-tag"] = forward_tag
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -73,6 +76,7 @@ def sync_detailed(
     *,
     client: Client,
     last_step_seen: int,
+    forward_tag: str,
 ) -> Response[Union[Any, QueryResult]]:
     """Ping query
 
@@ -96,6 +100,7 @@ def sync_detailed(
         id=id,
         client=client,
         last_step_seen=last_step_seen,
+        forward_tag=forward_tag,
     )
 
     response = httpx.request(
