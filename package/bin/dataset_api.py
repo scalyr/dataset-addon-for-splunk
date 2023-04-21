@@ -20,7 +20,6 @@ def ds_lrq_log_query(base_url, api_key, start_time, end_time, filter_expr, limit
         end_time = end_time,
         log = LogAttributes(filter_ = filter_expr, limit = limit)
     )
-    logging.warning("body = {}".format(body))
     return ds_lrq_run_loop(client = client, body= body)
 
 # Executes Dataset LongRunningQuery using PowerQuery language
