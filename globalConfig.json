@@ -692,7 +692,7 @@
                     "label": "Parser",
                     "field": "dataset_parser",
                     "defaultValue": "splunk",
-                    "required": false,
+                    "required": true,
                     "help": "DataSet parser"
                 }
             ]
