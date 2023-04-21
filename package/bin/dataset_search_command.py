@@ -175,7 +175,7 @@ class DataSetSearch(GeneratingCommand):
                 ds_base_url = acct_dict[ds_acct]['base_url']
                 ds_url = get_url(ds_base_url, ds_method)
                 ds_api_key = acct_dict[ds_acct]['ds_api_key']
-                ds_headers = { "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'] }
+                ds_headers = { "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'], "User-Agent": "splunk-ta v2.0.0;3.7.11" }
             except:
                 search_error_exit(self, "Splunk configuration error, see search log for details.")
 
