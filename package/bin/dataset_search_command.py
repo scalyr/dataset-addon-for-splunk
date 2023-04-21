@@ -182,7 +182,7 @@ class DataSetSearch(GeneratingCommand):
             try:
                 if ds_method == 'query':
                     result = ds_lrq_log_query(base_url=ds_base_url, api_key=ds_api_key, start_time=ds_start, end_time=ds_end, filter_expr=ds_search, limit=ds_maxcount)
-                    logging.warning("QUERY RESULT, result={}".format(result))
+                    logging.info("QUERY RESULT, result={}".format(result))
 
                     matches_list = result.data.matches # List<LogEvent>
 
@@ -201,9 +201,9 @@ class DataSetSearch(GeneratingCommand):
                     GeneratingCommand.flush
                 elif ds_method == 'powerquery':
                     pq = ds_build_pq(ds_search, ds_columns, ds_maxcount)
-                    logging.warning("PQ: {}".format(pq))
+                    logging.info("PQ: {}".format(pq))
                     result = ds_lrq_power_query(base_url=ds_base_url, api_key=ds_api_key, start_time=ds_start, end_time=ds_end, query=pq)
-                    logging.warning("QUERY RESULT, result={}".format(result))
+                    logging.info("QUERY RESULT, result={}".format(result))
                     data = result.data # TableResultData
                     columns = data.columns
                     for row in data.values:
@@ -220,7 +220,7 @@ class DataSetSearch(GeneratingCommand):
                 elif ds_method == 'facet':
                     # Facet Values query
                     result = ds_lrq_facet_values(base_url=ds_base_url, api_key=ds_api_key, start_time=ds_start, end_time=ds_end, filter=ds_search, name=f_field, max_values=ds_maxcount)
-                    logging.warning("QUERY RESULT, result={}".format(result))
+                    logging.info("QUERY RESULT, result={}".format(result))
                     facet = result.data.facet # FacetValuesResultData.data -> FacetData
                     values = facet.values # List[FacetValue]
                     for i in range(len(values)):
