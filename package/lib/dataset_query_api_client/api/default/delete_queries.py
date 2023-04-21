@@ -12,11 +12,14 @@ def _get_kwargs(
     id: str,
     *,
     client: Client,
+    forward_tag: str,
 ) -> Dict[str, Any]:
     url = "{}/v2/api/queries/{id}".format(client.base_url, id=id)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
+
+    headers["x-dataset-query-forward-tag"] = forward_tag
 
     return {
         "method": "delete",
@@ -50,6 +53,7 @@ def sync_detailed(
     id: str,
     *,
     client: Client,
+    forward_tag: str,
 ) -> Response[Any]:
     """Delete query
 
@@ -71,6 +75,7 @@ def sync_detailed(
     kwargs = _get_kwargs(
         id=id,
         client=client,
+        forward_tag=forward_tag,
     )
 
     response = httpx.request(
