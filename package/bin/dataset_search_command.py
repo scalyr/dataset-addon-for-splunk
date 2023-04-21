@@ -192,6 +192,7 @@ class DataSetSearch(GeneratingCommand):
                     
                     for event in matches_list:
                         ds_event = json.loads(json.dumps(event.values.additional_properties))
+                        ds_event["timestamp"] = event.timestamp
                         ds_server_info = json.loads(json.dumps(event.server_info.additional_properties))
                         ds_event.update(ds_server_info) ## add in all server fields
                         splunk_dt = parse_splunk_dt(ds_event)
