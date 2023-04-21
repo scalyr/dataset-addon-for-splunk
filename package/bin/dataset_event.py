@@ -25,6 +25,10 @@ class AlertActionWorkerdataset_event(ModularAlertBase):
         if not self.get_param("dataset_message"):
             self.log_error('dataset_message is a mandatory parameter, but its value is None.')
             return False
+        
+        if not self.get_param("dataset_parser"):
+            self.log_error('dataset_parser is a mandatory parameter, but its value is None.')
+            return False
         return True
 
     def process_event(self, *args, **kwargs):

@@ -66,6 +66,7 @@ def process_event(helper, *args, **kwargs):
         dataset_serverhost = helper.get_param("dataset_serverhost")
         dataset_severity = int(helper.get_param('dataset_severity'))
         dataset_message = helper.get_param('dataset_message')
+        dataset_parser = helper.get_param('dataset_parser')
         ds_uuid = str(uuid.uuid4())
 
         events = helper.get_events()
@@ -94,7 +95,8 @@ def process_event(helper, *args, **kwargs):
                     "tag": "splunk",
                     "attrs": {
                         "message": dataset_message,
-                        "Application": "splunk"
+                        "Application": "splunk",
+                        "parser": dataset_parser
                     }
                 }
             )
