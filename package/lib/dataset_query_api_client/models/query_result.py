@@ -4,6 +4,8 @@ import attr
 
 from ..types import UNSET, Unset
 
+from ..models.post_queries_launch_query_request_body_query_type import PostQueriesLaunchQueryRequestBodyQueryType
+
 if TYPE_CHECKING:
     from ..models.facet_values_result_data import FacetValuesResultData
     from ..models.histogram_result_data import HistogramResultData
@@ -126,7 +128,7 @@ class QueryResult:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: Type[T], src_dict: Dict[str, Any], query_type: PostQueriesLaunchQueryRequestBodyQueryType) -> T:
         from ..models.facet_values_result_data import FacetValuesResultData
         from ..models.histogram_result_data import HistogramResultData
         from ..models.log_result_data import LogResultData
@@ -141,7 +143,7 @@ class QueryResult:
 
         steps_completed = d.pop("stepsCompleted", UNSET)
 
-        steps_total = d.pop("stepsTotal", UNSET)
+        steps_total = d.pop("totalSteps", UNSET) # FIX: inconsitency with schema
 
         _resolved_time_range = d.pop("resolvedTimeRange", UNSET)
         resolved_time_range: Union[Unset, TimeRangeResultData]
@@ -170,81 +172,28 @@ class QueryResult:
         ]:
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                _data_type_0 = data
-                data_type_0: Union[Unset, LogResultData]
-                if isinstance(_data_type_0, Unset):
-                    data_type_0 = UNSET
+            if data is None:  # FIX: the API always returns data field in JSON even if it's null
+                return data
+            if query_type == PostQueriesLaunchQueryRequestBodyQueryType.LOG:
+                return LogResultData.from_dict(data)
+            if query_type == PostQueriesLaunchQueryRequestBodyQueryType.PQ:
+                _table_data = data
+                resolved_table_data: Union[Unset, TableResultData]
+                if (isinstance(_table_data, Unset)):
+                    resolved_table_data = UNSET
                 else:
-                    data_type_0 = LogResultData.from_dict(_data_type_0)
-
-                return data_type_0
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                _data_type_1 = data
-                data_type_1: Union[Unset, TopFacetsResultData]
-                if isinstance(_data_type_1, Unset):
-                    data_type_1 = UNSET
+                    resolved_table_data = TableResultData.from_dict(_table_data)
+                return resolved_table_data
+            if query_type == PostQueriesLaunchQueryRequestBodyQueryType.FACET_VALUES:
+                _facet_data = data
+                resolved_facet_data: Union[Unset, FacetValuesResultData]
+                if (isinstance(_facet_data, Unset)):
+                    resolved_facet_data = UNSET
                 else:
-                    data_type_1 = TopFacetsResultData.from_dict(_data_type_1)
-
-                return data_type_1
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                _data_type_2 = data
-                data_type_2: Union[Unset, FacetValuesResultData]
-                if isinstance(_data_type_2, Unset):
-                    data_type_2 = UNSET
-                else:
-                    data_type_2 = FacetValuesResultData.from_dict(_data_type_2)
-
-                return data_type_2
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                _data_type_3 = data
-                data_type_3: Union[Unset, PlotResultData]
-                if isinstance(_data_type_3, Unset):
-                    data_type_3 = UNSET
-                else:
-                    data_type_3 = PlotResultData.from_dict(_data_type_3)
-
-                return data_type_3
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                _data_type_4 = data
-                data_type_4: Union[Unset, TableResultData]
-                if isinstance(_data_type_4, Unset):
-                    data_type_4 = UNSET
-                else:
-                    data_type_4 = TableResultData.from_dict(_data_type_4)
-
-                return data_type_4
-            except:  # noqa: E722
-                pass
-            if not isinstance(data, dict):
-                raise TypeError()
-            _data_type_5 = data
-            data_type_5: Union[Unset, HistogramResultData]
-            if isinstance(_data_type_5, Unset):
-                data_type_5 = UNSET
-            else:
-                data_type_5 = HistogramResultData.from_dict(_data_type_5)
-
-            return data_type_5
+                    resolved_facet_data = FacetValuesResultData.from_dict(_facet_data)
+                return resolved_facet_data
+            # TODO: must complete implementation of the remaining query types
+            raise TypeError()
 
         data = _parse_data(d.pop("data", UNSET))
 

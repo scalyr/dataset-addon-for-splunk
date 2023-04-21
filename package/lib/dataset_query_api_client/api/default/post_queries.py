@@ -1,12 +1,14 @@
 from http import HTTPStatus
 from typing import Any, Dict, Optional
 
+import logging
 import httpx
 
 from ... import errors
 from ...client import Client
 from ...models.post_queries_launch_query_request_body import PostQueriesLaunchQueryRequestBody
 from ...models.query_result import QueryResult
+from ...models.post_queries_launch_query_request_body_query_type import PostQueriesLaunchQueryRequestBodyQueryType
 from ...types import Response
 
 
@@ -33,23 +35,30 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[QueryResult]:
+def _parse_response(*, client: Client, response: httpx.Response, query_type: PostQueriesLaunchQueryRequestBodyQueryType) -> Optional[QueryResult]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = QueryResult.from_dict(response.json())
+        try:
+            content = response.json()
+            logging.warning("PARSING RESPONSE FOR QUERY TYPE: {}, CONTENT: {}".format(query_type, repr(content)))
+            response_200 = QueryResult.from_dict(content, query_type)
 
-        return response_200
+            return response_200
+        except Exception as inst:
+            logging.exception("PARSING ERROR: {}".format(repr(inst)))
+            return None
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[QueryResult]:
+def _build_response(*, client: Client, response: httpx.Response, query_type: PostQueriesLaunchQueryRequestBodyQueryType) -> Response[QueryResult]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
         headers=response.headers,
-        parsed=_parse_response(client=client, response=response),
+        # parsed=None
+        parsed=_parse_response(client=client, response=response, query_type=query_type),
     )
 
 
@@ -86,8 +95,10 @@ def sync_detailed(
         verify=client.verify_ssl,
         **kwargs,
     )
+    # content = response.json()
+    # logging.warning("RESPONSE status={}, content={}".format(response.status_code, content))
 
-    return _build_response(client=client, response=response)
+    return _build_response(client=client, response=response, query_type=json_body.query_type)
 
 
 def sync(
@@ -152,7 +163,7 @@ async def asyncio_detailed(
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
         response = await _client.request(**kwargs)
 
-    return _build_response(client=client, response=response)
+    return _build_response(client=client, response=response, query_type=json_body.query_type)
 
 
 async def asyncio(

@@ -32,7 +32,7 @@ class TableResultData:
     """
 
     match_count: Union[Unset, float] = UNSET
-    values: Union[Unset, List[List["TableResultDataValuesItemItem"]]] = UNSET
+    values: Union[Unset, List[List[Any]]] = UNSET
     columns: Union[Unset, List["Column"]] = UNSET
     key_columns: Union[Unset, int] = UNSET
     omitted_events: Union[Unset, float] = UNSET
@@ -98,16 +98,16 @@ class TableResultData:
         match_count = d.pop("matchCount", UNSET)
 
         values = []
-        _values = d.pop("values", UNSET)
-        for values_item_data in _values or []:
-            values_item = []
-            _values_item = values_item_data
-            for values_item_item_data in _values_item:
-                values_item_item = TableResultDataValuesItemItem.from_dict(values_item_item_data)
+        values = d.pop("values", UNSET)
+        # for values_item_data in _values or []:
+        #     values_item = []
+        #     _values_item = values_item_data
+        #     for values_item_item_data in _values_item:
+        #         values_item_item = TableResultDataValuesItemItem.from_dict(values_item_item_data)
 
-                values_item.append(values_item_item)
+        #         values_item.append(values_item_item)
 
-            values.append(values_item)
+        #     values.append(values_item)
 
         columns = []
         _columns = d.pop("columns", UNSET)
