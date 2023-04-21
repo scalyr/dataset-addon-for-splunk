@@ -16,6 +16,11 @@ import import_declare_test
 #Splunk Enterprise SDK
 from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration, Option, validators
 
+# Dataset V2 API client (generated)
+from dataset_query_api_client import AuthenticatedClient
+from dataset_query_api_client.models import PostQueriesLaunchQueryRequestBody, PostQueriesLaunchQueryRequestBodyQueryType, LogAttributes, QueryResult
+from dataset_query_api_client.api.default import post_queries, get_queries
+from dataset_query_api_client.types import Response
 
 def get_search_times(self):
     #if starttime was given in search, use it
@@ -167,115 +172,90 @@ class DataSetSearch(GeneratingCommand):
 
         for ds_acct in acct_dict.keys():
             try:
-                ds_url = get_url(acct_dict[ds_acct]['base_url'], ds_method)
+                ds_base_url = acct_dict[ds_acct]['base_url']
+                ds_url = get_url(ds_base_url, ds_method)
+                ds_api_key = acct_dict[ds_acct]['ds_api_key']
                 ds_headers = { "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'] }
             except:
                 search_error_exit(self, "Splunk configuration error, see search log for details.")
 
             try:
                 if ds_method == 'query':
-                    #use copies for each account, which may have recursive calls
-                    curr_payload = copy.deepcopy(ds_payload)
-                    curr_maxcount = copy.copy(ds_maxcount)
-                    #Each account may have recursive calls; use copies for account to start fresh
-                    ds_api_max = query_api_max()
-                    ds_iterations = math.ceil(ds_maxcount / ds_api_max)
-                    for count in range(ds_iterations):
-                        logging.info("query api {} of {}".format(count+1, ds_iterations))
-                        logging.debug("DataSetFunction=sendRequest, destination={}, startTime={}".format(ds_url, time.time()))
-                        r = requests.post(url=ds_url, headers=ds_headers, json=curr_payload, proxies=proxy)
-                        logging.debug("DataSetFunction=getResponse, elapsed={}".format(r.elapsed))
-                        r_json = r.json()
+                    result = ds_lrq_log_query(base_url=ds_base_url, api_key=ds_api_key, start_time=ds_start, end_time=ds_end, filter_expr=ds_search)
+                    logging.warning("QUERY RESULT, result={}".format(result))
 
-                        if r.ok:
-                            #log any warnings
-                            if 'warnings' in r_json :
-                                logging.warning(r_json["warnings"])
+                    matches_list = result.data.matches # List<LogEvent>
 
-                            if 'matches' in r_json and 'sessions' in r_json:
-                                matches = r_json['matches']
-                                sessions = r_json['sessions']
+                    if len(matches_list) == 0:
+                        logging.warning("DataSet response success, no matches returned")
+                        logging.warning(r_json)
+                    
+                    for event in matches_list:
+                        ds_event = json.loads(json.dumps(event.values.additional_properties))
+                        ds_server_info = json.loads(json.dumps(event.server_info.additional_properties))
+                        ds_event.update(ds_server_info) ## add in all server fields
+                        splunk_dt = parse_splunk_dt(ds_event)
+                        yield self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='dataset:query', account=ds_acct, _raw=ds_event)
+                    logging.debug("DataSetFunction=completeEvents, startTime={}".format(time.time()))
+                    GeneratingCommand.flush
+                elif ds_method == 'powerquery':
+                    pq = ds_build_pq(ds_search, ds_columns, ds_maxcount)
+                    logging.warning("PQ: {}".format(pq))
+                    result = ds_lrq_power_query(base_url=ds_base_url, api_key=ds_api_key, start_time=ds_start, end_time=ds_end, query=pq)
+                    logging.warning("QUERY RESULT, result={}".format(result))
+                    data = result.data # TableResultData
+                    columns = data.columns
+                    for row in data.values:
+                        ds_event_dict = {}
+                        for i in range(len(row)):
+                            col = columns[i]
+                            ds_event_dict[col.name] = row[i]
+                        ds_event = json.loads(json.dumps(ds_event_dict))
+                        splunk_dt = parse_splunk_dt(ds_event)
+                        yield self.gen_record(_time=splunk_dt, source='dataset_command', sourcetype='dataset:powerQuery', account=ds_acct, _raw=ds_event)
+                    
+                    logging.debug("DataSetFunction=completeEvents, startTime={}".format(time.time()))
+                    GeneratingCommand.flush
+                elif ds_method == 'facet':
+                    # Facet Values query
+                    result = ds_lrq_facet_values(base_url=ds_base_url, api_key=ds_api_key, start_time=ds_start, end_time=ds_end, filter=ds_search, name=f_field, max_values=ds_maxcount)
+                    logging.warning("QUERY RESULT, result={}".format(result))
+                    facet = result.data.facet # FacetValuesResultData.data -> FacetData
+                    values = facet.values # List[FacetValue]
+                    for i in range(len(values)):
+                        value = values[i]
+                        splunk_dt = int(time.time())
+                        ds_event = {'count': value.count, 'value': value.value}
+                        yield self.gen_record(_time=splunk_dt, source='dataset_command', sourcetype='dataset:facetQuery', account=ds_acct, _raw=ds_event)
 
-                                if len(matches) == 0 and len(sessions) == 0:
-                                    logging.warning("DataSet response success, no matches returned")
-                                    logging.warning(r_json)
-                                
-                                for match_list in matches:
-                                    ds_event, splunk_dt = parse_query(ds_columns, match_list, sessions)
-                                    yield self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='dataset:query', account=ds_acct, _raw=ds_event)
-
-                            else:
-                                logging.warning('DataSet response success, no matches returned')
-                                logging.warning(r_json)
-
-                            #after first call, set continuationToken
-                            if 'continuationToken' in r_json:
-                                curr_payload['continuationToken'] = r_json['continuationToken']
-                                #reduce maxcount for each call, then for last call set payload to only return remaining # of desired results
-                                curr_maxcount = curr_maxcount - ds_api_max
-                                if curr_maxcount > 0 and curr_maxcount < ds_api_max:
-                                    curr_payload['maxCount'] = curr_maxcount
-
-                        else:
-                            search_error_exit(self, r_json)
-
-                        logging.debug("DataSetFunction=completeEvents, startTime={}".format(time.time()))
-                        GeneratingCommand.flush
-
-                else:
+                    logging.debug("DataSetFunction=completeEvents, startTime={}".format(time.time()))
+                    GeneratingCommand.flush
+                elif ds_method == 'timeseries':
+                    # TODO: There is no equivalent to the old timeseries API in the new async version, but we can look into replacing this with a PLOT query type
                     logging.debug("DataSetFunction=makeRequest, destination={}, startTime={}".format(ds_url, time.time()))
                     r = requests.post(url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy)
                     logging.debug("DataSetFunction=getResponse, elapsed={}".format(r.elapsed))
                     r_json = r.json()
-
-                    if r.ok:
-                        if ds_method == 'powerquery':
-                            #parse results, match returned columns with corresponding values
-                            if 'values' in r_json and 'columns' in r_json:
-                                for value_list in r_json['values']:
-                                    ds_event, splunk_dt = parse_powerquery(value_list, r_json['columns'])
-                                    yield self.gen_record(_time=splunk_dt, source='dataset_command', sourcetype='dataset:powerQuery', account=ds_acct, _raw=ds_event)
-                                    
-                            else: #if no resulting ['values'] and ['columns']
-                                logging.warning('DataSet response success, no matches returned')
-
-                        elif ds_method == 'timeseries':
-                            if 'results' in r_json:
-                                bucket_time = get_bucket_increments(ds_start, ds_end, ts_buckets)
-                                values = r_json['results'][0]['values']
-                                for counter in range(len(values)):
-                                    ds_event = values[counter]
-                                    splunk_function = re.split("\(", self.function)[0]
-                                    #determine timestamp by adding bucket_time to start_time x number of iterations (+1 since indices start at 0)
-                                    splunk_dt = ds_start + (bucket_time * (counter + 1))
-                                    #splunk needs a string in _raw to render correctly; = is sufficient so write to _raw and again to splunk_function field
-                                    #add_field needs to be used to append variable field splunk_function
-                                    record = self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='dataset:timeseriesQuery', account=ds_acct, _raw='{}={}'.format(splunk_function, ds_event))
-                                    self.add_field(record, splunk_function, ds_event)
-                                    yield record
-                                    
-                            else:
-                                logging.warning('DataSet response success, no matches returned')
-                        
-                        elif ds_method == 'facet':
-                            if 'matchCount' in r_json:
-                                logging.info('matchCount: %s ' % r_json['matchCount'] )
-
-                            #parse results
-                            if 'values' in r_json:
-                                values = r_json['values']
-                                for counter in range(len(values)):
-                                    ds_event = values[counter]
-                                    #Splunk does not parse events well without a timestamp, use current time to fix this
-                                    splunk_dt = int(time.time())
-                                    yield self.gen_record(_time=splunk_dt, source='dataset_command', sourcetype='dataset:facetQuery', account=ds_acct, _raw=ds_event)
-
-                            else: #if no resulting ['values']
-                                logging.warning('DataSet response success, no matches returned')
-
+                    if 'results' in r_json:
+                        bucket_time = get_bucket_increments(ds_start, ds_end, ts_buckets)
+                        values = r_json['results'][0]['values']
+                        for i in range(len(values)):
+                            ds_event = values[i]
+                            splunk_function = re.split("\(", self.function)[0]
+                            #determine timestamp by adding bucket_time to start_time x number of iterations (+1 since indices start at 0)
+                            splunk_dt = ds_start + (bucket_time * (i + 1))
+                            #splunk needs a string in _raw to render correctly; = is sufficient so write to _raw and again to splunk_function field
+                            #add_field needs to be used to append variable field splunk_function
+                            record = self.gen_record(_time=splunk_dt, source='dataset:command', sourcetype='dataset:timeseriesQuery', account=ds_acct, _raw='{}={}'.format(splunk_function, ds_event))
+                            self.add_field(record, splunk_function, ds_event)
+                            yield record
+                            
                     else:
-                        search_error_exit(self, r_json)
+                        logging.warning('DataSet response success, no matches returned')
                     
+                    logging.debug("DataSetFunction=completeEvents, startTime={}".format(time.time()))
+                    GeneratingCommand.flush
+                else:
                     logging.debug("DataSetFunction=completeEvents, startTime={}".format(time.time()))
                     GeneratingCommand.flush
             except Exception as e:
