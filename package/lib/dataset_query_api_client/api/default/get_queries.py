@@ -45,7 +45,7 @@ def _parse_response(*, client: Client, response: httpx.Response, query_type: Pos
     if response.status_code == HTTPStatus.OK:
         try:
             content = response.json()
-            logging.warning("PARSING RESPONSE FOR QUERY TYPE: {}, CONTENT: {}".format(query_type, repr(content)))
+            logging.info("PARSING RESPONSE FOR QUERY TYPE: {}, CONTENT: {}".format(query_type, repr(content)))
             response_200 = QueryResult.from_dict(content, query_type)
 
             return response_200
