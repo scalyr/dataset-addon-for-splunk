@@ -181,7 +181,7 @@ class DataSetSearch(GeneratingCommand):
 
             try:
                 if ds_method == 'query':
-                    result = ds_lrq_log_query(base_url=ds_base_url, api_key=ds_api_key, start_time=ds_start, end_time=ds_end, filter_expr=ds_search)
+                    result = ds_lrq_log_query(base_url=ds_base_url, api_key=ds_api_key, start_time=ds_start, end_time=ds_end, filter_expr=ds_search, limit=ds_maxcount)
                     logging.warning("QUERY RESULT, result={}".format(result))
 
                     matches_list = result.data.matches # List<LogEvent>

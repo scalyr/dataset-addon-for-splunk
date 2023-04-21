@@ -12,14 +12,15 @@ from dataset_query_api_client.api.default import post_queries, get_queries, dele
 from dataset_query_api_client.types import Response
 
 # Executes Dataset LongRunningQuery for log events
-def ds_lrq_log_query(base_url, api_key, start_time, end_time, filter_expr):
+def ds_lrq_log_query(base_url, api_key, start_time, end_time, filter_expr, limit):
     client = AuthenticatedClient(base_url=base_url, token=api_key)
     body = PostQueriesLaunchQueryRequestBody(
         query_type = PostQueriesLaunchQueryRequestBodyQueryType.LOG,
         start_time = start_time,
         end_time = end_time,
-        log = LogAttributes(filter_ = filter_expr)
+        log = LogAttributes(filter_ = filter_expr, limit = limit)
     )
+    logging.warning("body = {}".format(body))
     return ds_lrq_run_loop(client = client, body= body)
 
 # Executes Dataset LongRunningQuery using PowerQuery language
