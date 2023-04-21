@@ -153,7 +153,7 @@ def parse_splunk_dt(ds_event):
     #if timestamp exists, convert epoch nanoseconds to seconds for Splunk
     if '_time' in ds_event:
         splunk_dt = normalize_time(int(ds_event['_time']))
-    if 'timestamp' in ds_event:
+    elif 'timestamp' in ds_event:
         splunk_dt = normalize_time(int(ds_event['timestamp']))
     else:
         #Splunk does not parse events well without a timestamp, use current time to fix this
