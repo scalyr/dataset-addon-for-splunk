@@ -2,7 +2,7 @@
     "meta": {
         "name": "TA-dataset",
         "displayName": "DataSet Add-on for Splunk",
-        "version": "1.5.1",
+        "version": "2.0.0",
         "restRoot": "TA_dataset",
         "schemaVersion": "0.0.3"
     },
@@ -686,6 +686,14 @@
                     "defaultValue": "3",
                     "required": false,
                     "help": "DataSet Severity (1 - 6)"
+                },
+                {
+                    "type": "text",
+                    "label": "Parser",
+                    "field": "dataset_parser",
+                    "defaultValue": "splunk",
+                    "required": false,
+                    "help": "DataSet parser"
                 }
             ]
         }
