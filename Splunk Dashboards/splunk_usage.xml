@@ -1,0 +1,30 @@
+<dashboard version="1.1">
+  <label>Splunk App Usage</label>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <query>index=_internal sourcetype=splunk_web_access host=* user=*
+| rex field=uri_path ".*/(?&lt;title&gt;[^/]*)$$" 
+| join title
+[| rest /servicesNS/-/-/data/ui/views splunk_server=*
+| search isDashboard=1 isVisible=1 
+| rename eai:acl.app as app 
+| fields title app ]
+| rename title as dashboard
+| stats count by _time user dashboard app host</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>
