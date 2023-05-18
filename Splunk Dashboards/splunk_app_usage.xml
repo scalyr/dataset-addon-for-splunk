@@ -1,0 +1,320 @@
+<form version="1.1">
+  <label>Splunk App Usage</label>
+  <init>
+    <set token="myExcludedApps">InfoSec_App_for_Splunk,Splunk_Security_Essentials,lookup_editor,splunk_monitoring_console,splunk_secure_gateway,splunk_instrumentation,Splunk_SA_CIM</set>
+  </init>
+  <search id="base_usage">
+    <query>
+index=_internal sourcetype=splunk_web_access host=* user=*
+| rex field=uri_path ".*/(?&lt;title&gt;[^/]*)$" 
+| join title
+[| rest /servicesNS/-/-/data/ui/views splunk_server=*
+| search isDashboard=1 isVisible=1 
+| rename eai:acl.app as app 
+| fields title app ]
+| rename title as dashboard
+| search NOT app IN($myExcludedApps$)
+| stats count by _time user app dashboard host
+    </query>
+    <earliest>$myTime.earliest$</earliest>
+    <latest>$myTime.latest$</latest>
+  </search>
+  <search id="base_panels">
+    <query>| rest /servicesNS/-/-/data/ui/views 
+
+``` get fields we want from  all the dashboards for all the apps ```
+| fields eai:acl.app label id eai:data 
+| rename eai:acl.app as app_name, eai:data as xml_source, label as dashboard_title
+
+```   now separate all the panels to individual events (rows)  ```
+| rex field=id "http(s)?://([^/]+/)+(?&lt;file_name&gt;[^/]+)" 
+| spath input=xml_source output=panel path=form.row.panel
+| mvexpand panel
+| fields app_name dashboard_title  file_name panel xml_source
+| search panel != ""
+
+```   now identify the chart types, searches and drilldown searches for each panel  ```
+| spath input=panel output=panel_title path=title
+| xpath field=panel outfield=query "//*/search/query"
+| xpath field=panel outfield=drilldown "//*/drilldown/*/link"
+| rex   field=panel "\s+\&lt;(?&lt;panel_type&gt;[^\&lt;]+)\&gt;" 
+
+``` filter for the types of panels that typically have searches  ```
+| search panel_type IN ("chart","single","table","event","search","viz","map")
+| search NOT app_name IN($myExcludedApps$)
+
+```   total, sort and print the results  ```
+| eventstats count as total_panels, dc(dashboard_title) as total_dashboards 
+| eventstats dc(dashboard_title) as dashboards_in_app by app_name
+| eventstats count as panels_on_dashboard by app_name, dashboard_title
+| sort  app_name file_name dashboard_title panel_title
+| table app_name dashboards_in_app file_name dashboard_title panels_on_dashboard panel_title panel_type query drilldown</query>
+    <earliest>$myTime.earliest$</earliest>
+    <latest>$myTime.latest$</latest>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="myTime" searchWhenChanged="true">
+      <label>Time</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="myApp" searchWhenChanged="true">
+      <label>Apps</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>app_name</fieldForLabel>
+      <fieldForValue>app_name</fieldForValue>
+      <search base="base_panels">
+        <query>| stats count by app_name</query>
+      </search>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <change>
+        <condition>
+          <set token="form.myDashboard">*</set>
+        </condition>
+      </change>
+    </input>
+    <input type="multiselect" token="myExcludedApps" searchWhenChanged="true">
+      <label>Excluded Apps</label>
+      <fieldForLabel>app_name</fieldForLabel>
+      <fieldForValue>app_name</fieldForValue>
+      <search base="base_panels">
+        <query>| stats count by app_name</query>
+      </search>
+      <default>InfoSec_App_for_Splunk,Splunk_Security_Essentials,lookup_editor,splunk_monitoring_console,splunk_secure_gateway,splunk_instrumentation,Splunk_SA_CIM</default>
+      <initialValue>InfoSec_App_for_Splunk,Splunk_Security_Essentials,lookup_editor,splunk_monitoring_console,splunk_secure_gateway,splunk_instrumentation,Splunk_SA_CIM</initialValue>
+      <choice value="Splunk_SA_CIM">Splunk_SA_CIM</choice>
+      <choice value="splunk_instrumentation">splunk_instrumentation</choice>
+      <delimiter>,</delimiter>
+    </input>
+    <input type="dropdown" token="myDashboard" searchWhenChanged="true">
+      <label>Dashboards</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>dashboard_title</fieldForLabel>
+      <fieldForValue>file_name</fieldForValue>
+      <search base="base_panels">
+        <query>| search app_name = "$myApp$" | stats count by file_name, dashboard_title</query>
+      </search>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+  </fieldset>
+  <row depends="$invisible$">
+    <panel>
+      <html>
+        <style>
+          #baseQuery        .splunk-textinput input{  width: 600px; !important; }
+          #basePowerQuery   .splunk-textinput input{  width: 1000px; !important; }
+          #baseFacetQuery   .splunk-textinput input{  width: 1000px; !important; }
+          #splunkAggregate  .splunk-textinput input{  width: 1000px; !important; }
+          .dashboard-panel h2{
+            background:#0000ff !important;
+            color:white !important;
+            text-align: left !important;
+            font-weight: bold !important;
+            border-top-right-radius: 15px;
+            border-top-left-radius: 15px;
+          }
+        </style>
+    </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Applications</title>
+      <single>
+        <search base="base_panels">
+          <query>| search app_name = "$myApp$" file_name="$myDashboard$"
+| stats dc(app_name)</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Interesting Dashboards</title>
+      <single>
+        <search base="base_panels">
+          <query>| search app_name = "$myApp$" file_name="$myDashboard$"
+| stats dc(dashboard_title)</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Interesting Panels</title>
+      <single>
+        <search base="base_panels">
+          <query>| search app_name = "$myApp$" file_name="$myDashboard$"
+| stats count</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Applications</title>
+      <table>
+        <search base="base_panels">
+          <query>| search app_name = "$myApp$"
+| dedup app_name
+| table app_name</query>
+        </search>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="form.myDashboard">*</set>
+          <set token="form.myApp">$row.app_name$</set>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Interesting Dashboards</title>
+      <table>
+        <search base="base_panels">
+          <query>| search app_name = "$myApp$" file_name="$myDashboard$"
+| dedup app_name, file_name dashboard_title
+| table app_name file_name  dashboard_title</query>
+        </search>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="form.myDashboard">$row.file_name$</set>
+          <set token="form.myApp">$row.app_name$</set>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Interesting Panels</title>
+      <table>
+        <search base="base_panels">
+          <query>| search app_name = "$myApp$" file_name="$myDashboard$"
+| dedup panel_title
+| table panel_title</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Splunk Usage</title>
+      <html>
+      <b>What are you're users accessing most oftern?</b>
+    </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Most Used SPL Commands</title>
+      <table>
+        <search>
+          <query>index=_audit action=search info=completed search=* NOT "search_id='scheduler" NOT "search=|history" NOT "user=splunk-system-user" NOT "search='typeahead" NOT "search='| metadata type=* | search totalCount&gt;0" app="*"  
+| fields search 
+| rex field=search "\|\s*(?&lt;command&gt;\w+)\s(?&lt;attributes&gt;[^|]*)" max_match=1000 
+| mvexpand command 
+| search command!=""
+| stats count as "execution", distinct_count(search) as "distinct_searches" by command 
+| sort -distinct_search, -execution
+| rename command as "SPL Command"</query>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Most Viewed Dashboards</title>
+      <table>
+        <search base="base_usage">
+          <query>| search app = "$myApp$" dashboard = "$myDashboard$"
+| stats count as Views dc(user) as Users by app, dashboard
+| sort -Views</query>
+        </search>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="form.myDashboard">$row.dashboard$</set>
+          <set token="form.myApp">$row.app$</set>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Most Active Users</title>
+      <table>
+        <search base="base_usage">
+          <query>| stats count by user
+| sort -count</query>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Individual Usage by User</title>
+      <table>
+        <search base="base_usage">
+          <query>| search app = "$myApp$" dashboard = "$myDashboard$"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Splunk Searches</title>
+      <html>
+      <b>What are the underlying Splunk Searches for the panels on the selected dashboards?</b>
+    </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Dashboard Panels and Searches</title>
+      <table>
+        <search base="base_panels">
+          <query>| search app_name = "$myApp$" file_name="$myDashboard$"</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Macros</title>
+      <table>
+        <search>
+          <query>| rest /servicesNS/-/-/data/macros
+| fields eai:acl.app title definition args
+| rename eai:acl.app as app_name, title as macro_name
+| search definition != "()"
+| search app_name = "$myApp$"  (NOT app_name IN ($myExcludedApps$))
+| table app_name macro_name args definition</query>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>
