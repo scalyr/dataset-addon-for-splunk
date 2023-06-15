@@ -1,0 +1,81 @@
+<form version="1.1">
+  <label>SentinelOne Use Case Query Examples</label>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <title>Notes</title>
+      <html>
+      This dashboard uses example searches from SentinelOne at <a href="https://support.sentinelone.com/hc/en-us/articles/360057861574-Use-Case-Query-Examples">https://support.sentinelone.com/hc/en-us/articles/360057861574-Use-Case-Query-Example</a>
+    </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Queries</title>
+      <input type="time" token="myTime" searchWhenChanged="true">
+        <label>Time</label>
+        <default>
+          <earliest>-4h@m</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <input type="dropdown" token="baseQuery" searchWhenChanged="true">
+        <label>Max rows of data to return</label>
+        <choice value="os.name matches '^Windows' AND event.category = 'file' AND tgt.file.path contains 'temp' AND tgt.file.isExecutable = 'true' AND src.process.verifiedStatus != 'verified' AND src.process.publisher != 'MICROSOFT WINDOWS'">A non-Windows process writes files to the temp directory</choice>
+        <choice value="(src.process.displayName = 'Windows host process (Rundll32)' OR src.process.displayName = 'Microsoft(C) Register Server') AND src.process.displayName contains ('javascript', 'mshtml', 'runhtmlapplication')">Rundll or Regsvr executes a script</choice>
+        <choice value="event.category = 'file' AND tgt.file.path contains 'windows\\temp' AND tgt.file.path matches '(bat|cmd)$' AND NOT tgt.file.path contains ('{', '}')">Bat or cmd files are dropped directly to a temp folder </choice>
+        <choice value="(src.process.verifiedStatus != 'verified' AND src.process.publisher != 'MICROSOFT WINDOWS' AND tgt.process.verifiedStatus = 'verified' AND tgt.process.publisher  != 'MICROSOFT WINDOWS' AND event.category='cross_process') OR (indicator.name='RemoteLibraryInjection' AND (indicator.metadata contains ('lsass.exe', 'explorer.exe', 'svchost.exe')))">A non-Windows process injects to a Windows process</choice>
+        <choice value="(src.process.displayName = 'Windows host process (Rundll32)' AND NOT src.process.image.path matches ('system32\\\\rundll32\\.exe$', 'syswow64\\\\rundll32\\.exe$')) OR (src.process.displayName = 'Microsoft(C) Register Server' AND NOT src.process.image.path matches ('system32\\\\regsvr32\\.exe$', 'syswow64\\\\regsvr32\\.exe$')) OR (src.process.displayName = 'Windows Command Processor' AND NOT src.process.image.path matches ('system32\\\\cmd\\.exe$', 'syswow64\\\\cmd\\.exe$')) OR (src.process.displayName = 'Windows PowerShell' AND NOT src.process.image.path matches 'powershell\\.exe$')">LOLBins command processors masquerade under a different name and path</choice>
+        <choice value="(src.process.displayName = 'Windows host process (Rundll32)' OR src.process.displayName = 'Microsoft(C) Register Server') AND src.process.cmdline contains ('http', 'https')">Rundll or Regsvr run content from a remote server</choice>
+        <choice value="src.process.image.path contains 'powershell' AND src.process.cmdline matches '.*([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=).*'
+">Suspicious Powershell with base64 in the commandline</choice>
+        <choice value="event.category = 'file' AND tgt.file.type contains 'dll' AND tgt.file.path contains '\\windows' AND ((tgt.file.isSigned = 'signed' AND src.process.verifiedStatus != 'verified') OR tgt.file.isSigned != 'signed') AND tgt.file.path matches 'windows\\\\sys(tem32|wow64)\\\\'">New unsigned DLL is dropped in the Windows directory (possible DLL hijack attempt)</choice>
+        <choice value="event.type = 'Process Creation' AND ((src.process.cmdline contains 'copy' AND (src.process.cmdline contains '\\Windows\\NTDS\\NTDS\.dit' or src.process.cmdline contains  '\\Windows\\System32\\config\\SYSTEM ')) OR (src.process.cmdline contains 'save' and src.process.cmdline contains 'HKLM\\SYSTEM ' ) OR (src.process.name = 'ntdsutil.exe' AND src.process.cmdline contains 'ac i ntds') or (src.process.name = 'mklink.exe' AND src.process.cmdline contains 'HarddiskVolumeShadowCopy')) AND NOT src.process.cmdline contains 'Get-psSDP.ps1'">NTDS Copy</choice>
+        <choice value="event.type = 'Process Creation' AND src.process.name cnotains 'fsutil' AND src.process.cmdline contains ' usn ' AND src.process.cmdline contains ' deletejournal'">Removal of indicators on Host</choice>
+        <choice value="event.tpe = 'Process Creation' AND src.process.cmdline matches '\\sa\\s.*\\s-hp\\S+\\s' AND src.process.cmdline matches '\\sa\\s.*\\s-m[0-5]+\\s'">Suspicious data compression</choice>
+        <choice value="src.process.name = 'netsh.exe' AND src.process.cmdline continas 'enable=Yes' AND (src.process.cmdline contains 'remote desktop' OR src.process.cmdline contains 'file and printer sharing')">Allow SMB and RDP on Defender Firewall </choice>
+        <choice value="(tgt.file.path contains 'System.Management.Automation' AND NOT src.process.name in ('powershell.exe', 'poershell_ise.exe')) AND NOT (src.process.publisher in ('MICROSOFT DYNAMIC CODE PUBLISHER', 'MICROSOFT CORPORATION', 'MICROSOFT WINDOWS') AND src.process.verifiedStatus = 'verified')">Unmanaged Powershell</choice>
+        <choice value="event.type = 'Process Creation' AND src.process.name contains 'mshta.exe' AND src.process.cmdline contains ('javascript:', 'about:', '&lt;script&gt;', 'vbscript:Execute')">Signed Binary Proxy Execution: mshta</choice>
+        <choice value="event.type = 'Process Creation' AND src.process.name contains 'regsvr32.exe' AND src.process.cmdline contains 's /u /n /i:http' AND src.process.cmdline contains 'scrobj'">Signed Binary Proxy Execution: regsvr32 </choice>
+        <choice value="event.type = 'Process Creation' AND src.process.name contains'rundll32.exe' AND (src.process.cmdline contains 'mshtml,RunHTMLApplication' OR src.process.cmdline contains 'javascript:')">Signed Binary Proxy Execution: Rundll32</choice>
+        <choice value="event.type = 'Process Creation' AND src.process.parent.displayName contains 'powershell' AND tgt.process.cmdline matches '`[cdeghijklmopqsuwxyz]'">Powershell Unnecessary Escaping</choice>
+        <choice value="event.type = 'Process Creation' AND src.process.name contains 'cmstp.exe' AND src.process.cmdline contains ' /s'">Signed Binary Proxy Execution: CMSTP</choice>
+        <choice value="registry.keyPath contains 'Services\DHCPServer\Parameters\Callout">DHCP CalloutDLL</choice>
+        <default>os.name matches '^Windows' AND event.category = 'file' AND tgt.file.path contains 'temp' AND tgt.file.isExecutable = 'true' AND src.process.verifiedStatus != 'verified' AND src.process.publisher != 'MICROSOFT WINDOWS'</default>
+        <initialValue>os.name matches '^Windows' AND event.category = 'file' AND tgt.file.path contains 'temp' AND tgt.file.isExecutable = 'true' AND src.process.verifiedStatus != 'verified' AND src.process.publisher != 'MICROSOFT WINDOWS'</initialValue>
+      </input>
+      <html>
+        <style>
+          #$powerQuery$   .splunk-textinput input{  width: 1000px; !important; }
+          .dashboard-panel h2{
+            background:#6B0AEA !important;
+            color:white !important;
+            text-align: left !important;
+            font-weight: bold !important;
+            border-top-right-radius: 15px;
+            border-top-left-radius: 15px;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <html><b>SentinelOne Search:</b> $baseQuery$</html>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>SPL:  | dataset method=powerquery search="$baseQuery$ | columns endpoint.name | group count=count() by endpoint.name" | spath | table endpoint.name, count</title>
+        <search>
+          <query>| dataset account=xdr method=powerquery search="$baseQuery$ | columns endpoint.name | group count=count() by endpoint.name" | spath | table endpoint.name, count</query>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>
