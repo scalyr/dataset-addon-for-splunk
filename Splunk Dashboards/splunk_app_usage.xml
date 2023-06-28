@@ -110,7 +110,7 @@ index=_internal sourcetype=splunk_web_access host=* user=*
           #baseFacetQuery   .splunk-textinput input{  width: 1000px; !important; }
           #splunkAggregate  .splunk-textinput input{  width: 1000px; !important; }
           .dashboard-panel h2{
-            background:#0000ff !important;
+            background:#6B0AEA !important;
             color:white !important;
             text-align: left !important;
             font-weight: bold !important;
@@ -309,6 +309,36 @@ index=_internal sourcetype=splunk_web_access host=* user=*
 | search definition != "()"
 | search app_name = "$myApp$"  (NOT app_name IN ($myExcludedApps$))
 | table app_name macro_name args definition</query>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Saved Searches and Alerts</title>
+      <table>
+        <search>
+          <query>
+| rest /servicesNS/-/-/saved/searches
+
+``` get fields we want from  all the dashboards for all the apps ```
+| fields eai:acl.app eai:data title search display.visualizations.type cron_schedule alert_type alert_comparator alert_threshold alert_condition
+| rename eai:acl.app as app_name, display.visualizations.type as viz
+
+| search NOT app_name IN(Splunk_Security_Essentials,lookup_editor,splunk_monitoring_console,splunk_secure_gateway,splunk_instrumentation,Splunk_SA_CIM)
+
+```   total, sort and print the results  ```
+| eventstats count as total_searches 
+| eventstats dc(searches) as searches_in_app by app_name
+| sort  app_name title 
+| table app_name title search viz cron_schedule alert_type alert_comparator alert_threshold alert_condition
+| search app_name = "*" search="*"
+| dedup app_name, title, search
+</query>
           <earliest>$myTime.earliest$</earliest>
           <latest>$myTime.latest$</latest>
         </search>
