@@ -67,7 +67,7 @@
       <table>
         <title>SPL:  | dataset method=powerquery search="$baseQuery$ | columns endpoint.name | group count=count() by endpoint.name" | spath | table endpoint.name, count</title>
         <search>
-          <query>| dataset account=xdr method=powerquery search="$baseQuery$ | columns endpoint.name | group count=count() by endpoint.name" | spath | table endpoint.name, count</query>
+          <query>| dataset method=powerquery search="$baseQuery$ | columns endpoint.name | group count=count() by endpoint.name" | spath | table endpoint.name, count</query>
           <earliest>$myTime.earliest$</earliest>
           <latest>$myTime.latest$</latest>
           <sampleRatio>1</sampleRatio>
