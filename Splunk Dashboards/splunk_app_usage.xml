@@ -209,7 +209,7 @@ index=_internal sourcetype=splunk_web_access host=* user=*
     <panel>
       <title>Splunk Usage</title>
       <html>
-      <b>What are you're users accessing most oftern?</b>
+      <b>What are you're users accessing most often?</b>
     </html>
     </panel>
   </row>
