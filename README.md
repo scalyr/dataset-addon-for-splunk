@@ -41,8 +41,8 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 
 ![Creating DataSet API keys](README_images/dataset_key.png)
 
-3. Click Add Key > Add Read Key (required for search command and inputs).
-4. Click Add Key > Add Write Key (required for alert action).
+3. Under Log Access Keys, click Add Key > Add Read Key (required for search command and inputs).
+4. Log Access Keys, click Add Key > Add Write Key (required for alert action).
 5. Optionally, click the pencil icon to rename the keys.
 
 ### Splunk
