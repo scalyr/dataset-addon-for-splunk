@@ -84,7 +84,10 @@ class DATASET_ALERTS_INPUT(smi.Script):
             acct_dict = get_acct_info(self, logger, ds_account)
             for ds_acct in acct_dict.keys():
                 ds_url = get_url(acct_dict[ds_acct]['base_url'], 'powerquery')
-                ds_headers = { "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'] }
+                ds_headers = {
+                    "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'],
+                    "User-Agent": f"splunk-ta - ApplicationName: {APP_NAME}; ApplicationVersion; {VERSION}",
+                }
 
                 #Create checkpointer
                 checkpoint = checkpointer.KVStoreCheckpointer(

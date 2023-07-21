@@ -111,7 +111,10 @@ class DATASET_QUERY_INPUT(smi.Script):
                 curr_payload = copy.deepcopy(ds_payload)
                 curr_maxcount = copy.copy(ds_maxcount)
                 ds_url = get_url(acct_dict[ds_acct]['base_url'], 'query')
-                ds_headers = { "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'] }
+                ds_headers = {
+                    "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'],
+                    "User-Agent": f"splunk-ta - ApplicationName: {APP_NAME}; ApplicationVersion; {VERSION}",
+                }
 
                 #Create checkpointer
                 checkpoint = checkpointer.KVStoreCheckpointer(

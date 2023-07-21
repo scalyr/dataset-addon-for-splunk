@@ -1,6 +1,7 @@
 # encoding = utf-8
 
 import os
+import os.path as op
 import sys
 import time
 import json
@@ -9,7 +10,7 @@ import requests
 import logging
 import re
 import copy
-from dataset_common import get_url, get_acct_info, get_token, get_proxy, normalize_time, relative_to_epoch
+from dataset_common import get_url, get_acct_info, get_token, get_proxy, normalize_time, relative_to_epoch, VERSION
 from dataset_api import *
 #From Splunk UCC
 import import_declare_test
@@ -21,6 +22,8 @@ from dataset_query_api_client import AuthenticatedClient
 from dataset_query_api_client.models import PostQueriesLaunchQueryRequestBody, PostQueriesLaunchQueryRequestBodyQueryType, LogAttributes, QueryResult
 from dataset_query_api_client.api.default import post_queries, get_queries
 from dataset_query_api_client.types import Response
+
+APP_NAME = __file__.split(op.sep)[-3]
 
 def get_search_times(self):
     #if starttime was given in search, use it
@@ -175,7 +178,10 @@ class DataSetSearch(GeneratingCommand):
                 ds_base_url = acct_dict[ds_acct]['base_url']
                 ds_url = get_url(ds_base_url, ds_method)
                 ds_api_key = acct_dict[ds_acct]['ds_api_key']
-                ds_headers = { "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'], "User-Agent": "splunk-ta" }
+                ds_headers = {
+                    "Authorization": "Bearer " + acct_dict[ds_acct]['ds_api_key'],
+                    "User-Agent": f"splunk-ta - ApplicationName: {APP_NAME}; ApplicationVersion; {VERSION}",
+                }
             except:
                 search_error_exit(self, "Splunk configuration error, see search log for details.")
 
