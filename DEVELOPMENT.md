@@ -28,7 +28,7 @@ Make sure, that the application is valid:
 
 Use the UCC Framework to [pack the application](https://splunk.github.io/addonfactory-ucc-generator/quickstart/#build-already-existing-add-on).
 * `ucc-gen --source S1DataLake`
-* `slim package output/S1DataLake`
+* `slim package output/S1DataLake -o release`
 
 ## Useful Links
 
