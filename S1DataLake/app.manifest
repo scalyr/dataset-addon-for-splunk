@@ -1,11 +1,11 @@
 {
   "schemaVersion": "2.0.0",
   "info": {
-    "title": "DataSet Add-on for Splunk",
+    "title": "SentinelOne Data Lake App for Splunk",
     "id": {
       "group": null,
-      "name": "TA-dataset",
-      "version": "2.0.0"
+      "name": "S1DataLake",
+      "version": "2.0.1"
     },
     "author": [
       {
@@ -15,7 +15,7 @@
       }
     ],
     "releaseDate": null,
-    "description": "The DataSet Add-on for Splunk provides integration with DataSet by SentinelOne.",
+    "description": "The SentinelOne Data Lake App for Splunk provides integration with DataSet by SentinelOne.",
     "classification": {
       "intendedAudience": "IT",
       "categories": ["Security, Fraud & Compliance", "IT Operations", "Business Analytics"],
@@ -47,6 +47,7 @@
   },
   "tasks": [],
   "supportedDeployments": ["_standalone", "_distributed", "_search_head_clustering"],
+  "targetWorkloads": ["_search_heads"],
   "inputGroups": {
   },
   "incompatibleApps": {

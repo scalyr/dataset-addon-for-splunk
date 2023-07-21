@@ -1,8 +1,8 @@
 {
     "meta": {
         "name": "TA-dataset",
-        "displayName": "DataSet Add-on for Splunk",
-        "version": "2.0.0",
+        "displayName": "SentinelOne Data Lake App for Splunk",
+        "version": "2.0.0R3aeef97",
         "restRoot": "TA_dataset",
         "schemaVersion": "0.0.3"
     },
