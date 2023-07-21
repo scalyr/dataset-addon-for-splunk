@@ -30,3 +30,6 @@ Use the UCC Framework to [pack the application](https://splunk.github.io/addonfa
 * `ucc-gen --source S1DataLake`
 * `slim package output/S1DataLake`
 
+## Useful Links
+
+* Configuration documentation - https://docs.splunk.com/Documentation/Splunk/9.1.0/Admin/Searchbnfconf
