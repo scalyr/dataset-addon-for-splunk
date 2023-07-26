@@ -6,7 +6,7 @@ import os
 import sys
 
 from splunktaucclib.alert_actions_base import ModularAlertBase
-from ta_dataset import modalert_dataset_event_helper
+from ta_s1datalake import modalert_dataset_event_helper
 
 class AlertActionWorkerdataset_event(ModularAlertBase):
 
