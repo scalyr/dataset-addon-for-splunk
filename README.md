@@ -1,5 +1,5 @@
-#  SentinelOne Data Lake App for Splunk
-The SentinelOne Data Lake App for Splunk provides integration with [DataSet](https://www.dataset.com) and [XDR](https://www.sentinelone.com/platform/xdr-ingestion) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
+#  SentinelOne Data Lake App
+The SentinelOne Data Lake App provides integration with [DataSet](https://www.dataset.com) and [XDR](https://www.sentinelone.com/platform/xdr-ingestion) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
 - SPL custom command to query directly from the Splunk UI.
 - Inputs to index alerts as CIM-compliant, or any user-defined query results.
 - Alert action to send events from Splunk.
