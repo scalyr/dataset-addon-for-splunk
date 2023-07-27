@@ -2,7 +2,7 @@
     "meta": {
         "name": "TA_s1datalake",
         "displayName": "SentinelOne Data Lake App",
-        "version": "2.0.0R6519d25",
+        "version": "2.0.0R89d0061",
         "restRoot": "TA_s1datalake",
         "schemaVersion": "0.0.3"
     },

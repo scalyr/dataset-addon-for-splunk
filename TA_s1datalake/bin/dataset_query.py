@@ -9,8 +9,8 @@ import traceback
 import math
 import copy
 
-from dataset_common import *
 from dataset_api import *
+from dataset_common import *
 from solnlib.modular_input import checkpointer
 
 import import_declare_test
