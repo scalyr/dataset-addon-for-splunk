@@ -1,10 +1,10 @@
 {
   "schemaVersion": "2.0.0",
   "info": {
-    "title": "SentinelOne Data Lake App for Splunk",
+    "title": "SentinelOne Data Lake App",
     "id": {
       "group": null,
-      "name": "S1DataLake",
+      "name": "TA_s1datalake",
       "version": "2.0.1"
     },
     "author": [
@@ -15,7 +15,7 @@
       }
     ],
     "releaseDate": null,
-    "description": "The SentinelOne Data Lake App for Splunk provides integration with DataSet by SentinelOne.",
+    "description": "The SentinelOne Data Lake App provides integration with DataSet by SentinelOne.",
     "classification": {
       "intendedAudience": "IT",
       "categories": ["Security, Fraud & Compliance", "IT Operations", "Business Analytics"],
