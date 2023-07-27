@@ -9,7 +9,7 @@ import import_declare_test
 from solnlib import conf_manager, log
 
 APP_NAME = __file__.split(op.sep)[-3]
-CONF_NAME = "ta_dataset"
+CONF_NAME = "ta_s1datalake"
 
 
 #define DataSet API URL for all environments
@@ -113,7 +113,7 @@ def get_acct_info(self, logger, account=None):
         #wildcard to use all accounts
         if account == "*":
             try:
-                confs = self.service.confs['ta_dataset_account']
+                confs = self.service.confs['ta_s1datalake_account']
                 for conf in confs:
                     acct_dict[conf.name] = {}
                     acct_dict[conf.name]['base_url'] = conf.url
@@ -126,7 +126,7 @@ def get_acct_info(self, logger, account=None):
                 #remove spaces and split by commas
                 account = account.replace(' ', '').split(",")
                 for entry in account:
-                    conf = self.service.confs['ta_dataset_account'][entry]
+                    conf = self.service.confs['ta_s1datalake_account'][entry]
                     acct_dict[entry] = {}
                     acct_dict[entry]['base_url'] = conf.url
                     acct_dict[entry]['ds_api_key'] = get_token(self, entry, "read", logger)
@@ -136,7 +136,7 @@ def get_acct_info(self, logger, account=None):
     #if account is not defined, try to get the first entry (Splunk sorts alphabetically)
     else:
         try:
-            confs = self.service.confs['ta_dataset_account']
+            confs = self.service.confs['ta_s1datalake_account']
             for conf in confs:
                 acct_dict[conf.name] = {}
                 acct_dict[conf.name]['base_url'] = conf.url

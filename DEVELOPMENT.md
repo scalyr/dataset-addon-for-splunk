@@ -30,6 +30,32 @@ Use the UCC Framework to [pack the application](https://splunk.github.io/addonfa
 * `ucc-gen --source S1DataLake`
 * `slim package output/S1DataLake -o release`
 
+
+## TroubleShooting
+
+### ModuleNotFoundError
+
+It was happening that some of the files were failing on:
+```
+Traceback (most recent call last):
+  File "apps/TA_s1datalake/bin/dataset_search_command.py", line 13, in <module>
+    from dataset_api import *
+ModuleNotFoundError: No module named 'dataset_api'
+```
+
+I have fixed it by swapping order of imports. Initially there was `dataset_common` and after that `dataset_api`. After swapping it has started to work.
+
+I have checked, that it works in UI, but also with:
+```bash
+cd /opt/splunk/etc
+
+for f in `find apps/TA_s1datalake/bin/ -name '*.py'`; do
+  echo $f;
+  LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/splunk/lib" /opt/splunk/bin/python3.7 $f;
+done;
+```
+Many of these scripts are trying to perform some action which fails, but none of them fails on `ModuleNotFoundError`.
+
 ## Useful Links
 
 * Configuration documentation - https://docs.splunk.com/Documentation/Splunk/9.1.0/Admin/Searchbnfconf

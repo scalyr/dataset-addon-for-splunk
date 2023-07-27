@@ -9,8 +9,8 @@ import requests
 import logging
 import re
 import copy
-from dataset_common import get_url, get_acct_info, get_token, get_proxy, normalize_time, relative_to_epoch
 from dataset_api import *
+from dataset_common import get_url, get_acct_info, get_token, get_proxy, normalize_time, relative_to_epoch
 #From Splunk UCC
 import import_declare_test
 #Splunk Enterprise SDK
