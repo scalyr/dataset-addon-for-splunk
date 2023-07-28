@@ -1,4 +1,4 @@
-#  TA-dataset
+#  TA_dataset
 This add-on integrates with [DataSet](https://www.dataset.com) by [SentinelOne](https://www.sentinelone.com).
 
 For more information, see the [GitHub](https://github.com/scalyr/dataset-addon-for-splunk) repository.

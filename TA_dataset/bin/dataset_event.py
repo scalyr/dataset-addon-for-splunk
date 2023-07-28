@@ -51,5 +51,5 @@ class AlertActionWorkerdataset_event(ModularAlertBase):
         return status
 
 if __name__ == "__main__":
-    exitcode = AlertActionWorkerdataset_event("TA-dataset", "dataset_event").run(sys.argv)
+    exitcode = AlertActionWorkerdataset_event("TA_dataset", "dataset_event").run(sys.argv)
     sys.exit(exitcode)
