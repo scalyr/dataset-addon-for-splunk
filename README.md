@@ -1,11 +1,11 @@
-#  DataSet Add-on for Splunk
-The DataSet Add-on for Splunk provides integration with [DataSet](https://www.dataset.com) and [XDR](https://www.sentinelone.com/platform/xdr-ingestion) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
+#  SentinelOne Data Lake App
+The SentinelOne Data Lake App provides integration with [DataSet](https://www.dataset.com) and [XDR](https://www.sentinelone.com/platform/xdr-ingestion) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
 - SPL custom command to query directly from the Splunk UI.
 - Inputs to index alerts as CIM-compliant, or any user-defined query results.
 - Alert action to send events from Splunk.
 
 ## Installation
-The add-on can be installed from [Splunkbase](https://splunkbase.splunk.com/app/6575) or manually via the .tgz file. For those looking to customize, the package subdirectory contains all artifacts. To compile, reference Splunk's [UCC Framework instructions](https://splunk.github.io/addonfactory-ucc-generator/how_to_use/) to use `ucc-gen` and `slim package`.
+The add-on can be installed from [Splunkbase](https://splunkbase.splunk.com/app/6575) or manually via the .tgz file. For those looking to customize, the `S1DataLake` subdirectory contains all artifacts. To compile, reference Splunk's [UCC Framework instructions](https://splunk.github.io/addonfactory-ucc-generator/how_to_use/) to use `ucc-gen` and `slim package`.
 
 Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons). 
 

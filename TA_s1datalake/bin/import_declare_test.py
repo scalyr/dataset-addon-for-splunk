@@ -4,7 +4,7 @@ import sys
 import re
 from os.path import dirname
 
-ta_name = 'TA-dataset'
+ta_name = 'TA_s1datalake'
 pattern = re.compile(r'[\\/]etc[\\/]apps[\\/][^\\/]+[\\/]bin[\\/]?$')
 new_paths = [path for path in sys.path if not pattern.search(path) or ta_name in path]
 new_paths.append(os.path.join(dirname(dirname(__file__)), "lib"))
