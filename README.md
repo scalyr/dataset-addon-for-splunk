@@ -192,7 +192,7 @@ Splunk is a trademark or registered trademark of Splunk Inc. in the United State
 # Development
 
 Since Splunk support Python 3.7 (deprecated as of June 2023), and cant be easily installed we use Python 3.8 to build app.
-In order to use use python 3.8 we use Python Virtual environment.
+In order to use python 3.8 we use Python Virtual environment.
 
 ## Prerequisites
 - Install [Splunk AppInspect CLI](https://dev.splunk.com/enterprise/docs/developapps/testvalidate/appinspect/useappinspectclitool)
@@ -213,7 +213,7 @@ In order to use use python 3.8 we use Python Virtual environment.
 
 ## Run Docker Splunk locally (Mac M1 machines)
 Since Splunk does not have [Docker image for Apple Sillicon](https://github.com/splunk/docker-splunk/issues/493) you may need to
-- Use Docker Desktop 4.16.1 or newer and enable `Rosetta` in `Features in Development`, see [more](https://levelup.gitconnected.com/docker-on-apple-silicon-mac-how-to-run-x86-containers-with-rosetta-2-4a679913a0d5)
+- Use Docker Desktop 4.16.1 or newer and enable `Use Virtualization framework` in `General` and `Rosetta` in `Features in Development`, see [more](https://levelup.gitconnected.com/docker-on-apple-silicon-mac-how-to-run-x86-containers-with-rosetta-2-4a679913a0d5)
 - Run Splunk Docker image with `--platform=linux/amd64` parameter, eg:
 ```docker run -it -e SPLUNK_START_ARGS=--accept-license -e SPLUNK_PASSWORD=Test0101 --platform=linux/amd64 --name splunk -p 8000:8000 splunk/splunk:latest start```
 
