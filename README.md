@@ -208,7 +208,7 @@ In order to use use python 3.8 we use Python Virtual environment.
     * `pip install --upgrade-strategy only-if-needed splunk-packaging-toolkit`
 
 ## Build App
-- `ucc-gen build --source TA_dataset --ta-version 2.0.1`
+- `ucc-gen build --source TA_dataset --ta-version 2.0.2`
 - `slim package output/TA_dataset -o release`
 
 ## Run Docker Splunk locally (Mac M1 machines)
