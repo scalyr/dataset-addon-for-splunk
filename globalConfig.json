@@ -1,8 +1,8 @@
 {
     "meta": {
-        "name": "TA-dataset",
-        "displayName": "DataSet Add-on for Splunk",
-        "version": "2.0.0",
+        "name": "TA_dataset",
+        "displayName": "Security Data Lake Add-On for Splunk",
+        "version": "2.0.1",
         "restRoot": "TA_dataset",
         "schemaVersion": "0.0.3"
     },

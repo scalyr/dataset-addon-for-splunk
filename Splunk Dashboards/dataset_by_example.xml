@@ -1,5 +1,5 @@
 <form version="1.1">
-  <label>DataSet by Example</label>
+  <label>Security Data Lake by Example</label>
   <init>
     <set token="myMaxCount">maxcount=10</set>
     <set token="baseQuery"></set>

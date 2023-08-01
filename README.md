@@ -1,5 +1,5 @@
-#  DataSet Add-on for Splunk
-The DataSet Add-on for Splunk provides integration with [DataSet](https://www.dataset.com) and [XDR](https://www.sentinelone.com/platform/xdr-ingestion) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
+#  Security Data Lake Add-On for Splunk
+The Security Data Lake Add-On for Splunk provides integration with [DataSet](https://www.dataset.com) and [XDR](https://www.sentinelone.com/platform/xdr-ingestion) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
 - SPL custom command to query directly from the Splunk UI.
 - Inputs to index alerts as CIM-compliant, or any user-defined query results.
 - Alert action to send events from Splunk.
@@ -60,7 +60,7 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 
 3. Optionally, configure logging level and proxy information on the associated tabs.
 4. Click Save.
-5. The included DataSet by Example dashboard can be used to confirm connectivity and also shows example searches to get started.
+5. The included Security Data Lake by Example dashboard can be used to confirm connectivity and also shows example searches to get started.
 
 ## SPL Command
 The `| dataset` command allows queries against the [DataSet APIs](https://app.scalyr.com/help/api) directly from Splunk's search bar. 
@@ -174,7 +174,7 @@ Error saving configuration "CSRF validation failed" - This is a Splunk browser i
 
 Search errors `Account token error, review search log for details` or `Splunk configuration error, see search log for details.` - API token was unable to be retrieved. Common issues include user role missing list_storage_passwords permission, API token not set or incorrect account name given that has not been configured. Review job inspector search log for errors returned by Splunk. `Error retrieving account settings, error = UrlEncoded('broken')` indicates a likely misconfigured or incorrect account name; `splunklib.binding.HTTPError: HTTP 403 Forbidden -- You (user=username) do not have permission to perform this operation (requires capability: list_storage_passwords OR admin_all_objects)` indicates missing Splunk user permissions (list_storage_passwords).
 
-To troubleshoot the custom command, check the Job Inspector search log, also available in the internal index: `index=_internal app="TA-dataset" sourcetype=splunk_search_messages`.
+To troubleshoot the custom command, check the Job Inspector search log, also available in the internal index: `index=_internal app="TA_security_data_lake" sourcetype=splunk_search_messages`.
 
 For support, open a ticket with DataSet (or SentinelOne for XDR) support including any logged errors, or open a GitHub issue.
 
@@ -188,3 +188,54 @@ If Splunk events all show the same time, ensure results are returning a `timesta
 ##### Note
 This add-on was built with the [Splunk Add-on UCC framework](https://splunk.github.io/addonfactory-ucc-generator/) and uses the [Splunk Enterprise Python SDK](https://github.com/splunk/splunk-sdk-python).
 Splunk is a trademark or registered trademark of Splunk Inc. in the United States and other countries.
+
+# Development
+
+Since Splunk support Python 3.7 (deprecated as of June 2023), and cant be easily installed we use Python 3.8 to build app.
+In order to use use python 3.8 we use Python Virtual environment.
+
+## Prerequisites
+- Install [Splunk AppInspect CLI](https://dev.splunk.com/enterprise/docs/developapps/testvalidate/appinspect/useappinspectclitool)
+* Install Python 3.8 `brew install python@3.8`
+* Create venv with Python3.8: `python3.8 -m venv venv`
+* Activate it: `source venv/bin/activate`
+* Install dependencies:
+    * `pip install "cython<3.0.0"`
+    * `pip install wheel`
+    * `pip install --no-build-isolation pyyaml==5.4.1`
+    * `pip install --upgrade-strategy only-if-needed splunk-appinspect`
+    * `pip install --upgrade-strategy only-if-needed splunk-add-on-ucc-framework`
+    * `pip install --upgrade-strategy only-if-needed splunk-packaging-toolkit`
+
+## Build App
+- `ucc-gen build --source TA_security_data_lake --ta-version 2.0.1`
+- `slim package output/TA_security_data_lake -o release`
+
+## Run Docker Splunk locally (Mac M1 machines)
+Since Splunk does not have [Docker image for Apple Sillicon](https://github.com/splunk/docker-splunk/issues/493) you may need to
+- Use Docker Desktop 4.16.1 or newer and enable `Rosetta` in `Features in Development`, see [more](https://levelup.gitconnected.com/docker-on-apple-silicon-mac-how-to-run-x86-containers-with-rosetta-2-4a679913a0d5)
+- Run Splunk Docker image with `--platform=linux/amd64` parameter, eg:
+```docker run -it -e SPLUNK_START_ARGS=--accept-license -e SPLUNK_PASSWORD=Test0101 --platform=linux/amd64 --name splunk -p 8000:8000 splunk/splunk:latest start```
+
+To clean up container run `docker container rm splunk` command
+
+## Install Security Data Lake Add-On for Splunk to running Docker container
+Assuming application was previously built
+
+### From existing release
+- `docker cp release/TA_security_data_lake-2.0.0-Rxxx.tar.gz  splunk:/opt/splunk/etc/apps/`
+- `docker exec splunk sudo tar -xvzf /opt/splunk/etc/apps/TA_security_data_lake-2.0.0-Rxxx.tar.gz -C /opt/splunk/etc/apps/`
+- `docker exec splunk sudo chown -R splunk:splunk /opt/splunk/etc/apps/TA_security_data_lake/`
+- `docker exec splunk sudo -u splunk /opt/splunk/bin/splunk restart`
+
+### Using mounted volume from built app
+- Mount folder with built app `docker run -it -v "$(pwd)/output/TA_security_data_lake:/opt/splunk/etc/apps/TA_security_data_lake/" -e SPLUNK_START_ARGS=--accept-license -e SPLUNK_PASSWORD=Test0101 --platform=linux/amd64 --name splunk -p 8000:8000 splunk/splunk:latest start`
+
+To apply changes build app again `ucc-gen build --source TA_security_data_lake`
+- Changes in python scripts take effect immediately without any restart
+- Changes in static files like XML template take effect after restart `docker exec splunk sudo -u splunk /opt/splunk/bin/splunk restart`
+
+Once application is installed create connection to DataSet environment under `Configuration` tab using `Add` button.
+Note that build cleans previously created configuration. To prevent removal of configuration while build 
+- copy configured configuration to home folder `mkdir -p ~/splunk_dataset_app_configuration && cp -R ./output/TA_security_data_lake/local/* ~/splunk_dataset_app_configuration/`
+- copy back to splunk `mkdir -p ./output/TA_security_data_lake/local/ && cp -R ~/splunk_dataset_app_configuration/* ./output/TA_security_data_lake/local/`

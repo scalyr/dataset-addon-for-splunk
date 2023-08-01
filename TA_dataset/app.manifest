@@ -1,11 +1,11 @@
 {
   "schemaVersion": "2.0.0",
   "info": {
-    "title": "DataSet Add-on for Splunk",
+    "title": "Security Data Lake Add-On for Splunk",
     "id": {
       "group": null,
-      "name": "TA-dataset",
-      "version": "2.0.0"
+      "name": "TA_dataset",
+      "version": "2.0.1"
     },
     "author": [
       {
@@ -15,7 +15,7 @@
       }
     ],
     "releaseDate": null,
-    "description": "The DataSet Add-on for Splunk provides integration with DataSet by SentinelOne.",
+    "description": "The Security Data Lake Add-On for Splunk provides integration with DataSet by SentinelOne.",
     "classification": {
       "intendedAudience": "IT",
       "categories": ["Security, Fraud & Compliance", "IT Operations", "Business Analytics"],
@@ -55,5 +55,6 @@
     "splunk": {
       "Enterprise": "*"
     }
-  }
+  },
+  "targetWorkloads" : ["*"]
 }
