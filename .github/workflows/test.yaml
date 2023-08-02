@@ -1,0 +1,56 @@
+name: Release
+on:
+  push:
+    branches:
+      - test
+  pull_request:
+    branches:
+      - test
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup python
+      - uses: actions/setup-python@v1
+
+      - name: DEBUG
+        run: echo "install tools"
+
+      - name: install more-utils
+        run: sudo apt-get install moreutils
+
+      - name: install crudini
+        run: pip install crudini
+
+      - name: DEBUG
+        run: echo "increase version"
+
+      - name: Set SDLAPP_VERSION_CURRENT
+        run: echo "SDLAPP_VERSION_CURRENT=$(jq -r '.meta.version' globalConfig.json)" >> $GITHUB_ENV
+
+      - name: Set SDLAPP_VERSION_NEW
+        run: echo "SDLAPP_VERSION_NEW=`awk -vFS=. -vOFS=. '{$NF++;print}' <<<"$SDLAPP_VERSION_CURRENT"` >> $GITHUB_ENV
+
+      - name: Test
+        run: echo $SDLAPP_VERSION_NEW
+
+      - name: Increase version
+        run: ./scripts/increaseVersion.sh
+
+#      - name: Commit version changes
+#          uses: test-room-7/action-update-file@v1.8.0
+#          with:
+#            file-path: |
+#              globalConfig.json
+#              TA_dataset/app.manifest
+#              TA_dataset/default/app.conf
+#            commit-msg: Release
+#            github-token: ${{ secrets.GITHUB_TOKEN }}
