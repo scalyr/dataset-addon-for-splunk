@@ -64,10 +64,9 @@ pack:
 	echo "Validate package" && \
 	slim validate TA_dataset && \
 	echo "Preserve configuration" && \
-	if [ -f ./output/TA_dataset/local/ ]; then \
-  		mv -v ./output/TA_dataset/local/* $(CONFIGURATION_BACKUP); \
+	if [ -d ./output/TA_dataset/local/ ]; then \
+  		cp -v ./output/TA_dataset/local/* $(CONFIGURATION_BACKUP); \
   	fi && \
-	rm -rf output/TA_dataset && \
 	echo "Generate package" && \
 	ucc-gen --source TA_dataset && \
 	echo "Construct tarball" && \
