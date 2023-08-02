@@ -36,8 +36,6 @@ jobs:
 
       - name: Build release
         run: |
-          python3.8 -m venv venv
-          source venv/bin/activate
           pip install "cython<3.0.0"
           pip install wheel
           pip install --no-build-isolation pyyaml==5.4.1
@@ -46,6 +44,7 @@ jobs:
           pip install --upgrade-strategy only-if-needed splunk-packaging-toolkit
           ucc-gen build --source TA_dataset --ta-version ${{ env.SDLAPP_VERSION_RELEASE }}
           slim package output/TA_dataset -o release
+          slim validate release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz
           
       - name: Prepare next snapshot
         run: |
