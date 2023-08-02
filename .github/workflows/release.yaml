@@ -1,8 +1,5 @@
 name: Release
-on:
-  push:
-    branches:
-      - main
+on: [pull_request]
 
 permissions:
   contents: write
@@ -54,22 +51,35 @@ jobs:
           crudini --set TA_dataset/default/app.conf id version ${{ env.SDLAPP_VERSION_NEW_SNAPSHOT }}
           sed -i 's/${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}/${{ env.SDLAPP_VERSION_NEW_SNAPSHOT }}/' README.md
 
-      - name: Commit version changes
-        uses: test-room-7/action-update-file@v1
-        id: release_step
-        with:
-          file-path: |
-            globalConfig.json
-            TA_dataset/app.manifest
-            TA_dataset/default/app.conf
-            release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz
-          commit-msg: Release ${{ env.SDLAPP_VERSION_RELEASE }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Commit version changes
+#        uses: test-room-7/action-update-file@v1
+#        id: release_step
+#        with:
+#          file-path: |
+#            globalConfig.json
+#            TA_dataset/app.manifest
+#            TA_dataset/default/app.conf
+#            release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz
+#          commit-msg: Release ${{ env.SDLAPP_VERSION_RELEASE }}
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
+#
+#      - name: Push tag
+#        uses: mathieudutour/github-tag-action@v6.1
+#        with:
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+#          custom_tag: ${{ env.SDLAPP_VERSION_RELEASE }}
+#          default_bump: false
+#          commit_sha: ${{steps.release_step.outputs.commit-sha}}
 
-      - name: Push tag
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: ${{ env.SDLAPP_VERSION_RELEASE }}
-          default_bump: false
-          commit_sha: ${{steps.release_step.outputs.commit-sha}}
+      - name: Set-up `jf` CLI and use secrets
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          JF_URL: ${{ secrets.ARTIFACTORY_URL }}
+          JF_USER: ${{ secrets.ARTIFACTORY_USERNAME }}
+          JF_PASSWORD: ${{ secrets.HA_ART_DATASET_PUSH_SVC_PW }}
+
+      - name: Publish to Artifactory
+        run: |
+          jf rt ping    
+          jf rt upload "release/TA_dataset-${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}.tar.gz" pypi-release/dataset/security-data-lake-splunk-addon
+
