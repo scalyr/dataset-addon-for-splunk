@@ -1,0 +1,34 @@
+name: Validate
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Export current snapshot of app
+        run: echo "SDLAPP_VERSION_CURRENT_SNAPSHOT=$(jq -r '.meta.version' globalConfig.json)" >> $GITHUB_ENV
+
+      - name: Validate release
+        run: |
+          pip install "cython<3.0.0"
+          pip install wheel
+          pip install --no-build-isolation pyyaml==5.4.1
+          pip install --upgrade-strategy only-if-needed splunk-appinspect
+          pip install --upgrade-strategy only-if-needed splunk-add-on-ucc-framework
+          pip install --upgrade-strategy only-if-needed splunk-packaging-toolkit
+          ucc-gen build --source TA_dataset --ta-version ${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}
+          slim package output/TA_dataset -o release
+          slim validate release/TA_dataset-${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}.tar.gz
+          
