@@ -89,7 +89,7 @@ jobs:
       - name: Publish to Artifactory
         run: |
           jf c add artifactory --url=$${{ secrets.ARTIFACTORY_URL }} --user=${{ secrets.ARTIFACTORY_USERNAME }} --password=${{ secrets.HA_ART_DATASET_PUSH_SVC_PW }} --interactive=false
-          jf rt ping    
+#          jf rt ping
           jf rt upload "release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz" pypi-release/dataset/security-data-lake-splunk-addon
 
 
