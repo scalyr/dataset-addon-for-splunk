@@ -1,0 +1,75 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install tools
+        run: |
+          sudo apt-get install moreutils
+          pip install crudini
+
+      - name: Export current snapshot of app
+        run: echo "SDLAPP_VERSION_CURRENT_SNAPSHOT=$(jq -r '.meta.version' globalConfig.json)" >> $GITHUB_ENV
+
+      - name: Export release version of app
+        run: echo "SDLAPP_VERSION_RELEASE=`echo '${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}' | sed -En 's/-SNAPSHOT//p'`" >> $GITHUB_ENV
+
+      - name: Export new snapshot of app
+        run: echo "SDLAPP_VERSION_NEW_SNAPSHOT=`awk -vFS=. -vOFS=. '{$NF++;print}' <<<'${{ env.SDLAPP_VERSION_RELEASE }}'`-SNAPSHOT" >> $GITHUB_ENV
+
+      - name: Build release
+        run: |
+          pip install "cython<3.0.0"
+          pip install wheel
+          pip install --no-build-isolation pyyaml==5.4.1
+          pip install --upgrade-strategy only-if-needed splunk-appinspect
+          pip install --upgrade-strategy only-if-needed splunk-add-on-ucc-framework
+          pip install --upgrade-strategy only-if-needed splunk-packaging-toolkit
+          ucc-gen build --source TA_dataset --ta-version ${{ env.SDLAPP_VERSION_RELEASE }}
+          slim package output/TA_dataset -o release
+          slim validate release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz
+          
+      - name: Prepare next snapshot
+        run: |
+          jq ".meta.version=\"${{ env.SDLAPP_VERSION_NEW_SNAPSHOT }}\"" globalConfig.json | sponge globalConfig.json
+          jq ".info.id.version=\"${{ env.SDLAPP_VERSION_NEW_SNAPSHOT }}\"" TA_dataset/app.manifest | sponge TA_dataset/app.manifest
+          crudini --set TA_dataset/default/app.conf launcher version ${{ env.SDLAPP_VERSION_NEW_SNAPSHOT }}
+          crudini --set TA_dataset/default/app.conf id version ${{ env.SDLAPP_VERSION_NEW_SNAPSHOT }}
+          sed -i 's/${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}/${{ env.SDLAPP_VERSION_NEW_SNAPSHOT }}/' README.md
+
+      - name: Commit version changes
+        uses: test-room-7/action-update-file@v1
+        id: release_step
+        with:
+          file-path: |
+            globalConfig.json
+            TA_dataset/app.manifest
+            TA_dataset/default/app.conf
+            release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz
+          commit-msg: Release ${{ env.SDLAPP_VERSION_RELEASE }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push tag
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: ${{ env.SDLAPP_VERSION_RELEASE }}
+          default_bump: false
+          commit_sha: ${{steps.release_step.outputs.commit-sha}}

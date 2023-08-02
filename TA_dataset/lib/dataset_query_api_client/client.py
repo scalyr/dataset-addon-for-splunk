@@ -1,4 +1,6 @@
 import ssl
+import platform
+import requests
 from typing import Dict, Union
 
 import attr
@@ -51,6 +53,14 @@ class Client:
         """Get a new client matching this one with a new timeout (in seconds)"""
         return attr.evolve(self, timeout=timeout)
 
+def get_user_agent():
+    """Get user agent"""
+    with open('../VERSION') as file:
+        version = file.readline().replace('\n', '').replace('\r', '')
+    with open('../../../splunk.version') as splunkVersionFile:
+        splunkVersion = splunkVersionFile.readline().replace('\n', '').replace('\r', '')
+    return "dataset-splunk-addon;{};{};python-{};splunk-{};requests-{}".format(version, platform.platform(), platform.python_version(), splunkVersion, requests.__version__)
+
 
 @attr.s(auto_attribs=True)
 class AuthenticatedClient(Client):
@@ -64,4 +74,4 @@ class AuthenticatedClient(Client):
         """Get headers to be used in authenticated endpoints"""
         auth_header_value = f"{self.prefix} {self.token}" if self.prefix else self.token
 
-        return {self.auth_header_name: auth_header_value, "User-Agent": "splunk-ta", **self.headers}
+        return {self.auth_header_name: auth_header_value, "User-Agent": get_user_agent(), **self.headers}

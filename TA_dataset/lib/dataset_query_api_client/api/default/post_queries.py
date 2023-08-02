@@ -11,7 +11,6 @@ from ...models.query_result import QueryResult
 from ...models.post_queries_launch_query_request_body_query_type import PostQueriesLaunchQueryRequestBodyQueryType
 from ...types import Response
 
-
 def _get_kwargs(
     *,
     client: Client,

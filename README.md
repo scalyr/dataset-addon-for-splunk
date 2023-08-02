@@ -208,7 +208,7 @@ In order to use python 3.8 we use Python Virtual environment.
     * `pip install --upgrade-strategy only-if-needed splunk-packaging-toolkit`
 
 ## Build App
-- `ucc-gen build --source TA_dataset --ta-version 2.0.1`
+- `ucc-gen build --source TA_dataset --ta-version 2.0.2`
 - `slim package output/TA_dataset -o release`
 
 ## Run Docker Splunk locally (Mac M1 machines)
@@ -223,8 +223,8 @@ To clean up container run `docker container rm splunk` command
 Assuming application was previously built
 
 ### From existing release
-- `docker cp release/TA_dataset-2.0.0-Rxxx.tar.gz  splunk:/opt/splunk/etc/apps/`
-- `docker exec splunk sudo tar -xvzf /opt/splunk/etc/apps/TA_dataset-2.0.0-Rxxx.tar.gz -C /opt/splunk/etc/apps/`
+- `docker cp release/TA_dataset-2.0.3-SNAPSHOT.tar.gz  splunk:/opt/splunk/etc/apps/`
+- `docker exec splunk sudo tar -xvzf /opt/splunk/etc/apps/TA_dataset-2.0.3-SNAPSHOT.tar.gz -C /opt/splunk/etc/apps/`
 - `docker exec splunk sudo chown -R splunk:splunk /opt/splunk/etc/apps/TA_dataset/`
 - `docker exec splunk sudo -u splunk /opt/splunk/bin/splunk restart`
 
