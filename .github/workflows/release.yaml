@@ -71,11 +71,14 @@ jobs:
 #          default_bump: false
 #          commit_sha: ${{steps.release_step.outputs.commit-sha}}
 
-  upload-artefact:
-    needs: release
-    runs-on: self-hosted
+#  upload-artefact:
+#    needs: release
+#    runs-on: self-hosted
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
 
-    steps:
       - name: Set-up `jf` CLI and use secrets
         uses: jfrog/setup-jfrog-cli@v3
         env:
@@ -86,5 +89,6 @@ jobs:
       - name: Publish to Artifactory
         run: |
           jf rt ping    
-          jf rt upload "release/TA_dataset-2.0.4.tar.gz" pypi-release/dataset/security-data-lake-splunk-addon
+          jf rt upload "release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz" pypi-release/dataset/security-data-lake-splunk-addon
+
 
