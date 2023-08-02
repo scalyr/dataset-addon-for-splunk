@@ -223,8 +223,8 @@ To clean up container run `docker container rm splunk` command
 Assuming application was previously built
 
 ### From existing release
-- `docker cp release/TA_dataset-2.0.2.tar.gz  splunk:/opt/splunk/etc/apps/`
-- `docker exec splunk sudo tar -xvzf /opt/splunk/etc/apps/TA_dataset-2.0.2.tar.gz -C /opt/splunk/etc/apps/`
+- `docker cp release/TA_dataset-2.0.3-SNAPSHOT.tar.gz  splunk:/opt/splunk/etc/apps/`
+- `docker exec splunk sudo tar -xvzf /opt/splunk/etc/apps/TA_dataset-2.0.3-SNAPSHOT.tar.gz -C /opt/splunk/etc/apps/`
 - `docker exec splunk sudo chown -R splunk:splunk /opt/splunk/etc/apps/TA_dataset/`
 - `docker exec splunk sudo -u splunk /opt/splunk/bin/splunk restart`
 

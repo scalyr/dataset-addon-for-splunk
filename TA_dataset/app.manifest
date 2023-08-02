@@ -5,7 +5,7 @@
     "id": {
       "group": null,
       "name": "TA_dataset",
-      "version": "2.0.2"
+      "version": "2.0.3-SNAPSHOT"
     },
     "author": [
       {
@@ -18,13 +18,14 @@
     "description": "The Security Data Lake Add-On for Splunk provides integration with DataSet by SentinelOne.",
     "classification": {
       "intendedAudience": "IT",
-      "categories": ["Security, Fraud & Compliance", "IT Operations", "Business Analytics"],
+      "categories": [
+        "Security, Fraud & Compliance",
+        "IT Operations",
+        "Business Analytics"
+      ],
       "developmentStatus": null
     },
     "commonInformationModels": {
-      "Alerts": "4.3.0",
-      "Alerts": "4.3.1",
-      "Alerts": "4.4.0",
       "Alerts": "4.5.0"
     },
     "license": {
@@ -43,18 +44,21 @@
       "uri": null
     }
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "tasks": [],
-  "supportedDeployments": ["_standalone", "_distributed", "_search_head_clustering"],
-  "inputGroups": {
-  },
-  "incompatibleApps": {
-  },
+  "supportedDeployments": [
+    "_standalone",
+    "_distributed",
+    "_search_head_clustering"
+  ],
+  "inputGroups": {},
+  "incompatibleApps": {},
   "platformRequirements": {
     "splunk": {
       "Enterprise": "*"
     }
   },
-  "targetWorkloads" : ["*"]
+  "targetWorkloads": [
+    "*"
+  ]
 }
