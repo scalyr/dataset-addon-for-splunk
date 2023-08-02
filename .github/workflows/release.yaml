@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - main
+      - test
   pull_request:
     branches:
       - main
+      - test
 
 permissions:
   contents: read
@@ -19,31 +21,32 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup python
-      - uses: actions/setup-python@v1
+        uses: actions/setup-python@v1
 
-      - name: DEBUG
-        run: echo "install tools"
-
-      - name: install more-utils
-        run: sudo apt-get install moreutils
-
-      - name: install crudini
-        run: pip install crudini
-
-      - name: DEBUG
-        run: echo "increase version"
+      - name: Install tools
+        run: |
+          sudo apt-get install moreutils
+          pip install crudini
 
       - name: Set SDLAPP_VERSION_CURRENT
         run: echo "SDLAPP_VERSION_CURRENT=$(jq -r '.meta.version' globalConfig.json)" >> $GITHUB_ENV
 
-      - name: Set SDLAPP_VERSION_NEW
-        run: echo "SDLAPP_VERSION_NEW=`awk -vFS=. -vOFS=. '{$NF++;print}' <<<"$SDLAPP_VERSION_CURRENT"` >> $GITHUB_ENV
+      - name: Test current
+        run: echo "${{ env.SDLAPP_VERSION_CURRENT }}"
 
-      - name: Test
-        run: echo $SDLAPP_VERSION_NEW
+      - name: Set SDLAPP_VERSION_NEW
+        run: echo "SDLAPP_VERSION_NEW=`awk -vFS=. -vOFS=. '{$NF++;print}' <<<'${{ env.SDLAPP_VERSION_CURRENT }}'`" >> $GITHUB_ENV
+
+      - name: Test new
+        run: echo "${{ env.SDLAPP_VERSION_NEW }}"
+
+      - name: list
+        run: |
+          ls -l
+          ls -l scripts
 
       - name: Increase version
-        run: ./scripts/increaseVersion.sh
+        run: sh ./scripts/increaseVersion.sh
 
 #      - name: Commit version changes
 #          uses: test-room-7/action-update-file@v1.8.0
