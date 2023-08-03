@@ -2,9 +2,10 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.post_queries_launch_query_request_body_query_type import (
+    PostQueriesLaunchQueryRequestBodyQueryType,
+)
 from ..types import UNSET, Unset
-
-from ..models.post_queries_launch_query_request_body_query_type import PostQueriesLaunchQueryRequestBodyQueryType
 
 if TYPE_CHECKING:
     from ..models.facet_values_result_data import FacetValuesResultData
@@ -128,7 +129,11 @@ class QueryResult:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any], query_type: PostQueriesLaunchQueryRequestBodyQueryType) -> T:
+    def from_dict(
+        cls: Type[T],
+        src_dict: Dict[str, Any],
+        query_type: PostQueriesLaunchQueryRequestBodyQueryType,
+    ) -> T:
         from ..models.facet_values_result_data import FacetValuesResultData
         from ..models.histogram_result_data import HistogramResultData
         from ..models.log_result_data import LogResultData
@@ -143,7 +148,7 @@ class QueryResult:
 
         steps_completed = d.pop("stepsCompleted", UNSET)
 
-        steps_total = d.pop("totalSteps", UNSET) # FIX: inconsitency with schema
+        steps_total = d.pop("totalSteps", UNSET)  # FIX: inconsitency with schema
 
         _resolved_time_range = d.pop("resolvedTimeRange", UNSET)
         resolved_time_range: Union[Unset, TimeRangeResultData]
@@ -172,14 +177,16 @@ class QueryResult:
         ]:
             if isinstance(data, Unset):
                 return data
-            if data is None:  # FIX: the API always returns data field in JSON even if it's null
+            if (
+                data is None
+            ):  # FIX: the API always returns data field in JSON even if it's null
                 return data
             if query_type == PostQueriesLaunchQueryRequestBodyQueryType.LOG:
                 return LogResultData.from_dict(data)
             if query_type == PostQueriesLaunchQueryRequestBodyQueryType.PQ:
                 _table_data = data
                 resolved_table_data: Union[Unset, TableResultData]
-                if (isinstance(_table_data, Unset)):
+                if isinstance(_table_data, Unset):
                     resolved_table_data = UNSET
                 else:
                     resolved_table_data = TableResultData.from_dict(_table_data)
@@ -187,7 +194,7 @@ class QueryResult:
             if query_type == PostQueriesLaunchQueryRequestBodyQueryType.FACET_VALUES:
                 _facet_data = data
                 resolved_facet_data: Union[Unset, FacetValuesResultData]
-                if (isinstance(_facet_data, Unset)):
+                if isinstance(_facet_data, Unset):
                     resolved_facet_data = UNSET
                 else:
                     resolved_facet_data = FacetValuesResultData.from_dict(_facet_data)

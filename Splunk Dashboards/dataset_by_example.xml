@@ -71,7 +71,7 @@
         <li>
             <b>Timeseries Query</b> - This will calculate numeric values over time. For repeated queries, summaries allow precomputed results (fastest).</li>
       </ol>
-      Depending on your use case, you may have a need for any or all of these.  
+      Depending on your use case, you may have a need for any or all of these.
       <h1>Let's get started searching! </h1>
     </html>
     </panel>
@@ -101,7 +101,7 @@
         <fieldForLabel>serverHost</fieldForLabel>
         <fieldForValue>serverHost</fieldForValue>
         <search>
-          <query>| dataset method=facet field=serverHost search="serverHost=* " 
+          <query>| dataset method=facet field=serverHost search="serverHost=* "
 | spath
 | rename value as serverHost
 |  table serverHost count
@@ -149,7 +149,7 @@
       <table>
         <title>SPL:  | dataset method=query search="$baseQuery$" $myMaxCount$  | spath</title>
         <search>
-          <query>| dataset method=query search="$baseQuery$" $myMaxCount$ 
+          <query>| dataset method=query search="$baseQuery$" $myMaxCount$
 |  spath</query>
           <earliest>$myTime.earliest$</earliest>
           <latest>$myTime.latest$</latest>

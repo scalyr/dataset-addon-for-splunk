@@ -1,15 +1,25 @@
+#! /usr/bin/env python
+
 import json
 import time
 
 from dataset_common import normalize_time
+
 # Dataset V2 API client (generated)
 from dataset_query_api_client import AuthenticatedClient
-from dataset_query_api_client.api.default import (delete_queries, get_queries,
-                                                  post_queries)
+from dataset_query_api_client.api.default import (
+    delete_queries,
+    get_queries,
+    post_queries,
+)
 from dataset_query_api_client.models import (
-    FacetValuesAttributes, LogAttributes, PostQueriesLaunchQueryRequestBody,
+    FacetValuesAttributes,
+    LogAttributes,
+    PostQueriesLaunchQueryRequestBody,
     PostQueriesLaunchQueryRequestBodyQueryPriority,
-    PostQueriesLaunchQueryRequestBodyQueryType, PQAttributes)
+    PostQueriesLaunchQueryRequestBodyQueryType,
+    PQAttributes,
+)
 
 
 # Executes Dataset LongRunningQuery for log events

@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 # encoding = utf-8
 
 import copy
@@ -11,13 +13,20 @@ import import_declare_test
 import requests
 from dataset_api import *
 from dataset_common import get_acct_info, get_proxy, get_url, relative_to_epoch
+
 # Dataset V2 API client (generated)
 from dataset_query_api_client import AuthenticatedClient
 from dataset_query_api_client.api.default import get_queries, post_queries
 from dataset_query_api_client.types import Response
+
 # Splunk Enterprise SDK
-from splunklib.searchcommands import (Configuration, GeneratingCommand, Option,
-                                      dispatch, validators)
+from splunklib.searchcommands import (
+    Configuration,
+    GeneratingCommand,
+    Option,
+    dispatch,
+    validators,
+)
 
 
 def get_search_times(self):

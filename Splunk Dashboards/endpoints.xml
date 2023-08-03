@@ -215,7 +215,7 @@
       <title>Endpoint Events Over Time - 24 Hours</title>
       <chart>
         <search>
-          <query>| dataset method=timeseries search="endpoint.name = *" function=count createsummaries=true onlyusesummaries=true starttime=24h buckets=24 
+          <query>| dataset method=timeseries search="endpoint.name = *" function=count createsummaries=true onlyusesummaries=true starttime=24h buckets=24
 | spath
 | timechart max(count) as count</query>
           <earliest>$earliest$</earliest>
@@ -262,7 +262,7 @@
       <title>Processes Over Time - 24 Hours</title>
       <chart>
         <search>
-          <query>| dataset method=timeseries search="dst.ip.address = *" function=count createsummaries=true onlyusesummaries=true starttime=24h buckets=24 
+          <query>| dataset method=timeseries search="dst.ip.address = *" function=count createsummaries=true onlyusesummaries=true starttime=24h buckets=24
 | spath
 | timechart max(count) as count</query>
           <earliest>$field1.earliest$</earliest>
@@ -356,12 +356,12 @@
       <table>
         <search>
           <query>| dataset method=powerquery search="src.process.displayName = * | group count = count() by src.process.displayName" starttime=1h
-| spath 
+| spath
 | eval process = 'src.process.displayName', process_new = 1
 | table process, process_new
 | join type=left process [
   | dataset method=powerquery search="src.process.displayName = * | group count = count() by src.process.displayName" starttime=2h endtime=1h
-  | spath 
+  | spath
   | eval process = 'src.process.displayName', process_old = 1
   | table process, process_old
 ]
@@ -392,7 +392,7 @@
       <title>Most Active Users</title>
       <table>
         <search>
-          <query>| dataset method=powerquery search="event.category = * src.process.user = * | group count = count() by src.process.user, event.category" 
+          <query>| dataset method=powerquery search="event.category = * src.process.user = * | group count = count() by src.process.user, event.category"
 | spath
 | eval event_type = 'event.category', user='src.process.user'
 | table user, event_type, count | sort - count</query>
@@ -475,8 +475,8 @@
           <query>| dataset method=powerquery search="src.process.displayName = $process_filter$ endpoint.name=$endpoint_filter$ | group endpoints = estimate_distinct(endpoint.name) by src.process.displayName"
 | spath
 | eval process_name = 'src.process.displayName'
-| search endpoints &lt;= $max_endpoints$ 
-| sort endpoints 
+| search endpoints &lt;= $max_endpoints$
+| sort endpoints
 | table process_name, endpoints</query>
           <earliest>$field2.earliest$</earliest>
           <latest>$field2.latest$</latest>
@@ -522,7 +522,7 @@
           <query>| dataset method=powerquery search="src.process.displayName = $process_filter$ endpoint.name=$endpoint_filter$ | group count = count() by src.process.displayName, endpoint.name"
 | spath
 | eval process_name = 'src.process.displayName', endpoint = 'endpoint.name'
-| search count &lt;= $max_endpoints$ 
+| search count &lt;= $max_endpoints$
 | stats sum(count) as count by endpoint
 | sort + count</query>
           <earliest>$field2.earliest$</earliest>
@@ -559,7 +559,7 @@
           <query>| dataset method=powerquery search="src.process.displayName = $process_filter$ endpoint.name=$endpoint_filter$ src.process.parent.displayName = * | group count = count() by src.process.displayName, src.process.parent.displayName, endpoint.name"
 | spath
 | eval process_name = 'src.process.displayName', parent_process = 'src.process.parent.displayName', endpoint = 'endpoint.name'
-| search count &lt;= $max_endpoints$ 
+| search count &lt;= $max_endpoints$
 | table process_name, parent_process, count</query>
           <earliest>$field2.earliest$</earliest>
           <latest>$field2.latest$</latest>
@@ -620,7 +620,7 @@
           <query>| dataset method=powerquery search="src.process.displayName = $process_filter$ endpoint.name=$endpoint_filter$ src.process.parent.displayName = * | group count = count() by src.process.displayName, src.process.parent.displayName"
 | spath
 | eval process_name = 'src.process.displayName', parent_process = 'src.process.parent.displayName'
-| search count &lt;= $max_endpoints$ 
+| search count &lt;= $max_endpoints$
 | table process_name, parent_process, count | head 50</query>
           <earliest>$field2.earliest$</earliest>
           <latest>$field2.latest$</latest>
