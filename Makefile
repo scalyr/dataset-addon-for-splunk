@@ -67,8 +67,9 @@ pack:
 	mkdir -p $(CONFIGURATION_BACKUP) && \
 	echo "Validate package" && \
 	slim validate TA_dataset && \
-	echo "Generate package" && \
-	ucc-gen --source TA_dataset && \
+	version=$$(jq -r '.meta.version' globalConfig.json) && \
+	echo "Generate package - $${version}" && \
+	ucc-gen build --source TA_dataset --ta-version $${version} && \
 	echo "Construct tarball" && \
 	slim package output/TA_dataset -o release && \
 	f=$$( ls -t release/TA_dataset* | head -n1 ) && \
@@ -76,8 +77,7 @@ pack:
 	echo "Validate released tarball" && \
 	slim validate $${f} && \
 	echo "Check that secrets are not there" && \
-	! $$( tar -tvf $${f} | grep "TA_dataset/local" ) && \
-	git checkout main globalConfig.json
+	! $$( tar -tvf $${f} | grep "TA_dataset/local" )
 
 dev-config-backup:
 	mkdir -p $(CONFIGURATION_BACKUP) && \
