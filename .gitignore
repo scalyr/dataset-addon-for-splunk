@@ -1,2 +1,6 @@
 
 .DS_Store
+.splunk_ta_dataset_config
+venv
+output
+.idea
