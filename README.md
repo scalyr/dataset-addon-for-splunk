@@ -241,7 +241,7 @@ Note that build cleans previously created configuration. To prevent removal of c
 - copy back to splunk `mkdir -p ./output/TA_dataset/local/ && cp -R ~/splunk_dataset_app_configuration/* ./output/TA_dataset/local/`
 
 
-## My Development Workflow
+## Alternative Build and Run Workflow for Docker
 
 1. At the beginning of the day:
    1. Create package - `make pack` 
