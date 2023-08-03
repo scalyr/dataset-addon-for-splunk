@@ -5,7 +5,7 @@ SOURCE_PACKAGE=$$(pwd)/TA_dataset
 
 
 .PHONY: docker-run
-docker-run:
+docker-splunk-run:
 	docker run -it \
 		-v "$(OUTPUT_PACKAGE):/opt/splunk/etc/apps/TA_dataset" \
 		-e SPLUNK_START_ARGS=--accept-license \
@@ -15,23 +15,24 @@ docker-run:
 		-p 8000:8000 \
 		splunk/splunk:latest start
 
-.PHONY: docker-start
-docker-start: docker-run
+.PHONY: docker-splunk-start
+docker-splunk-start:
+	docker start -a $(CONTAINER_NAME)
 
-.PHONY: docker-restart
-docker-restart:
+.PHONY: docker-splunk-restart
+docker-splunk-restart:
 	docker exec $(CONTAINER_NAME) \
 		sudo -u splunk \
 		/opt/splunk/bin/splunk restart
 
-.PHONY: docker-stop
-docker-stop:
+.PHONY: docker-splunk-stop
+docker-splunk-stop:
 	docker exec $(CONTAINER_NAME) \
 		sudo -u splunk \
 		/opt/splunk/bin/splunk stop
 
-.PHONY: docker-show-app
-docker-show-app:
+.PHONY: docker-splunk-show-app
+docker-splunk-show-app:
 	docker exec $(CONTAINER_NAME) \
 		sudo -u splunk \
 		ls -l /opt/splunk/etc/apps/
@@ -39,21 +40,21 @@ docker-show-app:
 		sudo -u splunk \
 		ls -l /opt/splunk/etc/apps/TA_dataset/
 
-.PHONY: docker-tail-logs
-docker-tail-logs:
+.PHONY: docker-splunk-tail-logs
+docker-splunk-tail-logs:
 	docker exec $(CONTAINER_NAME) \
 		sudo -u splunk \
 		tail -f \
 			/opt/splunk/var/log/splunk/splunkd.log \
 			/opt/splunk/var/log/splunk/splunkd_stderr.log
 
-.PHONY: docker-bash
-docker-bash:
+.PHONY: docker-splunk-bash
+docker-splunk-bash:
 	docker exec -i $(CONTAINER_NAME) \
 		sudo -u splunk bash
 
-.PHONY: docker-remove
-docker-remove:
+.PHONY: docker-splunk-remove
+docker-splunk-remove:
 	docker container rm $(CONTAINER_NAME)
 
 
