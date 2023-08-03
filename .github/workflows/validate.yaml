@@ -32,4 +32,3 @@ jobs:
           slim package output/TA_dataset -o release
           slim validate release/TA_dataset-${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}.tar.gz
           splunk-appinspect inspect TA_dataset --included-tags splunk_appinspect
-          

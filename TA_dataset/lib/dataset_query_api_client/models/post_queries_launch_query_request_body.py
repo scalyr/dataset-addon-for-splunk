@@ -5,7 +5,9 @@ import attr
 from ..models.post_queries_launch_query_request_body_query_priority import (
     PostQueriesLaunchQueryRequestBodyQueryPriority,
 )
-from ..models.post_queries_launch_query_request_body_query_type import PostQueriesLaunchQueryRequestBodyQueryType
+from ..models.post_queries_launch_query_request_body_query_type import (
+    PostQueriesLaunchQueryRequestBodyQueryType,
+)
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -182,7 +184,9 @@ class PostQueriesLaunchQueryRequestBody:
         if isinstance(_query_priority, Unset):
             query_priority = UNSET
         else:
-            query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority(_query_priority)
+            query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority(
+                _query_priority
+            )
 
         _log = d.pop("log", UNSET)
         log: Union[Unset, LogAttributes]

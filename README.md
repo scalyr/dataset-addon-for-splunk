@@ -7,7 +7,7 @@ The Security Data Lake Add-On for Splunk provides integration with [DataSet](htt
 ## Installation
 The add-on can be installed from [Splunkbase](https://splunkbase.splunk.com/app/6575) or manually via the .tgz file. For those looking to customize, the package subdirectory contains all artifacts. To compile, reference Splunk's [UCC Framework instructions](https://splunk.github.io/addonfactory-ucc-generator/how_to_use/) to use `ucc-gen` and `slim package`.
 
-Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons). 
+Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons).
 
 ## Splunk Permission Requirements
 The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_objects` to create secret storage objects and users require `list_storage_passwords` capability to retrieve secrets.
@@ -16,14 +16,14 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 | Splunk component | Required | Comments |
 | ------ | ------ | ------ |
 | Search heads | Yes | Required to use the custom search command. |
-| Indexers | No | Parsing is performed during data collection. | 
+| Indexers | No | Parsing is performed during data collection. |
 | Forwarders | Optional | For distributed deployments, if the modular inputs are used, this add-on is installed on heavy forwarders. |
 
 ### Splunk Cloud
 | Splunk component | Required | Comments |
 | ------ | ------ | ------ |
 | Search heads | Yes | Required to use the custom search command. Splunk Cloud Victoria Experience also handles modular inputs on the search heads. |
-| Indexers | No | Parsing is performed during data collection. | 
+| Indexers | No | Parsing is performed during data collection. |
 | Inputs Data Manager | Optional | For Splunk Cloud Classic Experience, if the modular inputs are used, this add-on is installed on an IDM. |
 
 ## Configuration
@@ -63,11 +63,11 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 5. The included Security Data Lake by Example dashboard can be used to confirm connectivity and also shows example searches to get started.
 
 ## SPL Command
-The `| dataset` command allows queries against the [DataSet APIs](https://app.scalyr.com/help/api) directly from Splunk's search bar. 
+The `| dataset` command allows queries against the [DataSet APIs](https://app.scalyr.com/help/api) directly from Splunk's search bar.
 
 Optional parameters are supported:
 
-- **account** - If multiple accounts are used, the account name as configured in setup can be specified (`emea` in the screenshot above). If multiple accounts are configured but not specified in search, the first result (by alphanumeric name) is used. To search across all accounts, `account=*` can be used. 
+- **account** - If multiple accounts are used, the account name as configured in setup can be specified (`emea` in the screenshot above). If multiple accounts are configured but not specified in search, the first result (by alphanumeric name) is used. To search across all accounts, `account=*` can be used.
 - **method** - Define `query`, `powerquery`, `facet` or `timeseries` to call the appropriate REST endpoint. Default is query.
 - **query** - The DataSet [query](https://app.scalyr.com/help/query-language) filter used to select events. Default is no filter (return all events limited by time and maxCount).
 - **starttime** - The Splunk time picker can be used (not "All Time"), but if starttime is defined it will take precedence to define the [start time](https://app.scalyr.com/help/time-reference) for DataSet events to return. Use epoch time or relative shorthand in the form of a number followed by d, h, m or s (for days, hours, minutes or seconds), e.g.: `24h`. Default is 24h.
@@ -102,10 +102,10 @@ Power Query Example 1: `| dataset method=powerquery search="dataset = \"accesslo
 
 ![SPL Power Query example](README_images/spl_powerquery.png)
 
-Power Query Example 2: `| dataset account=emea method=powerQuery search="$serverHost == 'cloudWatchLogs' 
-| parse 'RequestId: $RID$ Duration: $DUR$ ms Billed Duration: $BDUR$ ms Memory Size: $MEM$ MB Max Memory Used: $UMEM$ MB' 
-| let deltaDUR= BDUR - DUR, deltaMEM = MEM - UMEM 
-| sort -DUR 
+Power Query Example 2: `| dataset account=emea method=powerQuery search="$serverHost == 'cloudWatchLogs'
+| parse 'RequestId: $RID$ Duration: $DUR$ ms Billed Duration: $BDUR$ ms Memory Size: $MEM$ MB Max Memory Used: $UMEM$ MB'
+| let deltaDUR= BDUR - DUR, deltaMEM = MEM - UMEM
+| sort -DUR
 | columns 'Request ID' = RID, 'Duration(ms)' = DUR, 'Charged delta (ms)' = deltaDUR, 'Used Memory (MB)' = UMEM, 'Charged delta Memory (MB)' = deltaMEM" starttime=5m`
 
 Facet Query Example:
@@ -236,6 +236,6 @@ To apply changes build app again `ucc-gen build --source TA_dataset`
 - Changes in static files like XML template take effect after restart `docker exec splunk sudo -u splunk /opt/splunk/bin/splunk restart`
 
 Once application is installed create connection to DataSet environment under `Configuration` tab using `Add` button.
-Note that build cleans previously created configuration. To prevent removal of configuration while build 
+Note that build cleans previously created configuration. To prevent removal of configuration while build
 - copy configured configuration to home folder `mkdir -p ~/splunk_dataset_app_configuration && cp -R ./output/TA_dataset/local/* ~/splunk_dataset_app_configuration/`
 - copy back to splunk `mkdir -p ./output/TA_dataset/local/ && cp -R ~/splunk_dataset_app_configuration/* ./output/TA_dataset/local/`

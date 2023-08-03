@@ -80,15 +80,15 @@
       <single>
         <title>($splk_timing2$ seconds)</title>
         <search>
-          <query>index=dataset logfile="slo_tx" 
-| eval esize=len(_raw) 
-| stats count as count avg(esize) as avg 
-| eval bytes=count*avg 
-| eval kb=bytes/1024 
-| eval mb=kb/1024 
-| eval gb=mb/1024 
-| eval tb=gb/1024 
-| stats values(gb) as GB 
+          <query>index=dataset logfile="slo_tx"
+| eval esize=len(_raw)
+| stats count as count avg(esize) as avg
+| eval bytes=count*avg
+| eval kb=bytes/1024
+| eval mb=kb/1024
+| eval gb=mb/1024
+| eval tb=gb/1024
+| stats values(gb) as GB
 | eval GB=round(GB,4)</query>
           <earliest>$splk_time.earliest$</earliest>
           <latest>$splk_time.latest$</latest>
@@ -108,16 +108,16 @@
       <single>
         <title>($pq_timing$ seconds)</title>
         <search>
-          <query>| dataset method="powerquery" search="logfile='slo_tx' | let msg_size=len(message) | group esize=sum(msg_size)" 
-| spath 
+          <query>| dataset method="powerquery" search="logfile='slo_tx' | let msg_size=len(message) | group esize=sum(msg_size)"
+| spath
 
-| stats count as count avg(esize) as avg 
-| eval bytes=count*avg 
-| eval kb=bytes/1024 
-| eval mb=kb/1024 
-| eval gb=mb/1024 
-| eval tb=gb/1024 
-| stats values(gb) as GB 
+| stats count as count avg(esize) as avg
+| eval bytes=count*avg
+| eval kb=bytes/1024
+| eval mb=kb/1024
+| eval gb=mb/1024
+| eval tb=gb/1024
+| stats values(gb) as GB
 | eval GB=round(GB,4)</query>
           <earliest>$pq_time.earliest$</earliest>
           <latest>$pq_time.latest$</latest>

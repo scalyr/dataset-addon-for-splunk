@@ -21,8 +21,12 @@ from .plot_data import PlotData
 from .plot_result_data import PlotResultData
 from .plot_result_data_slice_info import PlotResultDataSliceInfo
 from .post_queries_launch_query_request_body import PostQueriesLaunchQueryRequestBody
-from .post_queries_launch_query_request_body_query_priority import PostQueriesLaunchQueryRequestBodyQueryPriority
-from .post_queries_launch_query_request_body_query_type import PostQueriesLaunchQueryRequestBodyQueryType
+from .post_queries_launch_query_request_body_query_priority import (
+    PostQueriesLaunchQueryRequestBodyQueryPriority,
+)
+from .post_queries_launch_query_request_body_query_type import (
+    PostQueriesLaunchQueryRequestBodyQueryType,
+)
 from .pq_attributes import PQAttributes
 from .pq_result_type import PQResultType
 from .query_result import QueryResult

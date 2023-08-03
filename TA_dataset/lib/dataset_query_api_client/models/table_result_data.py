@@ -6,7 +6,9 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.column import Column
-    from ..models.table_result_data_values_item_item import TableResultDataValuesItemItem
+    from ..models.table_result_data_values_item_item import (
+        TableResultDataValuesItemItem,
+    )
 
 
 T = TypeVar("T", bound="TableResultData")
@@ -83,7 +85,9 @@ class TableResultData:
         if omitted_events is not UNSET:
             field_dict["omittedEvents"] = omitted_events
         if partial_results_due_to_time_limit is not UNSET:
-            field_dict["partialResultsDueToTimeLimit"] = partial_results_due_to_time_limit
+            field_dict[
+                "partialResultsDueToTimeLimit"
+            ] = partial_results_due_to_time_limit
         if warnings is not UNSET:
             field_dict["warnings"] = warnings
 
@@ -92,7 +96,9 @@ class TableResultData:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.column import Column
-        from ..models.table_result_data_values_item_item import TableResultDataValuesItemItem
+        from ..models.table_result_data_values_item_item import (
+            TableResultDataValuesItemItem,
+        )
 
         d = src_dict.copy()
         match_count = d.pop("matchCount", UNSET)

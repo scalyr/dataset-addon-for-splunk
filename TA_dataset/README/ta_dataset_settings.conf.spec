@@ -13,4 +13,4 @@ proxy_port = <integer> Port for configuring proxy.
 proxy_username = <string> Username for configuring proxy.
 proxy_password = <string> Password for configuring proxy.
 proxy_rdns = <bool> Remote DNS resolution.
-proxy_type = <string> Proxy type (http, socks5). 
+proxy_type = <string> Proxy type (http, socks5).
