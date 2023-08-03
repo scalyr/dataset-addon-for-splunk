@@ -76,20 +76,21 @@ pack:
 	echo "Validate released tarball" && \
 	slim validate $${f} && \
 	echo "Check that secrets are not there" && \
-	! $$( tar -tvf $${f} | grep "TA_dataset/local" )
+	! $$( tar -tvf $${f} | grep "TA_dataset/local" ) && \
+	git checkout main globalConfig.json
 
 dev-config-backup:
 	mkdir -p $(CONFIGURATION_BACKUP) && \
 	if [ -d $(OUTPUT_PACKAGE)/local/ ]; then \
-  		cp -v $(OUTPUT_PACKAGE)/local/* $(CONFIGURATION_BACKUP)/; \
-  	fi
+		cp -v $(OUTPUT_PACKAGE)/local/* $(CONFIGURATION_BACKUP)/; \
+	fi
 
 dev-config-restore:
 	mkdir -p $(CONFIGURATION_BACKUP) && \
 	if [ -d $(CONFIGURATION_BACKUP) ]; then \
-	  	mkdir -p $(OUTPUT_PACKAGE)/local/; \
-  		cp -v $(CONFIGURATION_BACKUP)/* $(OUTPUT_PACKAGE)/local/ ; \
-  	fi
+		mkdir -p $(OUTPUT_PACKAGE)/local/; \
+		cp -v $(CONFIGURATION_BACKUP)/* $(OUTPUT_PACKAGE)/local/ ; \
+	fi
 
 dev-update-source:
 	rsync -anv $(SOURCE_PACKAGE)/bin/ $(OUTPUT_PACKAGE)/bin/
