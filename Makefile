@@ -88,5 +88,5 @@ dev-config-restore:
 	fi
 
 dev-update-source:
-	rsync -anv $(SOURCE_PACKAGE)/bin/ $(OUTPUT_PACKAGE)/bin/
-	rsync -anv $(SOURCE_PACKAGE)/default/ $(OUTPUT_PACKAGE)/default/
+	rsync -av $(SOURCE_PACKAGE)/bin/ $(OUTPUT_PACKAGE)/bin/
+	rsync -av $(SOURCE_PACKAGE)/default/ $(OUTPUT_PACKAGE)/default/
