@@ -1,0 +1,2 @@
+pre-commit==3.3.3; python_version >= '3.11'
+pip==23.2.1; python_version >= '3.11'

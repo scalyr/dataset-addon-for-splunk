@@ -200,6 +200,8 @@ In order to use python 3.8 we use Python Virtual environment.
 * Create venv with Python3.8: `python3.8 -m venv venv`
 * Activate it: `source venv/bin/activate`
 * Install dependencies:
+  * Use make target - `make dev-install-dependencies`
+  * Or one by one:
     * `pip install "cython<3.0.0"`
     * `pip install wheel`
     * `pip install --no-build-isolation pyyaml==5.4.1`

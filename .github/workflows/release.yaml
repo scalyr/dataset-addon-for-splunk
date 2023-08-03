@@ -19,11 +19,16 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.8'
+          cache: 'pip'
 
       - name: Install tools
         run: |
           sudo apt-get install moreutils
-          pip install crudini
+
+      - name: Install dependencies
+        run: |
+          make dev-install-dependencies-pack
+          make dev-install-dependencies-pack-sudo
 
       - name: Export current snapshot of app
         run: echo "SDLAPP_VERSION_CURRENT_SNAPSHOT=$(jq -r '.meta.version' globalConfig.json)" >> $GITHUB_ENV
@@ -36,12 +41,6 @@ jobs:
 
       - name: Build release
         run: |
-          pip install "cython<3.0.0"
-          pip install wheel
-          pip install --no-build-isolation pyyaml==5.4.1
-          pip install --upgrade-strategy only-if-needed splunk-appinspect
-          pip install --upgrade-strategy only-if-needed splunk-add-on-ucc-framework
-          pip install --upgrade-strategy only-if-needed splunk-packaging-toolkit
           ucc-gen build --source TA_dataset --ta-version ${{ env.SDLAPP_VERSION_RELEASE }}
           slim package output/TA_dataset -o release
           slim validate release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz

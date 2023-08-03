@@ -1,0 +1,9 @@
+# splunk is using 3.7, but it's deprecated
+# we use 3.8 for development
+pip==23.2.1; python_version <= '3.8'
+cython<3.0.0; python_version <= '3.8'
+wheel==0.41.0; python_version <= '3.8'
+pyyaml==5.4.1; python_version <= '3.8'
+splunk-appinspect==2.35.0; python_version <= '3.8'
+splunk-add-on-ucc-framework==5.13.2; python_version <= '3.8'
+crudini==0.9.4; python_version <= '3.8'

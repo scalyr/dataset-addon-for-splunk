@@ -1,0 +1,4 @@
+# splunk is using 3.7, but it's deprecated
+# we use 3.8 for development
+# this tool install itself to the system folder and requires root
+splunk-packaging-toolkit==1.0.1; python_version <= '3.8'
