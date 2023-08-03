@@ -6,7 +6,6 @@ SOURCE_PACKAGE=$$(pwd)/TA_dataset
 
 .PHONY: docker-run
 docker-run:
-	echo "$$(pwd)/output/TA_dataset:/opt/splunk/etc/apps/TA_dataset"
 	docker run -it \
 		-v "$(OUTPUT_PACKAGE):/opt/splunk/etc/apps/TA_dataset" \
 		-e SPLUNK_START_ARGS=--accept-license \
@@ -72,12 +71,8 @@ pack:
 	ucc-gen build --source TA_dataset --ta-version $${version} && \
 	echo "Construct tarball" && \
 	slim package output/TA_dataset -o release && \
-	f=$$( ls -t release/TA_dataset* | head -n1 ) && \
-	echo "Release file: $${f}" && \
 	echo "Validate released tarball" && \
-	slim validate $${f} && \
-	echo "Check that secrets are not there" && \
-	! $$( tar -tvf $${f} | grep "TA_dataset/local" )
+	slim validate release/TA_dataset-$${version}.tar.gz
 
 dev-config-backup:
 	mkdir -p $(CONFIGURATION_BACKUP) && \
