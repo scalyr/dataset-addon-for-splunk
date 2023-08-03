@@ -255,5 +255,5 @@ Note that build cleans previously created configuration. To prevent removal of c
 * Stop Splunk - `make docker-splunk-restart`
 * Remove Splunk container - `make docker-splunk-remove`
 * Restore configuration - `make dev-config-backup`
-* Backup configuration - `make dev-config-restore` - it's not clear whether it really works 
+* Backup configuration - `make dev-config-restore` - it's not clear whether it really works
 * Tail Splunk logs - `make docker-tail-logs`
