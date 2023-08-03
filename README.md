@@ -192,7 +192,7 @@ Splunk is a trademark or registered trademark of Splunk Inc. in the United State
 # Development
 
 Since Splunk support Python 3.7 (deprecated as of June 2023), and cant be easily installed we use Python 3.8 to build app.
-In order to use use python 3.8 we use Python Virtual environment.
+In order to use python 3.8 we use Python Virtual environment.
 
 ## Prerequisites
 - Install [Splunk AppInspect CLI](https://dev.splunk.com/enterprise/docs/developapps/testvalidate/appinspect/useappinspectclitool)
@@ -213,7 +213,7 @@ In order to use use python 3.8 we use Python Virtual environment.
 
 ## Run Docker Splunk locally (Mac M1 machines)
 Since Splunk does not have [Docker image for Apple Sillicon](https://github.com/splunk/docker-splunk/issues/493) you may need to
-- Use Docker Desktop 4.16.1 or newer and enable `Rosetta` in `Features in Development`, see [more](https://levelup.gitconnected.com/docker-on-apple-silicon-mac-how-to-run-x86-containers-with-rosetta-2-4a679913a0d5)
+- Use Docker Desktop 4.16.1 or newer and enable `Use Virtualization framework` in `General` and `Rosetta` in `Features in Development`, see [more](https://levelup.gitconnected.com/docker-on-apple-silicon-mac-how-to-run-x86-containers-with-rosetta-2-4a679913a0d5)
 - Run Splunk Docker image with `--platform=linux/amd64` parameter, eg:
 ```docker run -it -e SPLUNK_START_ARGS=--accept-license -e SPLUNK_PASSWORD=Test0101 --platform=linux/amd64 --name splunk -p 8000:8000 splunk/splunk:latest start```
 
@@ -239,3 +239,21 @@ Once application is installed create connection to DataSet environment under `Co
 Note that build cleans previously created configuration. To prevent removal of configuration while build 
 - copy configured configuration to home folder `mkdir -p ~/splunk_dataset_app_configuration && cp -R ./output/TA_dataset/local/* ~/splunk_dataset_app_configuration/`
 - copy back to splunk `mkdir -p ./output/TA_dataset/local/ && cp -R ~/splunk_dataset_app_configuration/* ./output/TA_dataset/local/`
+
+
+## Alternative Build and Run Workflow for Docker
+
+1. At the beginning of the day:
+   1. Create package - `make pack`
+   2. Run Splunk in Docker - `make docker-splunk-run` (if it already exist use `make docker-splunk-start`)
+2. Do your code changes (assuming docker is already running, see previous steps):
+   1. Update source code - `make dev-update-source`
+
+### Other Useful Commands
+
+* Restart Splunk - `make docker-splunk-restart`
+* Stop Splunk - `make docker-splunk-restart`
+* Remove Splunk container - `make docker-splunk-remove`
+* Restore configuration - `make dev-config-backup`
+* Backup configuration - `make dev-config-restore` - it's not clear whether it really works 
+* Tail Splunk logs - `make docker-tail-logs`
