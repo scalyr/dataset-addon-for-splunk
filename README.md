@@ -239,3 +239,18 @@ Once application is installed create connection to DataSet environment under `Co
 Note that build cleans previously created configuration. To prevent removal of configuration while build 
 - copy configured configuration to home folder `mkdir -p ~/splunk_dataset_app_configuration && cp -R ./output/TA_dataset/local/* ~/splunk_dataset_app_configuration/`
 - copy back to splunk `mkdir -p ./output/TA_dataset/local/ && cp -R ~/splunk_dataset_app_configuration/* ./output/TA_dataset/local/`
+
+
+## My Development Workflow
+
+1. At the beginning of the day:
+   1. Create package - `make pack` 
+   2. Restore configuration - `make dev-config-restore`
+   3. Run Splunk in Docker - `make docker-start` (it if already exists, remove it - `make docker-remove`)
+2. Do your code changes:
+   1. Update source code - `make dev-update-source`
+3. When you change configuration:
+   1. Restart Splunk - `make docker-restart`
+4. Other commands:
+   1. Backup configuration - `make dev-config-restore`
+   2. Tail Splunk logs - `make docker-tail-logs`

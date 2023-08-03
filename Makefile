@@ -1,11 +1,14 @@
 CONTAINER_NAME=splunk
-CONFIGURATION_BACKUP=.splunk_ta_dataset_config
+CONFIGURATION_BACKUP=$$(pwd)/.splunk_ta_dataset_config/
+OUTPUT_PACKAGE=$$(pwd)/output/TA_dataset
+SOURCE_PACKAGE=$$(pwd)/TA_dataset
+
 
 .PHONY: docker-run
 docker-run:
 	echo "$$(pwd)/output/TA_dataset:/opt/splunk/etc/apps/TA_dataset"
 	docker run -it \
-		-v "$$(pwd)/output/TA_dataset:/opt/splunk/etc/apps/TA_dataset" \
+		-v "$(OUTPUT_PACKAGE):/opt/splunk/etc/apps/TA_dataset" \
 		-e SPLUNK_START_ARGS=--accept-license \
 		-e SPLUNK_PASSWORD=Test0101 \
 		--platform=linux/amd64 \
@@ -54,6 +57,7 @@ docker-bash:
 docker-remove:
 	docker container rm $(CONTAINER_NAME)
 
+
 .PHONY: inspect
 inspect:
 	splunk-appinspect inspect TA_dataset --included-tags splunk_appinspect
@@ -63,10 +67,6 @@ pack:
 	mkdir -p $(CONFIGURATION_BACKUP) && \
 	echo "Validate package" && \
 	slim validate TA_dataset && \
-	echo "Preserve configuration" && \
-	if [ -d ./output/TA_dataset/local/ ]; then \
-  		cp -v ./output/TA_dataset/local/* $(CONFIGURATION_BACKUP); \
-  	fi && \
 	echo "Generate package" && \
 	ucc-gen --source TA_dataset && \
 	echo "Construct tarball" && \
@@ -76,9 +76,21 @@ pack:
 	echo "Validate released tarball" && \
 	slim validate $${f} && \
 	echo "Check that secrets are not there" && \
-	! $$( tar -tvf $${f} | grep "TA_dataset/local" ) && \
-	echo "Move configuration back" && \
-	mkdir -p ./output/TA_dataset/local/ && \
-	cp -v $(CONFIGURATION_BACKUP)/* ./output/TA_dataset/local/
+	! $$( tar -tvf $${f} | grep "TA_dataset/local" )
 
+dev-config-backup:
+	mkdir -p $(CONFIGURATION_BACKUP) && \
+	if [ -d $(OUTPUT_PACKAGE)/local/ ]; then \
+  		cp -v $(OUTPUT_PACKAGE)/local/* $(CONFIGURATION_BACKUP)/; \
+  	fi
 
+dev-config-restore:
+	mkdir -p $(CONFIGURATION_BACKUP) && \
+	if [ -d $(CONFIGURATION_BACKUP) ]; then \
+	  	mkdir -p $(OUTPUT_PACKAGE)/local/; \
+  		cp -v $(CONFIGURATION_BACKUP)/* $(OUTPUT_PACKAGE)/local/ ; \
+  	fi
+
+dev-update-source:
+	rsync -anv $(SOURCE_PACKAGE)/bin/ $(OUTPUT_PACKAGE)/bin/
+	rsync -anv $(SOURCE_PACKAGE)/default/ $(OUTPUT_PACKAGE)/default/
