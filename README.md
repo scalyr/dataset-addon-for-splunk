@@ -244,9 +244,8 @@ Note that build cleans previously created configuration. To prevent removal of c
 ## Alternative Build and Run Workflow for Docker
 
 1. At the beginning of the day:
-   1. Create package - `make pack` 
-   2. Restore configuration - `make dev-config-restore`
-   3. Run Splunk in Docker - `make docker-splunk-run` (if it already exist use `make docker-splunk-start`)
+   1. Create package - `make pack`
+   2. Run Splunk in Docker - `make docker-splunk-run` (if it already exist use `make docker-splunk-start`)
 2. Do your code changes (assuming docker is already running, see previous steps):
    1. Update source code - `make dev-update-source`
 
@@ -255,5 +254,6 @@ Note that build cleans previously created configuration. To prevent removal of c
 * Restart Splunk - `make docker-splunk-restart`
 * Stop Splunk - `make docker-splunk-restart`
 * Remove Splunk container - `make docker-splunk-remove`
-* Backup configuration - `make dev-config-restore` - maybe useful for restoring
+* Restore configuration - `make dev-config-backup`
+* Backup configuration - `make dev-config-restore` - it's not clear whether it really works 
 * Tail Splunk logs - `make docker-tail-logs`
