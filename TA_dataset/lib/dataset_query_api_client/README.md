@@ -1,0 +1,1 @@
+This client was originally created based on [Scalyr v2-query-api.yaml](https://github.com/scalyr/scalyr/blob/master/ScalyrSite/src/resources/openapi/v2-query-api.yaml) using [openapi-python-client](https://pypi.org/project/openapi-python-client/) and generated sourcecode modified for dataset-addon-for-splunk purposes.
