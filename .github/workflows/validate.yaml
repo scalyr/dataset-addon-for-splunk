@@ -27,7 +27,7 @@ jobs:
 
       - name: Validate release
         run: |
-          ucc-gen build --source TA_dataset --ta-version ${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}
+          ucc-gen --source TA_dataset --ta-version ${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}
           slim package output/TA_dataset -o release
           ls -l release
           slim validate release/TA_dataset-${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}.tar.gz
