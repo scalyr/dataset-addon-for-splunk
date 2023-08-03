@@ -15,8 +15,8 @@
   ~
 -->
 <nav>
-    <view name="inputs" />
-    <view name="configuration" default="true" />
-    <view name="dataset_by_example" />
-    <view name="search" />
+    <view name="inputs"/>
+    <view name="configuration" default="true"/>
+    <view name="dataset_by_example"/>
+    <view name="search"/>
 </nav>

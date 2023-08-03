@@ -1,11 +1,10 @@
 # encoding = utf-8
-import uuid
-import datetime
 import json
-import requests
-import logging
-from dataset_common import *
+import uuid
+
 from dataset_api import *
+from dataset_common import *
+
 
 def process_event(helper, *args, **kwargs):
     """
@@ -57,16 +56,16 @@ def process_event(helper, *args, **kwargs):
         ds_user_cred = helper.get_user_credential_by_account_id(account)
         acct_dict = {}
         acct_dict[account] = {}
-        acct_dict[account]['base_url'] = ds_user_cred['url']
-        acct_dict[account]['ds_api_key'] = ds_user_cred['dataset_log_write_access_key']
+        acct_dict[account]["base_url"] = ds_user_cred["url"]
+        acct_dict[account]["ds_api_key"] = ds_user_cred["dataset_log_write_access_key"]
 
-        ds_url = get_url(acct_dict[account]['base_url'], 'addevents')
-        ds_headers = { "Authorization": "Bearer " + acct_dict[account]['ds_api_key'] }
+        ds_url = get_url(acct_dict[account]["base_url"], "addevents")
+        ds_headers = {"Authorization": "Bearer " + acct_dict[account]["ds_api_key"]}
 
         dataset_serverhost = helper.get_param("dataset_serverhost")
-        dataset_severity = int(helper.get_param('dataset_severity'))
-        dataset_message = helper.get_param('dataset_message')
-        dataset_parser = helper.get_param('dataset_parser')
+        dataset_severity = int(helper.get_param("dataset_severity"))
+        dataset_message = helper.get_param("dataset_message")
+        dataset_parser = helper.get_param("dataset_parser")
         ds_uuid = str(uuid.uuid4())
 
         events = helper.get_events()
@@ -78,14 +77,12 @@ def process_event(helper, *args, **kwargs):
 
         for event in events:
             if counter == 1:
-                #on first event, format payload for DataSet addEvents API
+                # on first event, format payload for DataSet addEvents API
                 ds_event_dict["session"] = ds_uuid
-                ds_event_dict["sessionInfo"] = {
-                    "serverHost": dataset_serverhost
-                }
+                ds_event_dict["sessionInfo"] = {"serverHost": dataset_serverhost}
 
-            #for all events, append details
-            #convert Splunk _time to nanoseconds, string representation of float requires double conversion of string -> float -> int
+            # for all events, append details
+            # convert Splunk _time to nanoseconds, string representation of float requires double conversion of string -> float -> int
             ds_time = int(float(event["_time"])) * 1000000000
             ds_event_dict["events"].append(
                 {
@@ -96,26 +93,25 @@ def process_event(helper, *args, **kwargs):
                     "attrs": {
                         "message": dataset_message,
                         "Application": "splunk",
-                        "parser": dataset_parser
-                    }
+                        "parser": dataset_parser,
+                    },
                 }
             )
             ds_event_dict["threads"].append(
-                {
-                    "id": counter,
-                    "name": "splunk alert " + str(counter)
-                }
+                {"id": counter, "name": "splunk alert " + str(counter)}
             )
 
-            counter +=1
+            counter += 1
 
         ds_payload = json.loads(json.dumps(ds_event_dict))
         helper.log_debug("payload = {}".format(ds_payload))
-        #ModularAlertBase includes send_http_request method which includes helpers to handle proxy configuration
-        r = helper.send_http_request(ds_url, 'POST', parameters=None, payload=ds_payload, headers=ds_headers)
+        # ModularAlertBase includes send_http_request method which includes helpers to handle proxy configuration
+        r = helper.send_http_request(
+            ds_url, "POST", parameters=None, payload=ds_payload, headers=ds_headers
+        )
         helper.log_debug("response={}".format(r.text))
         helper.log_debug("elapsed={}".format(r.elapsed))
-        
+
     except Exception as e:
         helper.log_error(e)
         return 1
