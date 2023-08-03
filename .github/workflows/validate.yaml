@@ -21,7 +21,6 @@ jobs:
       - name: Install dependencies
         run: |
           make dev-install-dependencies-pack
-          make dev-install-dependencies-pack-sudo
 
       - name: Export current snapshot of app
         run: echo "SDLAPP_VERSION_CURRENT_SNAPSHOT=$(jq -r '.meta.version' globalConfig.json)" >> $GITHUB_ENV
