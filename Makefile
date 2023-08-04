@@ -70,6 +70,8 @@ pack:
 	version=$$(jq -r '.meta.version' globalConfig.json) && \
 	echo "Generate package - $${version}" && \
 	ucc-gen --source TA_dataset --ta-version $${version} && \
+	jq '.' globalConfig.json > globalConfig.new.json && \
+	mv globalConfig.new.json globalConfig.json && \
 	echo "Construct tarball" && \
 	slim package output/TA_dataset -o release && \
 	echo "Validate released tarball" && \
