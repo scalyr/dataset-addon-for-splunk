@@ -181,7 +181,7 @@ class DATASET_QUERY_INPUT(smi.Script):
                                 get_checkpoint = checkpoint.get(input_name)
 
                                 # if checkpoint doesn't exist, set to 0
-                                if get_checkpoint == None:
+                                if get_checkpoint is None:
                                     checkpoint.update(input_name, {"timestamp": 0})
                                     checkpoint_time = 0
                                 else:

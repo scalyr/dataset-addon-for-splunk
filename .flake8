@@ -1,6 +1,6 @@
 [flake8]
 max-line-length = 250
-extend-ignore = E203, W503, F403, F405, F401, W605, E711, B001
+extend-ignore = E203, W503, F403, F405, F401, W605
 
 # keep in sync with .pre-commit-config.yaml - flake8
 exclude =
