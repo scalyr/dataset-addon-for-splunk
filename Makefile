@@ -69,7 +69,9 @@ pack:
 	slim validate TA_dataset && \
 	version=$$(jq -r '.meta.version' globalConfig.json) && \
 	echo "Generate package - $${version}" && \
-	ucc-gen build --source TA_dataset --ta-version $${version} && \
+	ucc-gen --source TA_dataset --ta-version $${version} && \
+	jq '.' globalConfig.json > globalConfig.new.json && \
+	mv globalConfig.new.json globalConfig.json && \
 	echo "Construct tarball" && \
 	slim package output/TA_dataset -o release && \
 	echo "Validate released tarball" && \
@@ -91,3 +93,14 @@ dev-config-restore:
 dev-update-source:
 	rsync -av $(SOURCE_PACKAGE)/bin/ $(OUTPUT_PACKAGE)/bin/
 	rsync -av $(SOURCE_PACKAGE)/default/ $(OUTPUT_PACKAGE)/default/
+
+dev-install-dependencies-pack:
+	pip install --upgrade-strategy only-if-needed -r requirements-pack.txt
+dev-install-dependencies-pack-sudo:
+	pip install --upgrade-strategy only-if-needed -r requirements-pack-sudo.txt
+
+dev-install-dependencies-lib:
+	pip install --upgrade-strategy only-if-needed -r TA_dataset/lib/requirements.txt
+
+dev-install-dependencies-for-development:
+	pip install --upgrade-strategy only-if-needed -r requirements-dev.txt
