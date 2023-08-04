@@ -7,7 +7,18 @@ import re
 import sys
 
 import requests
-from dataset_api import *
+from dataset_api import (
+    build_payload,
+    ds_build_pq,
+    ds_lrq_facet_values,
+    ds_lrq_log_query,
+    ds_lrq_power_query,
+    get_bucket_increments,
+    get_maxcount,
+    json,
+    parse_splunk_dt,
+    time,
+)
 from dataset_common import get_acct_info, get_proxy, get_url, relative_to_epoch
 
 # Dataset V2 API client (generated)
@@ -281,7 +292,7 @@ class DataSetSearch(GeneratingCommand):
 
                     if len(matches_list) == 0:
                         logging.warning("DataSet response success, no matches returned")
-                        logging.warning(r_json)
+                        # logging.warning(r_json)
 
                     for event in matches_list:
                         ds_event = json.loads(

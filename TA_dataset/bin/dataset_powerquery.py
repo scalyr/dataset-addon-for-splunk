@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
-from dataset_api import *
-from dataset_common import *
+from dataset_api import build_payload, json, parse_powerquery, time
+from dataset_common import get_acct_info, get_log_level, get_proxy, get_url, op, sys
 from solnlib import log
 from solnlib.modular_input import checkpointer
 from splunklib import modularinput as smi
