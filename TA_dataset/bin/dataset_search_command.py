@@ -45,7 +45,7 @@ def get_search_times(self):
         try:
             # if Splunk time picker was used, convert provided epoch string to integer and use it
             start_time = int(self.search_results_info.search_et)
-        except:
+        except Exception:
             # if "all time" is used no search_et is defined, or if nothing was provided, default to 24h to follow DataSet default
             start_time = relative_to_epoch("24h")
 
@@ -59,7 +59,7 @@ def get_search_times(self):
     else:
         try:
             end_time = int(self.search_results_info.search_lt)
-        except:
+        except Exception:
             end_time = relative_to_epoch("1s")
 
     return (start_time, end_time)
@@ -113,8 +113,10 @@ def search_error_exit(self, r_json):
         logging.error(r_json)
         try:
             error_message = str(r_json)
-        except:
-            error_message = "Request failed, confirm connectivity and check search log"
+        except Exception as e:
+            error_message = "Request failed, confirm connectivity and check search log. error={}".format(
+                e
+            )
     self.error_exit(error="ERROR", message=error_message)
 
 
@@ -263,9 +265,12 @@ class DataSetSearch(GeneratingCommand):
                     "Authorization": "Bearer " + acct_dict[ds_acct]["ds_api_key"],
                     "User-Agent": get_user_agent(),
                 }
-            except:
+            except Exception as e:
                 search_error_exit(
-                    self, "Splunk configuration error, see search log for details."
+                    self,
+                    "Splunk configuration error, see search log for details.error={}".format(
+                        e
+                    ),
                 )
 
             try:
@@ -294,7 +299,7 @@ class DataSetSearch(GeneratingCommand):
                         ds_server_info = json.loads(
                             json.dumps(event.server_info.additional_properties)
                         )
-                        ds_event.update(ds_server_info)  ## add in all server fields
+                        ds_event.update(ds_server_info)  # add in all server fields
                         splunk_dt = parse_splunk_dt(ds_event)
                         yield self.gen_record(
                             _time=splunk_dt,

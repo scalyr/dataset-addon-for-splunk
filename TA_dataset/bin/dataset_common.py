@@ -39,8 +39,10 @@ def get_conf_manager(session_key, logger):
 
         return cfm
 
-    except Exception:
-        logger.error("Failed to fetch configuration. Check permissions.")
+    except Exception as e:
+        logger.error(
+            "Failed to fetch configuration. Check permissions. error={}".format(e)
+        )
         sys.exit(1)
 
 
@@ -187,8 +189,11 @@ def get_token(self, account, rw, logger):
                         cred_json = json.loads(cred)
                         token = cred_json["dataset_log_write_access_key"]
                 return token
-    except:
-        logger.error(self, "Unable to retrieve API token, check configuration")
+    except Exception as e:
+        logger.error(
+            self,
+            "Unable to retrieve API token, check configuration. error={}".format(e),
+        )
 
 
 def normalize_time(ds_time):

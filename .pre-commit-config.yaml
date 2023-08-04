@@ -38,6 +38,8 @@ repos:
   hooks:
     - id: flake8
       additional_dependencies: [flake8-bugbear]
+      # keep in sync with .flake8
+      exclude: TA_dataset/lib/dataset_query_api_client
 
 - repo: https://github.com/psf/black
   rev: 23.7.0
