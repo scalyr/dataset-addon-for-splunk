@@ -218,7 +218,7 @@ You need two Python environments. Python 3.8 for development and package buildin
 
 ### Python 3.11
 
-* Install Python 3.8 `brew install python@3.11`
+* Install Python 3.11 `brew install python@3.11`
 * Create venv with Python3.11: `python3.11 -m venv venv-3.11`
 * Activate it: `source venv-3.11/bin/activate`
 * Install dependencies:
