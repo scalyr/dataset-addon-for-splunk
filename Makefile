@@ -94,7 +94,8 @@ dev-update-source:
 
 dev-install-dependencies-pack:
 	pip install --upgrade-strategy only-if-needed -r requirements-pack.txt
-	sudo pip install --upgrade-strategy only-if-needed -r requirements-pack-sudo.txt
+dev-install-dependencies-pack-sudo:
+	pip install --upgrade-strategy only-if-needed -r requirements-pack-sudo.txt
 
 dev-install-dependencies-lib:
 	pip install --upgrade-strategy only-if-needed -r TA_dataset/lib/requirements.txt
