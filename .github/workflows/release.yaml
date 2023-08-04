@@ -29,6 +29,7 @@ jobs:
         run: |
           make dev-install-dependencies-pack
           make dev-install-dependencies-pack-sudo
+          make dev-install-dependencies-for-development
 
       - name: Export current snapshot of app
         run: echo "SDLAPP_VERSION_CURRENT_SNAPSHOT=$(jq -r '.meta.version' globalConfig.json)" >> $GITHUB_ENV
@@ -52,6 +53,7 @@ jobs:
           crudini --set TA_dataset/default/app.conf launcher version ${{ env.SDLAPP_VERSION_NEW_SNAPSHOT }}
           crudini --set TA_dataset/default/app.conf id version ${{ env.SDLAPP_VERSION_NEW_SNAPSHOT }}
           sed -i 's/${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}/${{ env.SDLAPP_VERSION_NEW_SNAPSHOT }}/' README.md
+          pre-commit run --files globalConfig.json TA_dataset/app.manifest TA_dataset/default/app.conf README.md
 
       - name: Commit version changes
         uses: test-room-7/action-update-file@v1
