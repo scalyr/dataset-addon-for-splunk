@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Contains all the data models used in inputs/outputs """
 
 from .column import Column

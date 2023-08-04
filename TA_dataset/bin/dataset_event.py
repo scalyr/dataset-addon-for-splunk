@@ -1,4 +1,4 @@
-# encoding = utf-8
+# -*- coding: utf-8 -*-
 # Always put this line at the beginning of this file
 
 import sys

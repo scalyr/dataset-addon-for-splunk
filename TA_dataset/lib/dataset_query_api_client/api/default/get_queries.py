@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 from http import HTTPStatus
 from typing import Any, Dict, Optional, Union, cast
