@@ -2,8 +2,7 @@
 import json
 import uuid
 
-from dataset_api import *
-from dataset_common import *
+from dataset_common import get_url
 
 
 def process_event(helper, *args, **kwargs):
