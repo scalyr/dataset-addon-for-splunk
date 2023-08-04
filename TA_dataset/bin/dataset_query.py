@@ -6,6 +6,7 @@ import math
 import requests
 from dataset_api import *
 from dataset_common import *
+from dataset_query_api_client.client import get_user_agent
 from solnlib import log
 from solnlib.modular_input import checkpointer
 from splunklib import modularinput as smi
@@ -130,7 +131,8 @@ class DATASET_QUERY_INPUT(smi.Script):
                 curr_maxcount = copy.copy(ds_maxcount)
                 ds_url = get_url(acct_dict[ds_acct]["base_url"], "query")
                 ds_headers = {
-                    "Authorization": "Bearer " + acct_dict[ds_acct]["ds_api_key"]
+                    "Authorization": "Bearer " + acct_dict[ds_acct]["ds_api_key"],
+                    "User-Agent": get_user_agent(),
                 }
 
                 # Create checkpointer
