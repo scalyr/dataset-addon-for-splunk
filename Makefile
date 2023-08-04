@@ -100,5 +100,5 @@ dev-install-dependencies-pack-sudo:
 dev-install-dependencies-lib:
 	pip install --upgrade-strategy only-if-needed -r TA_dataset/lib/requirements.txt
 
-dev-install-dependencies-dev:
+dev-install-dependencies-for-development:
 	pip install --upgrade-strategy only-if-needed -r requirements-dev.txt

@@ -44,7 +44,7 @@ jobs:
 
       - name: Install pre-commit
         run: |
-            make dev-install-dependencies-dev
+            make dev-install-dependencies-for-development
             make dev-install-dependencies-lib
       - name: Install pre-commit hooks
         run: |
