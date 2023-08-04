@@ -17,6 +17,7 @@ from dataset_common import get_acct_info, get_proxy, get_url, relative_to_epoch
 # Dataset V2 API client (generated)
 from dataset_query_api_client import AuthenticatedClient
 from dataset_query_api_client.api.default import get_queries, post_queries
+from dataset_query_api_client.client import get_user_agent
 from dataset_query_api_client.types import Response
 
 # Splunk Enterprise SDK
@@ -259,7 +260,7 @@ class DataSetSearch(GeneratingCommand):
                 ds_api_key = acct_dict[ds_acct]["ds_api_key"]
                 ds_headers = {
                     "Authorization": "Bearer " + acct_dict[ds_acct]["ds_api_key"],
-                    "User-Agent": "splunk-ta",
+                    "User-Agent": get_user_agent(),
                 }
             except:
                 search_error_exit(
