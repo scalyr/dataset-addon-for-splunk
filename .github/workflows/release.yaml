@@ -42,9 +42,11 @@ jobs:
 
       - name: Build release
         run: |
-          ucc-gen build --source TA_dataset --ta-version ${{ env.SDLAPP_VERSION_RELEASE }}
-          slim package output/TA_dataset -o release
-          slim validate release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz
+          scripts/pack.sh \
+            --version "${{ env.SDLAPP_VERSION_RELEASE }}" \
+            --input TA_dataset \
+            --output output \
+            --release release
 
       - name: Prepare next snapshot
         run: |

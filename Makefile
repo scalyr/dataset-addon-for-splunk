@@ -64,18 +64,12 @@ inspect:
 
 .PHONY: pack
 pack:
-	mkdir -p $(CONFIGURATION_BACKUP) && \
-	echo "Validate package" && \
-	slim validate TA_dataset && \
 	version=$$(jq -r '.meta.version' globalConfig.json) && \
-	echo "Generate package - $${version}" && \
-	ucc-gen --source TA_dataset --ta-version $${version} && \
-	jq '.' globalConfig.json > globalConfig.new.json && \
-	mv globalConfig.new.json globalConfig.json && \
-	echo "Construct tarball" && \
-	slim package output/TA_dataset -o release && \
-	echo "Validate released tarball" && \
-	slim validate release/TA_dataset-$${version}.tar.gz
+	scripts/pack.sh \
+		--version "$${version}" \
+		--input TA_dataset \
+		--output output \
+		--release release
 
 dev-config-backup:
 	mkdir -p $(CONFIGURATION_BACKUP) && \
