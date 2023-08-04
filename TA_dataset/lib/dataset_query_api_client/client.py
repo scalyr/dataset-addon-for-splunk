@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import platform
 import ssl
 from typing import Dict, Union

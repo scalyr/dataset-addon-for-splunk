@@ -4,13 +4,28 @@ repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.4.0
   hooks:
-    - id: trailing-whitespace
-    - id: end-of-file-fixer
-    - id: check-yaml
     - id: check-added-large-files
-    - id: requirements-txt-fixer
+    - id: check-case-conflict
     - id: check-executables-have-shebangs
+    - id: check-json
     - id: check-merge-conflict
+    - id: check-shebang-scripts-are-executable
+    - id: check-symlinks
+    - id: check-xml
+    - id: check-yaml
+    - id: debug-statements
+    - id: destroyed-symlinks
+    - id: detect-private-key
+    - id: end-of-file-fixer
+    - id: fix-encoding-pragma
+    - id: mixed-line-ending
+      args: ["--fix", "auto"]
+    - id: name-tests-test
+      args: ["--pytest"]
+    - id: check-yaml
+    - id: requirements-txt-fixer
+    - id: sort-simple-yaml
+    - id: trailing-whitespace
 
 - repo: https://github.com/pycqa/isort
   rev: 5.12.0

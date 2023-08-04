@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Contains some shared types for properties """
 from http import HTTPStatus
 from typing import BinaryIO, Generic, MutableMapping, Optional, Tuple, TypeVar

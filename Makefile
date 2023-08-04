@@ -31,6 +31,10 @@ docker-splunk-stop:
 		sudo -u splunk \
 		/opt/splunk/bin/splunk stop
 
+.PHONY: docker-splunk-kill
+docker-splunk-kill:
+	docker kill $(CONTAINER_NAME)
+
 .PHONY: docker-splunk-show-app
 docker-splunk-show-app:
 	docker exec $(CONTAINER_NAME) \

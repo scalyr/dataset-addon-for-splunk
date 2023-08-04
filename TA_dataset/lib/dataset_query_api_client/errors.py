@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Contains shared errors types that can be raised from API functions """
 
 
