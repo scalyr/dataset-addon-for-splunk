@@ -102,3 +102,9 @@ dev-install-dependencies-lib:
 
 dev-install-dependencies-for-development:
 	pip install --upgrade-strategy only-if-needed -r requirements-dev.txt
+
+e2e-headed:
+	npx playwright test
+
+e2e-headed:
+	npx playwright test --headed

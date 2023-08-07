@@ -311,3 +311,18 @@ Note that build cleans previously created configuration. To prevent removal of c
 * Restore configuration - `make dev-config-backup`
 * Backup configuration - `make dev-config-restore` - it's not clear whether it really works
 * Tail Splunk logs - `make docker-tail-logs`
+
+# E2E Testing
+
+We are using Playwright - https://playwright.dev/
+
+## Setup
+
+* Install modules - `npm install`
+* Create `.env` file based on [.env.example](.env.example) with access keys
+
+## Run tests
+
+* Make sure, that your Splunk is running - `make docker-splunk-run`
+* Use `make e2e` - to run e2e tests without the browser
+* Use `make e2e-headed` - to run e2e tests with the browser
