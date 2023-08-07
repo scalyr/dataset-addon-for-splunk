@@ -1,10 +1,11 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+import json
 import logging
 import re
 import sys
+import time
 
 import requests
 from dataset_api import (
@@ -15,9 +16,7 @@ from dataset_api import (
     ds_lrq_power_query,
     get_bucket_increments,
     get_maxcount,
-    json,
     parse_splunk_dt,
-    time,
 )
 from dataset_common import get_acct_info, get_proxy, get_url, relative_to_epoch
 
