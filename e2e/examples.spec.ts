@@ -79,10 +79,9 @@ test('Check example page', async ({ page }) => {
     test.fail();
   }
 
-  const { WAIT_FOR_HUMAN_TO_CHECK: waitForHuman} = process.env
+  const { WAIT_FOR_HUMAN_TO_CHECK_IN_MS: waitForHumanStr} = process.env
+  const waitForHumanMs = parseInt(waitForHumanStr || '0');
+  console.log("Waiting for human for: ", waitForHumanMs);
 
-  if ( waitForHuman === 'true' ) {
-    // Wait for 2s, so that I can see those results
-    await page.waitForTimeout(2000);
-  }
+  await page.waitForTimeout(waitForHumanMs);
 });
