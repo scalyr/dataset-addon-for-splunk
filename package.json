@@ -14,5 +14,10 @@
     "dotenv": "^16.3.1",
     "install": "^0.13.0",
     "npm": "^9.8.1"
+  },
+  "private": true,
+  "engines": {
+    "node": ">= v20.3.1",
+    "npm": ">= 9.8.0"
   }
 }
