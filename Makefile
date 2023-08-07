@@ -61,6 +61,13 @@ docker-splunk-bash:
 docker-splunk-remove:
 	docker container rm $(CONTAINER_NAME)
 
+docker-splunk-exec-search:
+	docker exec $(CONTAINER_NAME) \
+		sudo -u splunk \
+		/opt/splunk/bin/splunk \
+			cmd python \
+			/opt/splunk/etc/apps/TA_dataset/bin/dataset_search_command.py
+
 
 .PHONY: inspect
 inspect:
