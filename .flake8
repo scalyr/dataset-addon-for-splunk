@@ -1,3 +1,9 @@
 [flake8]
 max-line-length = 250
-extend-ignore = E203, W503, F403, F405, F401, W605, E711, B001, E722, E262, F811
+extend-ignore = E203, W503, F403
+
+# keep in sync with .pre-commit-config.yaml - flake8
+exclude =
+    venv/
+    output
+    TA_dataset/lib/dataset_query_api_client

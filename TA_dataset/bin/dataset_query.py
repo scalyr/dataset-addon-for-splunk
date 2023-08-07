@@ -2,11 +2,21 @@
 # -*- coding: utf-8 -*-
 
 import copy
+import json
 import math
+import os.path as op
+import sys
+import time
 
 import requests
-from dataset_api import *
-from dataset_common import *
+from dataset_api import build_payload, get_maxcount, parse_query, query_api_max
+from dataset_common import (
+    get_acct_info,
+    get_log_level,
+    get_proxy,
+    get_url,
+    relative_to_epoch,
+)
 from dataset_query_api_client.client import get_user_agent
 from solnlib import log
 from solnlib.modular_input import checkpointer
@@ -181,7 +191,7 @@ class DATASET_QUERY_INPUT(smi.Script):
                                 get_checkpoint = checkpoint.get(input_name)
 
                                 # if checkpoint doesn't exist, set to 0
-                                if get_checkpoint == None:
+                                if get_checkpoint is None:
                                     checkpoint.update(input_name, {"timestamp": 0})
                                     checkpoint_time = 0
                                 else:

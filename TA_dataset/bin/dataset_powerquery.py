@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
+import json
+import os.path as op
+import sys
+import time
+
 import requests
-from dataset_api import *
-from dataset_common import *
+from dataset_api import build_payload, parse_powerquery
+from dataset_common import get_acct_info, get_log_level, get_proxy, get_url
 from solnlib import log
 from solnlib.modular_input import checkpointer
 from splunklib import modularinput as smi
@@ -144,7 +149,7 @@ class DATASET_POWERQUERY_INPUT(smi.Script):
                             get_checkpoint = checkpoint.get(input_name)
 
                             # if checkpoint doesn't exist, set to 0
-                            if get_checkpoint == None:
+                            if get_checkpoint is None:
                                 checkpoint.update(input_name, {"timestamp": 0})
                                 checkpoint_time = 0
                             else:

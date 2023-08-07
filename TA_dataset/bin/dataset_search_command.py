@@ -1,25 +1,27 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# encoding = utf-8
-
-import copy
+import json
 import logging
 import re
 import sys
 import time
 
-# From Splunk UCC
-import import_declare_test
 import requests
-from dataset_api import *
+from dataset_api import (
+    build_payload,
+    ds_build_pq,
+    ds_lrq_facet_values,
+    ds_lrq_log_query,
+    ds_lrq_power_query,
+    get_bucket_increments,
+    get_maxcount,
+    parse_splunk_dt,
+)
 from dataset_common import get_acct_info, get_proxy, get_url, relative_to_epoch
 
 # Dataset V2 API client (generated)
-from dataset_query_api_client import AuthenticatedClient
-from dataset_query_api_client.api.default import get_queries, post_queries
 from dataset_query_api_client.client import get_user_agent
-from dataset_query_api_client.types import Response
 
 # Splunk Enterprise SDK
 from splunklib.searchcommands import (
@@ -34,7 +36,7 @@ from splunklib.searchcommands import (
 def get_search_times(self):
     # if starttime was given in search, use it
     if self.starttime:
-        st_match = re.match("\d+(d|h|m|s)", self.starttime)
+        st_match = re.match(r"\d+(d|h|m|s)", self.starttime)
         if st_match:
             # if relative time was given, convert to epoch time which is required for recursive calls to API with consistent time bounds
             start_time = relative_to_epoch(self.starttime)
@@ -45,13 +47,13 @@ def get_search_times(self):
         try:
             # if Splunk time picker was used, convert provided epoch string to integer and use it
             start_time = int(self.search_results_info.search_et)
-        except:
+        except Exception:
             # if "all time" is used no search_et is defined, or if nothing was provided, default to 24h to follow DataSet default
             start_time = relative_to_epoch("24h")
 
     # follow same startime logic for endtime
     if self.endtime:
-        et_match = re.match("\d+(d|h|m|s)", self.endtime)
+        et_match = re.match(r"\d+(d|h|m|s)", self.endtime)
         if et_match:
             end_time = relative_to_epoch(self.endtime)
         else:
@@ -59,7 +61,7 @@ def get_search_times(self):
     else:
         try:
             end_time = int(self.search_results_info.search_lt)
-        except:
+        except Exception:
             end_time = relative_to_epoch("1s")
 
     return (start_time, end_time)
@@ -113,8 +115,10 @@ def search_error_exit(self, r_json):
         logging.error(r_json)
         try:
             error_message = str(r_json)
-        except:
-            error_message = "Request failed, confirm connectivity and check search log"
+        except Exception as e:
+            error_message = "Request failed, confirm connectivity and check search log. error={}".format(
+                e
+            )
     self.error_exit(error="ERROR", message=error_message)
 
 
@@ -133,7 +137,7 @@ class DataSetSearch(GeneratingCommand):
         **Description:** DataSet endpoint to use: query, powerquery, facet or timeseries""",
         default="query",
         require=False,
-        validate=validators.Match("query", "(?i)query|powerquery|facet|timeseries"),
+        validate=validators.Match("query", r"(?i)query|powerquery|facet|timeseries"),
     )
 
     search = Option(
@@ -163,7 +167,7 @@ class DataSetSearch(GeneratingCommand):
         **Syntax: starttime=<string>
         **Description:** alternative to time picker for start time to send to DataSet. Use relative (e.g. 1d) or epoch time.""",
         require=False,
-        validate=validators.Match("time", "\d*(d|h|m|s)|\d{10,19}"),
+        validate=validators.Match("time", r"\d*(d|h|m|s)|\d{10,19}"),
     )
 
     endtime = Option(
@@ -171,13 +175,13 @@ class DataSetSearch(GeneratingCommand):
         **Syntax: endtime=<string>
         **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.""",
         require=False,
-        validate=validators.Match("time", "\d*(d|h|m|s)|\d{10,19}"),
+        validate=validators.Match("time", r"\d*(d|h|m|s)|\d{10,19}"),
     )
 
     field = Option(
         doc="""
         **Syntax: field=<string>
-        **Description:** For facetQuery, the fielt to get most frequent values of""",
+        **Description:** For facetQuery, the field to get most frequent values of""",
         require=False,
     )
 
@@ -189,7 +193,7 @@ class DataSetSearch(GeneratingCommand):
         require=False,
         validate=validators.Match(
             "function",
-            "(?i)(rate|count|mean|min|max|sum|sumPerSecond|median|p10|p50|p90|p95|p9{2,3})(\(\w+\))?",
+            r"(?i)(rate|count|mean|min|max|sum|sumPerSecond|median|p10|p50|p90|p95|p9{2,3})(\(\w+\))?",
         ),
     )
 
@@ -263,9 +267,12 @@ class DataSetSearch(GeneratingCommand):
                     "Authorization": "Bearer " + acct_dict[ds_acct]["ds_api_key"],
                     "User-Agent": get_user_agent(),
                 }
-            except:
+            except Exception as e:
                 search_error_exit(
-                    self, "Splunk configuration error, see search log for details."
+                    self,
+                    "Splunk configuration error, see search log for details.error={}".format(
+                        e
+                    ),
                 )
 
             try:
@@ -284,7 +291,7 @@ class DataSetSearch(GeneratingCommand):
 
                     if len(matches_list) == 0:
                         logging.warning("DataSet response success, no matches returned")
-                        logging.warning(r_json)
+                        # logging.warning(r_json)
 
                     for event in matches_list:
                         ds_event = json.loads(
@@ -294,7 +301,7 @@ class DataSetSearch(GeneratingCommand):
                         ds_server_info = json.loads(
                             json.dumps(event.server_info.additional_properties)
                         )
-                        ds_event.update(ds_server_info)  ## add in all server fields
+                        ds_event.update(ds_server_info)  # add in all server fields
                         splunk_dt = parse_splunk_dt(ds_event)
                         yield self.gen_record(
                             _time=splunk_dt,
@@ -398,7 +405,7 @@ class DataSetSearch(GeneratingCommand):
                         values = r_json["results"][0]["values"]
                         for i in range(len(values)):
                             ds_event = values[i]
-                            splunk_function = re.split("\(", self.function)[0]
+                            splunk_function = re.split(r"\(", self.function)[0]
                             # determine timestamp by adding bucket_time to start_time x number of iterations (+1 since indices start at 0)
                             splunk_dt = ds_start + (bucket_time * (i + 1))
                             # splunk needs a string in _raw to render correctly; = is sufficient so write to _raw and again to splunk_function field
