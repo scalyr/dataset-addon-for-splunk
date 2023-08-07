@@ -1,0 +1,23 @@
+{
+  "name": "dataset-addon-for-splunk",
+  "version": "1.0.0",
+  "description": "The Security Data Lake Add-On for Splunk provides integration with [DataSet](https://www.dataset.com) and [XDR](https://www.sentinelone.com/platform/xdr-ingestion) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration: - SPL custom command to query directly from the Splunk UI. - Inputs to index alerts as CIM-compliant, or any user-defined query results. - Alert action to send events from Splunk.",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.36.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "install": "^0.13.0",
+    "npm": "^9.8.1"
+  },
+  "private": true,
+  "engines": {
+    "node": ">= v20.3.1",
+    "npm": ">= 9.8.0"
+  }
+}
