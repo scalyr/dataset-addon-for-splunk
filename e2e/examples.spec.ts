@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
-  const { SPLUNK_USER: user, SPLUNK_PASSWORD: password, CREATE_ACCOUNT: createAccount } = process.env;
+  const { SPLUNK_USER: user, SPLUNK_PASSWORD: password, CREATE_ACCOUNT: createAccount, CONFIRM_POPUP: confirmPopUp } = process.env;
+
 
   // Login
   await page.goto('/');
@@ -10,9 +11,16 @@ test.beforeEach(async ({ page }) => {
   await page.getByPlaceholder('Password',  { exact: true }).fill(password || 'SPLUNK_PASSWORD env is empty');
   await page.getByRole('button', { name: 'Sign In' }).click();
 
+    // Wait for few seconds more
+  await page.waitForTimeout(5000);
+
   await page.screenshot({ path: 'playwright-screenshots/page-after-login-before-pop-up.png', fullPage: true });
+
   // Confirm some pop-up
-  await page.getByRole('button', { name: 'Got it!' }).click({timeout: 10000});
+  console.log("Confirm PopUp: ", confirmPopUp, ", set to true to confirm popup")
+  if ( confirmPopUp == 'true' ) {
+    await page.getByRole('button', { name: 'Got it!' }).click();
+  }
 
   await page.screenshot({ path: 'playwright-screenshots/page-after-login-after-pop-up.png', fullPage: true });
 
@@ -22,7 +30,8 @@ test.beforeEach(async ({ page }) => {
   console.log("Create account: ", createAccount, ", set to true to create account")
   if ( createAccount == 'true') {
     // Go to configuration
-    await page.goto('/en-GB/app/TA_dataset/configuration');
+    await page.locator('[title="Configuration"]').click();
+    await page.screenshot({ path: 'playwright-screenshots/page-configuration.png', fullPage: true });
 
     // Check that we are on the configuration page
     await expect(page).toHaveTitle(/Configuration/);
