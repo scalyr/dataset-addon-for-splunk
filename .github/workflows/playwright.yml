@@ -58,6 +58,10 @@ jobs:
     - name: Run Playwright tests
       run: |
         npx playwright test
+    - name: Preserve screenshots
+      run: |
+        cp -v screenshots-* playwright-report/
+
     - uses: actions/upload-artifact@v3
       if: always()
       with:
