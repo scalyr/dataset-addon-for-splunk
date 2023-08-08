@@ -43,9 +43,8 @@ class AlertActionWorkerdataset_event(ModularAlertBase):
             status = modalert_dataset_event_helper.process_event(self, *args, **kwargs)
         except (AttributeError, TypeError) as ae:
             self.log_error(
-                "Error: {}. Please double check spelling and also verify that a compatible version of Splunk_SA_CIM is installed.".format(
-                    str(ae)
-                )
+                "Error: {}. Please double check spelling and also verify that a"
+                " compatible version of Splunk_SA_CIM is installed.".format(str(ae))
             )  # ae.message replaced with str(ae)
             return 4
         except Exception as e:

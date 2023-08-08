@@ -81,7 +81,9 @@ def process_event(helper, *args, **kwargs):
                 ds_event_dict["sessionInfo"] = {"serverHost": dataset_serverhost}
 
             # for all events, append details
-            # convert Splunk _time to nanoseconds, string representation of float requires double conversion of string -> float -> int
+            # convert Splunk _time to nanoseconds, string
+            # representation of float requires
+            # double conversion of string -> float -> int
             ds_time = int(float(event["_time"])) * 1000000000
             ds_event_dict["events"].append(
                 {
@@ -104,7 +106,8 @@ def process_event(helper, *args, **kwargs):
 
         ds_payload = json.loads(json.dumps(ds_event_dict))
         helper.log_debug("payload = {}".format(ds_payload))
-        # ModularAlertBase includes send_http_request method which includes helpers to handle proxy configuration
+        # ModularAlertBase includes send_http_request method
+        # which includes helpers to handle proxy configuration
         r = helper.send_http_request(
             ds_url, "POST", parameters=None, payload=ds_payload, headers=ds_headers
         )
