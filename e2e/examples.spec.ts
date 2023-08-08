@@ -10,6 +10,9 @@ test.beforeEach(async ({ page }) => {
   await page.getByPlaceholder('Password',  { exact: true }).fill(password || 'SPLUNK_PASSWORD env is empty');
   await page.getByRole('button', { name: 'Sign In' }).click();
 
+  // TODO: remove me
+  await page.waitForTimeout(10000);
+
   await page.screenshot({ path: 'playwright-screenshots/page-after-login.png', fullPage: true });
   await page.getByLabel('Security Data Lake Add-On for Splunk', { exact: true }).click()
   await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
@@ -55,6 +58,9 @@ test('Check example page', async ({ page }) => {
 
 
   await expect(page).toHaveTitle(/DataSet by Example/);
+
+  // Wait for text to appear
+  await page.waitForTimeout(2000);
 
   // Wait for the "Waiting for data..." text to disappear
   await page.waitForFunction(() => {
