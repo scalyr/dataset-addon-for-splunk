@@ -13,15 +13,15 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('button', { name: 'Sign In' }).click();
 
     // Wait for few seconds more
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(10000);
 
   await page.screenshot({ path: 'playwright-screenshots/page-after-login-before-pop-up.png', fullPage: true });
 
   // Confirm some pop-up
-
-  console.log("Confirm pop-up if it's there");
   const locGotIt = page.getByRole('button', {name: 'Got it!'});
-  if (await locGotIt.count() > 0) {
+  const countGotIt = await locGotIt.count()
+  console.log("Check for popup: ", countGotIt);
+  if (countGotIt > 0) {
     await locGotIt.click();
   }
 
