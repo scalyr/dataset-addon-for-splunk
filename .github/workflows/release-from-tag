@@ -31,7 +31,7 @@ jobs:
       - name: File exists check
         if: steps.check_files.outputs.files_exists != 'true'
         run: |
-          pip echo "Release file (release/TA-dataset-${{ env.TAG_VERSION }}.tar.gz) not found in ${{ github.event.inputs.branch }}, exitting..."
+          echo "Release file (release/TA-dataset-${{ env.TAG_VERSION }}.tar.gz) not found in ${{ github.event.inputs.branch }}, exitting..."
           exit 1
 
       - name: Create a GitHub release
@@ -39,7 +39,6 @@ jobs:
         with:
           tag: "v${{ env.TAG_VERSION }}"
           name: Release ${{ env.TAG_VERSION }}
-          body: test
           artifacts: "release/TA-dataset-${{ env.TAG_VERSION }}.tar.gz"
           draft: "true"
           generateReleaseNotes: true
