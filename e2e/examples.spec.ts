@@ -4,6 +4,8 @@ test.beforeEach(async ({ page }) => {
 
   // Login
   await page.goto('/');
+  await page.screenshot({ path: 'page-login.png', fullPage: true });
+
   await page.getByPlaceholder('Username').fill(user || 'AAAA');
   await page.getByPlaceholder('Password',  { exact: true }).fill(password || 'BBBB');
   await page.getByRole('button', { name: 'Sign In' }).click();
@@ -84,4 +86,6 @@ test('Check example page', async ({ page }) => {
   console.log("Waiting for human for: ", waitForHumanMs);
 
   await page.waitForTimeout(waitForHumanMs);
+
+  await page.screenshot({ path: 'page-examples.png', fullPage: true });
 });

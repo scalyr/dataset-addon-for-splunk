@@ -93,9 +93,9 @@ dev-wait-for-splunk:
 	awaitedStatus=303; \
 	status=900; \
 	while [ "x$${status}" != "x$${awaitedStatus}" ]; do \
-		docker ps; \
 		status=$$(curl --connect-timeout 10 -s -o /dev/null -I -w "%{http_code}" http://localhost:8000/ ); \
 		echo "Status: $${status}; Awaited: $${awaitedStatus}"; \
+		docker ps; \
 		sleep 5; \
 	done;
 
