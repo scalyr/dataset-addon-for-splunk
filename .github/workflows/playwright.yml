@@ -37,7 +37,7 @@ jobs:
     - name: Build Splunk Application
       run: |
         scripts/pack.sh \
-          --version "1.2.3.4" \
+          --version "9.9.9" \
           --input TA_dataset \
           --output output \
           --release release
