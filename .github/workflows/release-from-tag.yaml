@@ -1,5 +1,5 @@
 name: Release from Tag
-on: [workflow_dispatch]
+on: [ workflow_dispatch ]
 
 permissions:
   contents: write
@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Check Job Inputs
         run: |
           if [[ ! "${{ github.event.ref }}" =~ ^refs\/tags\/v ]]; then
