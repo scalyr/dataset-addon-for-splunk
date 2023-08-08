@@ -53,9 +53,7 @@ jobs:
 
     - name: Run Playwright tests
       run: |
-        timeout 60 sh -c 'until nc -z $0 $1; do docker ps; sleep 1; done' localhost 8000
-        docker ps
-        for i in `seq 1 30`; do date; nc localhost 8000; echo $?; docker ps; sleep 1; done
+        make dev-wait-for-splunk
         npx playwright test
     - uses: actions/upload-artifact@v3
       if: always()
