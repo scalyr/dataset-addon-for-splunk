@@ -17,9 +17,10 @@ test.beforeEach(async ({ page }) => {
   await page.screenshot({ path: 'playwright-screenshots/page-after-login-before-pop-up.png', fullPage: true });
 
   // Confirm some pop-up
-  console.log("Confirm PopUp: ", confirmPopUp, ", set to true to confirm popup")
-  if ( confirmPopUp == 'true' ) {
-    await page.getByRole('button', { name: 'Got it!' }).click();
+
+  const gotItButton = await page.$('xpath=//button');
+  if (gotItButton) {
+    gotItButton.click();
   }
 
   await page.screenshot({ path: 'playwright-screenshots/page-after-login-after-pop-up.png', fullPage: true });
