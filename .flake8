@@ -1,6 +1,5 @@
 [flake8]
 max-line-length = 250
-extend-ignore = E203
 
 # keep in sync with .pre-commit-config.yaml - flake8
 exclude =
