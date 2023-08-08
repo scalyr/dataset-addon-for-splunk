@@ -1,0 +1,24 @@
+name: Release
+on: [workflow_dispatch]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: v2.0.13
+
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "v2.0.13"
+          name: Release TEST
+          body: test body
+          artifacts: "release.tar.gz,foo/*.txt"
+          draft: "true"
