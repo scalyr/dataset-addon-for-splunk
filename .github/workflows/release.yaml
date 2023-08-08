@@ -83,7 +83,7 @@ jobs:
       - name: Archive protobuf jars
         uses: actions/upload-artifact@v2
         with:
-          name: xxx
+          name: TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz
           path: release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz
 
       - name: Set-up `jf` CLI and use secrets
