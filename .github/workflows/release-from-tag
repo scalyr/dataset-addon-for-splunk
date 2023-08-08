@@ -42,3 +42,4 @@ jobs:
           body: test
           artifacts: "release/TA-dataset-${{ env.TAG_VERSION }}.tar.gz"
           draft: "true"
+          generateReleaseNotes: true
