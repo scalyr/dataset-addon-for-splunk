@@ -10,10 +10,15 @@ test.beforeEach(async ({ page }) => {
   await page.getByPlaceholder('Password',  { exact: true }).fill(password || 'SPLUNK_PASSWORD env is empty');
   await page.getByRole('button', { name: 'Sign In' }).click();
 
-  // TODO: remove me
-  await page.waitForTimeout(10000);
+  await page.screenshot({ path: 'playwright-screenshots/page-after-login-before-pop-up.png', fullPage: true });
+  // Confirm some pop-up
+  await page.getByLabel('Got it').click()
 
-  await page.screenshot({ path: 'playwright-screenshots/page-after-login.png', fullPage: true });
+  // TODO: remove me
+  // await page.waitForTimeout(10000);
+
+  await page.screenshot({ path: 'playwright-screenshots/page-after-login-after-pop-up.png', fullPage: true });
+
   await page.getByLabel('Security Data Lake Add-On for Splunk', { exact: true }).click()
   await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
 
