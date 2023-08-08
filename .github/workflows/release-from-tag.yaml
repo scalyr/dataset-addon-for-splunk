@@ -41,7 +41,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: "v${{ env.TAG_VERSION }}"
-          name: Release ${{ env.TAG_VERSION }}
+          name: "v${{ env.TAG_VERSION }}"
           artifacts: "${{ env.ARTEFACT_FILENAME }}"
           draft: "true"
           generateReleaseNotes: true
