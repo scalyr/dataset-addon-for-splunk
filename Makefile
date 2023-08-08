@@ -97,7 +97,8 @@ dev-wait-for-splunk:
 		echo "Status: $${status}; Awaited: $${awaitedStatus}"; \
 		docker ps; \
 		sleep 5; \
-	done;
+	done; \
+	docker ps;
 
 dev-config-backup:
 	mkdir -p $(CONFIGURATION_BACKUP) && \
