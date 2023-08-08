@@ -1,0 +1,44 @@
+name: Release from Tag
+on: [ workflow_dispatch ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check Job Inputs
+        run: |
+          if [[ ! "${{ github.event.ref }}" =~ ^refs\/tags\/v ]]; then
+              echo "Please select proper tag, ${{ github.event.ref }} is not valid tag"
+              exit 1
+          fi
+
+      - name: Parse Tag Version
+        run: echo "TAG_VERSION=`echo "${{ github.event.ref }}" | sed -e "s/refs\/tags\/v//"`" >> $GITHUB_ENV
+
+      - name: Check File Existence
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "release/TA-dataset-${{ env.TAG_VERSION }}.tar.gz"
+
+      - name: File exists check
+        if: steps.check_files.outputs.files_exists != 'true'
+        run: |
+          echo "Release file (release/TA-dataset-${{ env.TAG_VERSION }}.tar.gz) not found in ${{ github.event.inputs.branch }}, exitting..."
+          exit 1
+
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "v${{ env.TAG_VERSION }}"
+          name: Release ${{ env.TAG_VERSION }}
+          artifacts: "release/TA-dataset-${{ env.TAG_VERSION }}.tar.gz"
+          draft: "true"
+          generateReleaseNotes: true
