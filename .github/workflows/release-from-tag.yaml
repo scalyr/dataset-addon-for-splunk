@@ -22,16 +22,19 @@ jobs:
       - name: Parse Tag Version
         run: echo "TAG_VERSION=`echo "${{ github.event.ref }}" | sed -e "s/refs\/tags\/v//"`" >> $GITHUB_ENV
 
+      - name: Artefact filename
+        run: echo "ARTEFACT_FILENAME=`echo "release/TA_dataset-${{ env.TAG_VERSION }}.tar.gz"`" >> $GITHUB_ENV
+
       - name: Check File Existence
         id: check_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "release/TA-dataset-${{ env.TAG_VERSION }}.tar.gz"
+          files: "${{ env.ARTEFACT_FILENAME }}"
 
       - name: File exists check
         if: steps.check_files.outputs.files_exists != 'true'
         run: |
-          echo "Release file (release/TA-dataset-${{ env.TAG_VERSION }}.tar.gz) not found in ${{ github.event.inputs.branch }}, exitting..."
+          echo "Release file (${{ env.ARTEFACT_FILENAME }}) not found in ${{ github.event.inputs.branch }}, exitting..."
           exit 1
 
       - name: Create a GitHub release
@@ -39,6 +42,6 @@ jobs:
         with:
           tag: "v${{ env.TAG_VERSION }}"
           name: Release ${{ env.TAG_VERSION }}
-          artifacts: "release/TA-dataset-${{ env.TAG_VERSION }}.tar.gz"
+          artifacts: "${{ env.ARTEFACT_FILENAME }}"
           draft: "true"
           generateReleaseNotes: true
