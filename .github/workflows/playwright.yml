@@ -47,11 +47,14 @@ jobs:
       run: |
         make docker-splunk-run-ci
 
+    # we are fine with installing only chromium
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      run: npx playwright install chromium --with-deps
+
     - name: Run Playwright tests
       run: |
         timeout 60 sh -c 'until nc -z $0 $1; do docker ps; sleep 1; done' localhost 8000
+        docker ps
         npx playwright test
     - uses: actions/upload-artifact@v3
       if: always()
