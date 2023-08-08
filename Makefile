@@ -20,7 +20,7 @@ docker-splunk-run-shared:
 		--platform=linux/amd64 \
 		--name $(CONTAINER_NAME) \
 		-p 8000:8000 \
-		splunk/splunk:latest start
+		splunk/splunk:9.1 start
 
 .PHONY: docker-splunk-start
 docker-splunk-start:
