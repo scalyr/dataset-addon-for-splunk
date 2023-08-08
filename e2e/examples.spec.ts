@@ -12,10 +12,7 @@ test.beforeEach(async ({ page }) => {
 
   await page.screenshot({ path: 'playwright-screenshots/page-after-login-before-pop-up.png', fullPage: true });
   // Confirm some pop-up
-  await page.getByLabel('Got it').click()
-
-  // TODO: remove me
-  // await page.waitForTimeout(10000);
+  await page.getByRole('button', { name: 'Got it!' }).click();
 
   await page.screenshot({ path: 'playwright-screenshots/page-after-login-after-pop-up.png', fullPage: true });
 
