@@ -38,17 +38,20 @@ def get_search_times(self):
     if self.starttime:
         st_match = re.match(r"\d+(d|h|m|s)", self.starttime)
         if st_match:
-            # if relative time was given, convert to epoch time which is required for recursive calls to API with consistent time bounds
+            # if relative time was given, convert to epoch time which is
+            # required for recursive calls to API with consistent time bounds
             start_time = relative_to_epoch(self.starttime)
         else:
             # if epoch time was given, use it
             start_time = self.starttime
     else:
         try:
-            # if Splunk time picker was used, convert provided epoch string to integer and use it
+            # if Splunk time picker was used, convert provided epoch string to
+            # integer and use it
             start_time = int(self.search_results_info.search_et)
         except Exception:
-            # if "all time" is used no search_et is defined, or if nothing was provided, default to 24h to follow DataSet default
+            # if "all time" is used no search_et is defined, or if nothing was
+            # provided, default to 24h to follow DataSet default
             start_time = relative_to_epoch("24h")
 
     # follow same startime logic for endtime
@@ -108,7 +111,9 @@ def search_error_exit(self, r_json):
     if "message" in r_json:
         logging.error(r_json["message"])
         if r_json["message"].startswith("Couldn't decode API token"):
-            error_message = "API token rejected, check add-on configuration"  # make API error more user-friendly
+            error_message = (  # make API error more user-friendly
+                "API token rejected, check add-on configuration"
+            )
         else:
             error_message = r_json["message"]
     else:
@@ -116,8 +121,9 @@ def search_error_exit(self, r_json):
         try:
             error_message = str(r_json)
         except Exception as e:
-            error_message = "Request failed, confirm connectivity and check search log. error={}".format(
-                e
+            error_message = (
+                "Request failed, confirm connectivity and check search log. error={}"
+                .format(e)
             )
     self.error_exit(error="ERROR", message=error_message)
 
@@ -134,7 +140,9 @@ class DataSetSearch(GeneratingCommand):
     method = Option(
         doc="""
         **Syntax: method=(query|powerQuery|facet|timeseries)
-        **Description:** DataSet endpoint to use: query, powerquery, facet or timeseries""",
+        **Description:** DataSet endpoint to use: query, powerquery,
+            facet or timeseries
+            """,
         default="query",
         require=False,
         validate=validators.Match("query", r"(?i)query|powerquery|facet|timeseries"),
@@ -157,7 +165,8 @@ class DataSetSearch(GeneratingCommand):
     maxcount = Option(
         doc="""
         **Syntax: maxcount=<integer>
-        **Description:** the number of events to return from DataSet. Default is 100.""",
+        **Description:** the number of events to return from DataSet.
+            Default is 100.""",
         require=False,
         validate=validators.Integer(),
     )
@@ -165,7 +174,8 @@ class DataSetSearch(GeneratingCommand):
     starttime = Option(
         doc="""
         **Syntax: starttime=<string>
-        **Description:** alternative to time picker for start time to send to DataSet. Use relative (e.g. 1d) or epoch time.""",
+        **Description:** alternative to time picker for start time to send to DataSet.
+            Use relative (e.g. 1d) or epoch time.""",
         require=False,
         validate=validators.Match("time", r"\d*(d|h|m|s)|\d{10,19}"),
     )
@@ -173,7 +183,8 @@ class DataSetSearch(GeneratingCommand):
     endtime = Option(
         doc="""
         **Syntax: endtime=<string>
-        **Description:** alternative to time picker for end time to send to DataSet. Use relative (e.g. 5m) or epoch time.""",
+        **Description:** alternative to time picker for end time to send to DataSet.
+            Use relative (e.g. 5m) or epoch time.""",
         require=False,
         validate=validators.Match("time", r"\d*(d|h|m|s)|\d{10,19}"),
     )
@@ -188,7 +199,8 @@ class DataSetSearch(GeneratingCommand):
     function = Option(
         doc="""
         **Syntax: endtime=<string>
-        **Description:** For timeseriesQuery, define value to compute from matching events. Default is rate.""",
+        **Description:** For timeseriesQuery, define value to compute from matching
+            events. Default is rate.""",
         default="rate",
         require=False,
         validate=validators.Match(
@@ -200,7 +212,8 @@ class DataSetSearch(GeneratingCommand):
     buckets = Option(
         doc="""
         **Syntax: endtime=<string>
-        **Description:** For timeseriesQuery, the number of numeric values to return by dividing time range into equal slices. Default is 1.""",
+        **Description:** For timeseriesQuery, the number of numeric values to return
+            by dividing time range into equal slices. Default is 1.""",
         default=1,
         require=False,
         validate=validators.Integer(minimum=1, maximum=5000),
@@ -209,7 +222,9 @@ class DataSetSearch(GeneratingCommand):
     createsummaries = Option(
         doc="""
         **Syntax: endtime=<string>
-        **Description:** For timeseriesQuery, specify whether to create summaries to automatically update on ingestion pipeline. Default is true, set to false while testing.""",
+        **Description:** For timeseriesQuery, specify whether to create summaries to
+            automatically update on ingestion pipeline. Default is true, set to false
+            while testing.""",
         default=True,
         require=False,
         validate=validators.Boolean(),
@@ -218,7 +233,8 @@ class DataSetSearch(GeneratingCommand):
     onlyusesummaries = Option(
         doc="""
         **Syntax: endtime=<string>
-        **Description:** For timeseriesQuery, specify whether to only use preexisting timeseries for fastest speed.""",
+        **Description:** For timeseriesQuery, specify whether to only use preexisting
+        timeseries for fastest speed.""",
         default=False,
         require=False,
         validate=validators.Boolean(),
@@ -270,9 +286,8 @@ class DataSetSearch(GeneratingCommand):
             except Exception as e:
                 search_error_exit(
                     self,
-                    "Splunk configuration error, see search log for details.error={}".format(
-                        e
-                    ),
+                    "Splunk configuration error, see search log for details.error={}"
+                    .format(e),
                 )
 
             try:
@@ -385,11 +400,12 @@ class DataSetSearch(GeneratingCommand):
                     )
                     GeneratingCommand.flush
                 elif ds_method == "timeseries":
-                    # TODO: There is no equivalent to the old timeseries API in the new async version, but we can look into replacing this with a PLOT query type
+                    # TODO: There is no equivalent to the old timeseries API in
+                    #  the new async version, but we can look into replacing this
+                    #  with a PLOT query type
                     logging.debug(
-                        "DataSetFunction=makeRequest, destination={}, startTime={}".format(
-                            ds_url, time.time()
-                        )
+                        "DataSetFunction=makeRequest, destination={}, startTime={}"
+                        .format(ds_url, time.time())
                     )
                     r = requests.post(
                         url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy
@@ -406,10 +422,13 @@ class DataSetSearch(GeneratingCommand):
                         for i in range(len(values)):
                             ds_event = values[i]
                             splunk_function = re.split(r"\(", self.function)[0]
-                            # determine timestamp by adding bucket_time to start_time x number of iterations (+1 since indices start at 0)
+                            # determine timestamp by adding bucket_time to start_time x
+                            # number of iterations (+1 since indices start at 0)
                             splunk_dt = ds_start + (bucket_time * (i + 1))
-                            # splunk needs a string in _raw to render correctly; = is sufficient so write to _raw and again to splunk_function field
-                            # add_field needs to be used to append variable field splunk_function
+                            # splunk needs a string in _raw to render correctly; = is
+                            # sufficient so write to _raw and again to splunk_function
+                            # field add_field needs to be used to append variable field
+                            # splunk_function
                             record = self.gen_record(
                                 _time=splunk_dt,
                                 source="dataset:command",

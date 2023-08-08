@@ -22,7 +22,12 @@ APP_NAME = __file__.split(op.sep)[-3]
 
 # set DataSet query
 def get_ds_powerquery():
-    ds_query = "tag='alertStateChange' status='TRIGGERED' | columns timestamp, app, silencedUntilMs, gracePeriod, lastRedAlertMs, reportedStatus, renotifyPeriod, lastTriggeredNotificationMinutes, description, severity, trigger, lastStatus, status"
+    ds_query = (
+        "tag='alertStateChange' status='TRIGGERED' | columns timestamp, app,"
+        " silencedUntilMs, gracePeriod, lastRedAlertMs, reportedStatus, renotifyPeriod,"
+        " lastTriggeredNotificationMinutes, description, severity, trigger, lastStatus,"
+        " status"
+    )
     return ds_query
 
 
@@ -32,7 +37,10 @@ class DATASET_ALERTS_INPUT(smi.Script):
 
     def get_scheme(self):
         scheme = smi.Scheme("DataSet Alerts")
-        scheme.description = "Go to the add-on's configuration UI and configure modular inputs under the Inputs menu."
+        scheme.description = (
+            "Go to the add-on's configuration UI and configure modular inputs under the"
+            " Inputs menu."
+        )
         scheme.use_external_validation = True
         scheme.streaming_mode_xml = True
         scheme.use_single_instance = False
@@ -55,7 +63,10 @@ class DATASET_ALERTS_INPUT(smi.Script):
             smi.Argument(
                 "start_time",
                 title="Start Time",
-                description="Relative time to query back. Use short form relative time, e.g.: 24h or 30d. Reference https://app.scalyr.com/help/time-reference",
+                description=(
+                    "Relative time to query back. Use short form relative time, e.g.:"
+                    " 24h or 30d. Reference https://app.scalyr.com/help/time-reference"
+                ),
                 required_on_create=True,
                 required_on_edit=False,
             )
@@ -146,7 +157,8 @@ class DATASET_ALERTS_INPUT(smi.Script):
                                 checkpoint_time = float(get_checkpoint["timestamp"])
 
                             if splunk_dt > checkpoint_time:
-                                # if greater than current checkpoint, write event and update checkpoint
+                                # if greater than current checkpoint, write event and
+                                # update checkpoint
                                 event = smi.Event(
                                     stanza=input_name,
                                     data=json.dumps(ds_event),
@@ -154,9 +166,8 @@ class DATASET_ALERTS_INPUT(smi.Script):
                                     time=splunk_dt,
                                 )
                                 logger.debug(
-                                    "writing event with splunk_dt={}, checkpoint={}".format(
-                                        splunk_dt, checkpoint_time
-                                    )
+                                    "writing event with splunk_dt={}, checkpoint={}"
+                                    .format(splunk_dt, checkpoint_time)
                                 )
                                 ew.write_event(event)
 
@@ -164,9 +175,8 @@ class DATASET_ALERTS_INPUT(smi.Script):
                                 checkpoint.update(input_name, {"timestamp": splunk_dt})
                             else:
                                 logger.debug(
-                                    "skipping due to splunk_dt={} is less than checkpoint={}".format(
-                                        splunk_dt, checkpoint_time
-                                    )
+                                    "skipping due to splunk_dt={} is less than"
+                                    " checkpoint={}".format(splunk_dt, checkpoint_time)
                                 )
 
                     else:  # if no resulting ['values'] and ['columns']

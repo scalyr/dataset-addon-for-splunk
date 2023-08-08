@@ -62,7 +62,8 @@ def ds_lrq_facet_values(
     return ds_lrq_run_loop(client=client, body=body)
 
 
-# Executes LRQ run loop of launch-ping-remove API requests until the query completes with a result
+# Executes LRQ run loop of launch-ping-remove API requests until the query completes
+# with a result
 def ds_lrq_run_loop(client, body: PostQueriesLaunchQueryRequestBody):
     body.query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority.HIGH
     response = post_queries.sync_detailed(client=client, json_body=body)
@@ -192,7 +193,8 @@ def parse_splunk_dt(ds_event):
     elif "timestamp" in ds_event:
         splunk_dt = normalize_time(int(ds_event["timestamp"]))
     else:
-        # Splunk does not parse events well without a timestamp, use current time to fix this
+        # Splunk does not parse events well without a timestamp, use current time
+        # to fix this
         splunk_dt = int(time.time())
     return splunk_dt
 
@@ -213,6 +215,7 @@ def parse_powerquery(value_list, columns):
 
 
 def get_bucket_increments(ds_start, ds_end, ts_buckets):
-    # determine timestamp by adding bucket_time to start_time x number of iterations (+1 since indices start at 0)
+    # determine timestamp by adding bucket_time to start_time x number of
+    # iterations (+1 since indices start at 0)
     bucket_time = (ds_end - ds_start) / ts_buckets
     return bucket_time

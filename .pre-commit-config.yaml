@@ -37,7 +37,10 @@ repos:
   rev: 6.0.0
   hooks:
     - id: flake8
-      additional_dependencies: [flake8-bugbear]
+      additional_dependencies:
+        - flake8-bugbear
+        - flake8-comprehensions
+        - flake8-simplify
       # keep in sync with .flake8
       exclude: TA_dataset/lib/dataset_query_api_client
 
@@ -45,6 +48,7 @@ repos:
   rev: 23.7.0
   hooks:
     - id: black
+      args: ["--verbose", "--config", ".black", "--experimental-string-processing"]
 
 - repo: https://github.com/pre-commit/mirrors-mypy
   rev: v1.4.1

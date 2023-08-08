@@ -1,0 +1,3 @@
+[black]
+experimental-string-processing = true
+target-version = ['py37']

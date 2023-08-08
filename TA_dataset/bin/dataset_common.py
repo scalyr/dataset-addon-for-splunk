@@ -66,7 +66,8 @@ def get_log_level(session_key, logger):
 
     except Exception:
         logger.error(
-            "Failed to fetch the log details from the configuration taking INFO as default level."
+            "Failed to fetch the log details from the configuration taking INFO as"
+            " default level."
         )
         return "INFO"
 
@@ -153,7 +154,8 @@ def get_acct_info(self, logger, account=None):
             except Exception as e:
                 logger.error("Error retrieving account settings, error = {}".format(e))
                 return None
-    # if account is not defined, try to get the first entry (Splunk sorts alphabetically)
+    # if account is not defined, try to get the first entry
+    # (Splunk sorts alphabetically)
     else:
         try:
             confs = self.service.confs["ta_dataset_account"]

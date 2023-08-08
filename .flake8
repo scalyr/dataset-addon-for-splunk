@@ -1,5 +1,12 @@
 [flake8]
-max-line-length = 250
+
+# https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#flake8
+# configuration recommended by black
+
+max-line-length = 80
+select = C,E,F,W,B,B950
+extend-ignore = E203, E501, W503
+
 
 # keep in sync with .pre-commit-config.yaml - flake8
 exclude =
