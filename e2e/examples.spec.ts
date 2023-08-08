@@ -6,8 +6,8 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await page.screenshot({ path: 'playwright-screenshots/page-login.png', fullPage: true });
 
-  await page.getByPlaceholder('Username').fill(user || 'AAAA');
-  await page.getByPlaceholder('Password',  { exact: true }).fill(password || 'BBBB');
+  await page.getByPlaceholder('Username').fill(user || 'SPLUNK_USER env is empty');
+  await page.getByPlaceholder('Password',  { exact: true }).fill(password || 'SPLUNK_PASSWORD env is empty');
   await page.getByRole('button', { name: 'Sign In' }).click();
 
   await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });

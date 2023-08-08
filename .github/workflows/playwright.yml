@@ -51,6 +51,16 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install chromium --with-deps
 
+    - name: Create .env file
+      run: |
+        echo "SPLUNK_USER=${SPLUNK_USER}" >> .env
+        echo "SPLUNK_PASSWORD=${SPLUNK_PASSWORD}" >> .env
+        echo "DATASET_URL=${DATASET_URL}" >> .env
+        echo "DATASET_LOG_ACCESS_READ=${DATASET_LOG_ACCESS_READ}" >> .env
+        echo "DATASET_LOG_ACCESS_WRITE=${DATASET_LOG_ACCESS_WRITE}" >> .env
+        echo "CREATE_ACCOUNT=${CREATE_ACCOUNT}" >> .env
+        echo "WAIT_FOR_HUMAN_TO_CHECK_IN_MS=${WAIT_FOR_HUMAN_TO_CHECK_IN_MS}" >> .env
+
     - name: Wait for Splunk
       run: |
         make dev-wait-for-splunk
