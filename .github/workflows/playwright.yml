@@ -1,22 +1,52 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
 jobs:
   test:
-    timeout-minutes: 60
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     # fow now, skip it
-    if: false
+    # if: false
     steps:
     - uses: actions/checkout@v3
+
+    # install node stuff
     - uses: actions/setup-node@v3
       with:
-        node-version: 18
-    - name: Install dependencies
+        node-version: 20
+        cache: 'npm'
+    - name: Install NPM dependencies
       run: npm ci
+
+    # install python stuff
+    - name: Setup python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+        cache: 'pip'
+    - name: Install Python dependencies
+      run: |
+        make dev-install-dependencies-pack
+        make dev-install-dependencies-pack-sudo
+        make dev-install-dependencies-for-development
+
+    # build splunk application
+    - name: Build Splunk Application
+      run: |
+        scripts/pack.sh \
+          --version "test-1.2.3.4" \
+          --input TA_dataset \
+          --output output \
+          --release release
+
+    # run Splunk
+    - name: Run Splunk
+      run: |
+        make docker-splunk-run &
+
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
