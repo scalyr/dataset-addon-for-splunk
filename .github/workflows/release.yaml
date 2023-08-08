@@ -68,7 +68,7 @@ jobs:
             globalConfig.json
             TA_dataset/app.manifest
             TA_dataset/default/app.conf
-            release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz
+            release/*.tar.gz
           commit-msg: Release ${{ env.SDLAPP_VERSION_RELEASE }}
           allow-removing: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
