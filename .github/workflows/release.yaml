@@ -40,6 +40,9 @@ jobs:
       - name: Export new snapshot of app
         run: echo "SDLAPP_VERSION_NEW_SNAPSHOT=`awk -vFS=. -vOFS=. '{$NF++;print}' <<<'${{ env.SDLAPP_VERSION_RELEASE }}'`-SNAPSHOT" >> $GITHUB_ENV
 
+      - name: Delete previous releases
+        run: rm -rf release
+
       - name: Build release
         run: |
           scripts/pack.sh \
