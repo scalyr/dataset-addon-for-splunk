@@ -4,9 +4,16 @@ OUTPUT_PACKAGE=$$(pwd)/output/TA_dataset
 SOURCE_PACKAGE=$$(pwd)/TA_dataset
 
 
-.PHONY: docker-run
+.PHONY: docker-splunk-run
 docker-splunk-run:
-	docker run -it \
+	make docker-splunk-run-shared FLAGS="-it"
+
+.PHONY: docker-splunk-run-ci
+docker-splunk-run-ci:
+	make docker-splunk-run-shared FLAGS="-d"
+
+docker-splunk-run-shared:
+	docker run $(FLAGS) \
 		-v "$(OUTPUT_PACKAGE):/opt/splunk/etc/apps/TA_dataset" \
 		-e SPLUNK_START_ARGS=--accept-license \
 		-e SPLUNK_PASSWORD=Test0101 \

@@ -45,7 +45,7 @@ jobs:
     # run Splunk
     - name: Run Splunk
       run: |
-        make docker-splunk-run &
+        make docker-splunk-run-ci
 
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
