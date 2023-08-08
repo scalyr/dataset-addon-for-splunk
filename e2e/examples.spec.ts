@@ -4,12 +4,13 @@ test.beforeEach(async ({ page }) => {
 
   // Login
   await page.goto('/');
-  await page.screenshot({ path: 'screenshot-page-login.png', fullPage: true });
+  await page.screenshot({ path: 'playwright-screenshots/page-login.png', fullPage: true });
 
   await page.getByPlaceholder('Username').fill(user || 'AAAA');
   await page.getByPlaceholder('Password',  { exact: true }).fill(password || 'BBBB');
   await page.getByRole('button', { name: 'Sign In' }).click();
 
+  await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
   await page.getByLabel('Security Data Lake Add-On for Splunk').click()
 
   console.log("Create account: ", createAccount, ", set to true to create account")
@@ -87,5 +88,5 @@ test('Check example page', async ({ page }) => {
 
   await page.waitForTimeout(waitForHumanMs);
 
-  await page.screenshot({ path: 'screenshot-page-examples.png', fullPage: true });
+  await page.screenshot({ path: 'playwright-screenshots/page-examples.png', fullPage: true });
 });
