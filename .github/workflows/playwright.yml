@@ -42,6 +42,7 @@ jobs:
           --output output \
           --release release
 
+    # Dummy 01
     - name: Build Splunk Application - Library
       run: |
         cp -rv output/TA_dataset/lib/* output/TA_dataset/bin
