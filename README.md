@@ -319,11 +319,12 @@ We are using Playwright - https://playwright.dev/
 
 ## Setup
 
-* Install modules - `npm install`
+* Install Node - `brew install node`
+* Install modules - `make e2e-install`
 * Create `.env` file based on [.env.example](.env.example) with access keys
 
 ## Run tests
 
 * Make sure, that your Splunk is running - `make docker-splunk-run`
-* Use `make e2e` - to run e2e tests without the browser
-* Use `make e2e-headed` - to run e2e tests with the browser
+* Use `make e2e-test` - to run e2e tests without the browser
+* Use `make e2e-test-headed` - to run e2e tests with the browser

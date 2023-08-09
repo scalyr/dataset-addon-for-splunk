@@ -19,7 +19,8 @@ jobs:
         node-version: 20
         cache: 'npm'
     - name: Install NPM dependencies
-      run: npm ci
+      run: |
+        make e2e-install
 
     # install python stuff
     - name: Setup python
@@ -69,7 +70,7 @@ jobs:
 
     - name: Run Playwright tests
       run: |
-        npx playwright test
+        make e2e-test
 
     - name: Get Splunk logs
       if: always()

@@ -139,11 +139,12 @@ dev-install-dependencies-lib:
 dev-install-dependencies-for-development:
 	pip install --upgrade-strategy only-if-needed -r requirements-dev.txt
 
-e2e:
+e2e-install:
+	npm ci
+
+e2e-test:
 	npx playwright test
-
-e2e-headed:
+e2e-test-headed:
 	npx playwright test --headed
-
-e2e-ui:
+e2e-test-ui:
 	npx playwright test --ui
