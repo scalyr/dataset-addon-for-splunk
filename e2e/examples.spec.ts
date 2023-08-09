@@ -15,19 +15,14 @@ test('Check example page', async ({ page }) => {
 
   await expect(page).toHaveTitle(/DataSet by Example/);
 
-  // Wait for text to appear
-  await page.waitForTimeout(2000);
+  // wait for elements to load
+  await expect(page.getByRole("main").getByText("4. Timeseries Query: This will calculate numeric values over time.")).toHaveCount(1)
 
   // Wait for the "Waiting for data..." text to disappear
-  while (true) {
-    const waitingCount = await page.getByText(/Waiting for data/).count();
-    console.log("Waiting for data: ", waitingCount);
-    if (waitingCount == 0) {
-      break;
-    }
+  console.log("Wait for 'Waiting for data' to disappear")
+  await page.screenshot({ path: 'playwright-screenshots/page-examples-before-waiting-for-data.png', fullPage: true });
+  await expect(page.getByText(/Waiting for data/)).toHaveCount(0, {timeout: 15000});
 
-    await page.waitForTimeout(1000);
-  }
   await page.screenshot({ path: 'playwright-screenshots/page-examples-before-checks.png', fullPage: true });
 
   // Check if the page does not contain the text "No results found."

@@ -62,7 +62,6 @@ jobs:
         echo "DATASET_URL=${{ secrets.DATASET_URL }}" >> .env
         echo "DATASET_LOG_ACCESS_READ=${{ secrets.DATASET_LOG_ACCESS_READ }}" >> .env
         echo "DATASET_LOG_ACCESS_WRITE=${{ secrets.DATASET_LOG_ACCESS_WRITE }}" >> .env
-        echo "CREATE_ACCOUNT=${{ vars.CREATE_ACCOUNT }}" >> .env
 
     - name: Wait for Splunk
       run: |
