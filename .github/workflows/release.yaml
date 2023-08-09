@@ -87,6 +87,3 @@ jobs:
           custom_tag: ${{ env.SDLAPP_VERSION_RELEASE }}
           default_bump: false
           commit_sha: ${{steps.commit_step.outputs.commit-sha}}
-
-      - name: Release comments
-        run: echo "In order to release and publish artefacts use https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/release-from-tag.yaml job"
