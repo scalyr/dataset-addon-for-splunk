@@ -42,6 +42,10 @@ jobs:
           --output output \
           --release release
 
+    - name: Build Splunk Application - Library
+      run: |
+        cp -rv output/TA_dataset/lib/* output/TA_dataset/bin
+
     # run Splunk
     - name: Run Splunk
       run: |
@@ -71,7 +75,7 @@ jobs:
     - name: Get Splunk logs
       if: always()
       run: |
-        make docker-splunk-tail-logs-count COUNT=500 > splunk-logs.log
+        make docker-splunk-tail-logs-count COUNT=1000 > splunk-logs.log
 
     - name: Store playwright-report
       uses: actions/upload-artifact@v3
