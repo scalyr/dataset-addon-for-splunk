@@ -59,8 +59,6 @@ jobs:
         echo "DATASET_LOG_ACCESS_READ=${{ secrets.DATASET_LOG_ACCESS_READ }}" >> .env
         echo "DATASET_LOG_ACCESS_WRITE=${{ secrets.DATASET_LOG_ACCESS_WRITE }}" >> .env
         echo "CREATE_ACCOUNT=${{ vars.CREATE_ACCOUNT }}" >> .env
-        echo "WAIT_FOR_HUMAN_TO_CHECK_IN_MS=${{ vars.WAIT_FOR_HUMAN_TO_CHECK_IN_MS }}" >> .env
-        echo "CONFIRM_POPUP=${{ vars.CONFIRM_POPUP }}" >> .env
 
     - name: Wait for Splunk
       run: |
@@ -70,16 +68,31 @@ jobs:
       run: |
         npx playwright test
 
-    - uses: actions/upload-artifact@v3
+    - name: Get Splunk logs
+      if: always()
+      run: |
+        make docker-splunk-tail-logs-count COUNT=50 > splunk-logs.log
+
+    - name: Store playwright-report
+      uses: actions/upload-artifact@v3
       if: always()
       with:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
 
-    - uses: actions/upload-artifact@v3
+    - name: Store playwright-screenshots
+      uses: actions/upload-artifact@v3
       if: always()
       with:
         name: playwright-screenshots
         path: playwright-screenshots/
+        retention-days: 30
+
+    - name: Store splunk-logs
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: splunk-logs.log
+        path: splunk-logs.log
         retention-days: 30

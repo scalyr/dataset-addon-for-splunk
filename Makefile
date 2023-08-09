@@ -51,13 +51,19 @@ docker-splunk-show-app:
 		sudo -u splunk \
 		ls -l /opt/splunk/etc/apps/TA_dataset/
 
-.PHONY: docker-splunk-tail-logs
-docker-splunk-tail-logs:
+.PHONY: docker-splunk-tail-logs-f
+docker-splunk-tail-logs-f:
 	docker exec $(CONTAINER_NAME) \
 		sudo -u splunk \
 		tail -f \
-			/opt/splunk/var/log/splunk/splunkd.log \
-			/opt/splunk/var/log/splunk/splunkd_stderr.log
+			/opt/splunk/var/log/splunk/splunkd.log
+
+.PHONY: docker-splunk-tail-logs
+docker-splunk-tail-logs-count:
+	docker exec $(CONTAINER_NAME) \
+		sudo -u splunk \
+		tail -n $(COUNT) \
+			/opt/splunk/var/log/splunk/splunkd.log
 
 .PHONY: docker-splunk-bash
 docker-splunk-bash:

@@ -102,7 +102,7 @@ test('Check example page', async ({ page }) => {
 
   // Check if the page does not contain the text "No results found."
   const searchFailedCount = await page.getByText(/External search command exited unexpectedly/).count();
-  console.log("Page contains 'External search command exited unexpectedly': ", noResultsCount)
+  console.log("Page contains 'External search command exited unexpectedly': ", searchFailedCount)
   expect(searchFailedCount).toBe(0);
 
   const { WAIT_FOR_HUMAN_TO_CHECK_IN_MS: waitForHumanStr} = process.env
