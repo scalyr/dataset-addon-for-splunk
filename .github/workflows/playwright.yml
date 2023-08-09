@@ -71,7 +71,7 @@ jobs:
     - name: Get Splunk logs
       if: always()
       run: |
-        make docker-splunk-tail-logs-count COUNT=50 > splunk-logs.log
+        make docker-splunk-tail-logs-count COUNT=500 > splunk-logs.log
 
     - name: Store playwright-report
       uses: actions/upload-artifact@v3
