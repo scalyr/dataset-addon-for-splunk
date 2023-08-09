@@ -40,6 +40,17 @@ jobs:
       - name: Export new snapshot of app
         run: echo "SDLAPP_VERSION_NEW_SNAPSHOT=`awk -vFS=. -vOFS=. '{$NF++;print}' <<<'${{ env.SDLAPP_VERSION_RELEASE }}'`-SNAPSHOT" >> $GITHUB_ENV
 
+      - name: Delete previous releases
+        run: rm -rf release
+
+      - name: Remove old releases
+        run: |
+          git config user.email "github-actions@github.com"
+          git config user.name "github-actions[bot]"
+          git rm -r --cached release
+          git commit -m "chore: remove old releases"
+          git push
+
       - name: Build release
         run: |
           scripts/pack.sh \
@@ -59,14 +70,14 @@ jobs:
 
       - name: Commit version changes
         uses: test-room-7/action-update-file@v1
-        id: release_step
+        id: commit_step
         with:
           file-path: |
             globalConfig.json
             TA_dataset/app.manifest
             TA_dataset/default/app.conf
             release/TA_dataset-${{ env.SDLAPP_VERSION_RELEASE }}.tar.gz
-          commit-msg: Release ${{ env.SDLAPP_VERSION_RELEASE }}
+          commit-msg: Release version ${{ env.SDLAPP_VERSION_RELEASE }} and prepare next development version
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push tag
@@ -75,4 +86,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           custom_tag: ${{ env.SDLAPP_VERSION_RELEASE }}
           default_bump: false
-          commit_sha: ${{steps.release_step.outputs.commit-sha}}
+          commit_sha: ${{steps.commit_step.outputs.commit-sha}}
