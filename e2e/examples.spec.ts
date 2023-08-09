@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import exp from 'constants';
 test.beforeEach(async ({ page }) => {
   const { SPLUNK_USER: user, SPLUNK_PASSWORD: password, CREATE_ACCOUNT: createAccount } = process.env;
 
@@ -13,12 +14,12 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('button', { name: 'Sign In' }).click();
 
     // Wait for few seconds more
-  await page.waitForTimeout(10000);
+  await page.waitForTimeout(5000);
 
   await page.screenshot({ path: 'playwright-screenshots/page-after-login-before-pop-up.png', fullPage: true });
 
   // Confirm some pop-up
-  const locGotIt = page.getByRole('button', {name: 'Got it!'});
+  const locGotIt = page.getByTestId('instrumentation-opt-in-modal').locator('[data-test="button"]');
   const countGotIt = await locGotIt.count()
   console.log("Check for popup: ", countGotIt);
   if (countGotIt > 0) {
@@ -27,7 +28,7 @@ test.beforeEach(async ({ page }) => {
 
   await page.screenshot({ path: 'playwright-screenshots/page-after-login-after-pop-up.png', fullPage: true });
 
-  await page.getByLabel('Security Data Lake Add-On for Splunk', { exact: true }).click()
+  await page.getByLabel('Navigate to Security Data Lake Add-On for Splunk app').click()
   await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
 
   console.log("Create account: ", createAccount, ", set to true to create account")
@@ -83,31 +84,26 @@ test('Check example page', async ({ page }) => {
   await page.waitForTimeout(2000);
 
   // Wait for the "Waiting for data..." text to disappear
-  await page.waitForFunction(() => {
-    const element = document.querySelector('body');
-    return !element.textContent.includes('Waiting for data...');
-  });
+  while (true) {
+    const waitingCount = await page.getByText(/Waiting for data/).count();
+    console.log("Waiting for data: ", waitingCount);
+    if (waitingCount == 0) {
+      break;
+    }
 
-  // Wait for few seconds more
-  await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
+  }
+  await page.screenshot({ path: 'playwright-screenshots/page-examples-before-checks.png', fullPage: true });
 
   // Check if the page does not contain the text "No results found."
-  const containsNoResults = await page.$eval('body', (element) => {
-    return element.textContent.includes('No results found.');
-  });
+  const noResultsCount = await page.getByText(/No results found/).count();
+  console.log("Page contains 'No results found': ", noResultsCount)
+  expect(noResultsCount).toBe(0);
 
-  if (containsNoResults) {
-    test.fail();
-  }
-
-  const containsSearchFailed = await page.$eval('body', (element) => {
-    return element.textContent.includes('External search command exited unexpectedly');
-  });
-
-
-  if (containsSearchFailed) {
-    test.fail();
-  }
+  // Check if the page does not contain the text "No results found."
+  const searchFailedCount = await page.getByText(/External search command exited unexpectedly/).count();
+  console.log("Page contains 'External search command exited unexpectedly': ", noResultsCount)
+  expect(searchFailedCount).toBe(0);
 
   const { WAIT_FOR_HUMAN_TO_CHECK_IN_MS: waitForHumanStr} = process.env
   const waitForHumanMs = parseInt(waitForHumanStr || '0');
@@ -115,5 +111,5 @@ test('Check example page', async ({ page }) => {
 
   await page.waitForTimeout(waitForHumanMs);
 
-  await page.screenshot({ path: 'playwright-screenshots/page-examples.png', fullPage: true });
+  await page.screenshot({ path: 'playwright-screenshots/page-examples-after-checks.png', fullPage: true });
 });
