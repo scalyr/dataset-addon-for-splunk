@@ -25,6 +25,7 @@ setup('login and create account', async ({ page }) => {
   console.log("Store state to be able to reuse login");
   await page.context().storageState({ path: STORAGE_STATE });
 
+  await page.waitForTimeout(2000);
   // Confirm some pop-up
   const locGotIt = page.getByTestId('instrumentation-opt-in-modal').locator('[data-test="button"]');
   const countGotIt = await locGotIt.count()
@@ -40,8 +41,6 @@ setup('login and create account', async ({ page }) => {
 
   await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
 
-  console.log("Create account: ", createAccount, ", set to true to create account")
-
   console.log("Go to configuration page");
   await page.locator('[title="Configuration"]').click();
 
@@ -52,7 +51,7 @@ setup('login and create account', async ({ page }) => {
   // wait for table to appear
   await page.getByText(/Account name/).click()
 
-  const accountCount = await page.getByRole("main").getByRole("row").count();
+  const accountCount = await page.getByRole("main").getByRole("row").getByText(/QaTr/).count();
   console.log("Number of accounts: ", accountCount);
   if (accountCount == 0) {
     // Open dialog
@@ -85,7 +84,7 @@ setup('login and create account', async ({ page }) => {
 
     // check that the account is there
     console.log("Check that account is there: ", accountName);
-    await page.getByText(accountName).click()
+    await page.getByRole('cell', { name: accountName }).click()
 
   }
 });
