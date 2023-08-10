@@ -299,8 +299,7 @@ Note that build cleans previously created configuration. To prevent removal of c
 
 1. At the beginning of the day:
    1. Create package - `make pack`
-   2. It somehow does not work if libraries are not in the bin folder - to fix it run - `make dev-fix-package`
-   3. Run Splunk in Docker - `make docker-splunk-run` (if it already exist use `make docker-splunk-start`)
+   2. Run Splunk in Docker - `make docker-splunk-run` (if it already exists use `make docker-splunk-start`)
 2. Do your code changes (assuming docker is already running, see previous steps):
    1. Update source code - `make dev-update-source`
 
