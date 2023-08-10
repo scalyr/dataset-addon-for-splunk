@@ -34,10 +34,6 @@ jobs:
           --output output \
           --release release
 
-    - name: Fix Splunk Application
-      run: |
-        make dev-fix-package
-
     # run Splunk
     - name: Run Splunk
       run: |

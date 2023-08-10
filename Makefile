@@ -123,11 +123,6 @@ dev-update-source:
 	rsync -av $(SOURCE_PACKAGE)/bin/ $(OUTPUT_PACKAGE)/bin/
 	rsync -av $(SOURCE_PACKAGE)/default/ $(OUTPUT_PACKAGE)/default/
 
-dev-fix-package:
-		for d in $$( find $(OUTPUT_PACKAGE)/lib -type d -maxdepth 1 -mindepth 1 | grep -v 'dist-info' | grep -v pycache ); do \
-			cp -rv $${d} $(OUTPUT_PACKAGE)/bin/; \
-		done;
-
 dev-install-dependencies-pack:
 	pip install --upgrade-strategy only-if-needed -r requirements-pack.txt
 dev-install-dependencies-pack-sudo:
