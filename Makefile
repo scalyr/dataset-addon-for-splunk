@@ -141,10 +141,11 @@ dev-install-dependencies-for-development:
 
 e2e-install:
 	npm ci
+	npm run playwright:install-browsers
 
 e2e-test:
-	npx playwright test
+	npm run playwright
 e2e-test-headed:
-	npx playwright test --headed
+	npm run playwright:headed
 e2e-test-ui:
-	npx playwright test --ui
+	npm run playwright:ui

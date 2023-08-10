@@ -13,15 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # install node stuff
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 20
-        cache: 'npm'
-    - name: Install NPM dependencies
-      run: |
-        make e2e-install
-
     # install python stuff
     - name: Setup python
       uses: actions/setup-python@v4
@@ -52,9 +43,14 @@ jobs:
       run: |
         make docker-splunk-run-ci
 
-    # we are fine with installing only chromium
-    - name: Install Playwright Browsers
-      run: npx playwright install chromium --with-deps
+    # install node stuff
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 20
+        cache: 'npm'
+    - name: Install NPM dependencies
+      run: |
+        make e2e-install
 
     - name: Create .env file
       run: |
