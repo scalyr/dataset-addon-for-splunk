@@ -7,6 +7,9 @@ import re
 import sys
 import time
 
+# ignore flake8 rule unused import, see
+# https://splunk.github.io/addonfactory-ucc-generator/troubleshooting/#modulenotfounderror-no-module-named-library-name
+import import_declare_test  # noqa: F401
 import requests
 from dataset_api import (
     build_payload,
