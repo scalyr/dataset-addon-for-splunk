@@ -295,7 +295,7 @@ Note that build cleans previously created configuration. To prevent removal of c
 - copy back to splunk `mkdir -p ./output/TA_dataset/local/ && cp -R ~/splunk_dataset_app_configuration/* ./output/TA_dataset/local/`
 
 
-## Alternative Build and Run Workflow for Docker
+#### Alternative Build and Run Workflow for Docker using make commands
 
 1. At the beginning of the day:
    1. Create package - `make pack`
@@ -303,7 +303,7 @@ Note that build cleans previously created configuration. To prevent removal of c
 2. Do your code changes (assuming docker is already running, see previous steps):
    1. Update source code - `make dev-update-source`
 
-### Other Useful Commands
+#### Other Useful Commands
 
 * Restart Splunk - `make docker-splunk-restart`
 * Stop Splunk - `make docker-splunk-restart`
