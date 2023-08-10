@@ -8,7 +8,11 @@ export const STORAGE_STATE = pjoin(__dirname, '.auth.json');
 setup('login and create account', async ({ page }) => {
   const { SPLUNK_USER: user, SPLUNK_PASSWORD: password, CREATE_ACCOUNT: createAccount } = process.env;
 
-  // Login
+  console.log("Check whether credentials were provided");
+  expect(user).toBeTruthy();
+  expect(password).toBeTruthy();
+
+  console.log("Go to homepage");
   await page.goto('/');
   await page.screenshot({ path: 'playwright-screenshots/page-login.png', fullPage: true });
 
