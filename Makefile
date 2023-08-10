@@ -4,16 +4,23 @@ OUTPUT_PACKAGE=$$(pwd)/output/TA_dataset
 SOURCE_PACKAGE=$$(pwd)/TA_dataset
 
 
-.PHONY: docker-run
+.PHONY: docker-splunk-run
 docker-splunk-run:
-	docker run -it \
+	make docker-splunk-run-shared FLAGS="-it"
+
+.PHONY: docker-splunk-run-ci
+docker-splunk-run-ci:
+	make docker-splunk-run-shared FLAGS="-d"
+
+docker-splunk-run-shared:
+	docker run $(FLAGS) \
 		-v "$(OUTPUT_PACKAGE):/opt/splunk/etc/apps/TA_dataset" \
 		-e SPLUNK_START_ARGS=--accept-license \
 		-e SPLUNK_PASSWORD=Test0101 \
 		--platform=linux/amd64 \
 		--name $(CONTAINER_NAME) \
 		-p 8000:8000 \
-		splunk/splunk:latest start
+		splunk/splunk:9.1 start
 
 .PHONY: docker-splunk-start
 docker-splunk-start:
@@ -44,13 +51,19 @@ docker-splunk-show-app:
 		sudo -u splunk \
 		ls -l /opt/splunk/etc/apps/TA_dataset/
 
-.PHONY: docker-splunk-tail-logs
-docker-splunk-tail-logs:
+.PHONY: docker-splunk-tail-logs-f
+docker-splunk-tail-logs-f:
 	docker exec $(CONTAINER_NAME) \
 		sudo -u splunk \
 		tail -f \
-			/opt/splunk/var/log/splunk/splunkd.log \
-			/opt/splunk/var/log/splunk/splunkd_stderr.log
+			/opt/splunk/var/log/splunk/splunkd.log
+
+.PHONY: docker-splunk-tail-logs
+docker-splunk-tail-logs-count:
+	docker exec $(CONTAINER_NAME) \
+		sudo -u splunk \
+		tail -n $(COUNT) \
+			/opt/splunk/var/log/splunk/splunkd.log
 
 .PHONY: docker-splunk-bash
 docker-splunk-bash:
@@ -82,6 +95,17 @@ pack:
 		--output output \
 		--release release
 
+dev-wait-for-splunk:
+	awaitedStatus=303; \
+	status=900; \
+	while [ "x$${status}" != "x$${awaitedStatus}" ]; do \
+		status=$$(curl --connect-timeout 10 -s -o /dev/null -I -w "%{http_code}" http://localhost:8000/ ); \
+		echo "Status: $${status}; Awaited: $${awaitedStatus}"; \
+		docker ps; \
+		sleep 5; \
+	done; \
+	docker ps;
+
 dev-config-backup:
 	mkdir -p $(CONFIGURATION_BACKUP) && \
 	if [ -d $(OUTPUT_PACKAGE)/local/ ]; then \
@@ -99,6 +123,11 @@ dev-update-source:
 	rsync -av $(SOURCE_PACKAGE)/bin/ $(OUTPUT_PACKAGE)/bin/
 	rsync -av $(SOURCE_PACKAGE)/default/ $(OUTPUT_PACKAGE)/default/
 
+dev-fix-package:
+		for d in $$( find $(OUTPUT_PACKAGE)/lib -type d -maxdepth 1 -mindepth 1 | grep -v 'dist-info' | grep -v pycache ); do \
+			cp -rv $${d} $(OUTPUT_PACKAGE)/bin/; \
+		done;
+
 dev-install-dependencies-pack:
 	pip install --upgrade-strategy only-if-needed -r requirements-pack.txt
 dev-install-dependencies-pack-sudo:
@@ -110,11 +139,13 @@ dev-install-dependencies-lib:
 dev-install-dependencies-for-development:
 	pip install --upgrade-strategy only-if-needed -r requirements-dev.txt
 
-e2e:
-	npx playwright test
+e2e-install:
+	npm ci
+	npm run playwright:install-browsers
 
-e2e-headed:
-	npx playwright test --headed
-
-e2e-ui:
-	npx playwright test --ui
+e2e-test:
+	npm run playwright
+e2e-test-headed:
+	npm run playwright:headed
+e2e-test-ui:
+	npm run playwright:ui

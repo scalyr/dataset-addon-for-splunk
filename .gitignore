@@ -10,3 +10,5 @@ node_modules/
 /playwright/.cache/
 
 .env
+playwright-screenshots
+e2e/.auth.json

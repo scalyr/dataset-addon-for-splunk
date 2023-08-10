@@ -1,29 +1,98 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
 jobs:
   test:
-    timeout-minutes: 60
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     # fow now, skip it
-    if: false
+    # if: false
     steps:
     - uses: actions/checkout@v3
+
+    # install python stuff
+    - name: Setup python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+        cache: 'pip'
+    - name: Install Python dependencies
+      run: |
+        make dev-install-dependencies-pack
+        make dev-install-dependencies-pack-sudo
+        make dev-install-dependencies-for-development
+
+    # build splunk application
+    - name: Build Splunk Application
+      run: |
+        scripts/pack.sh \
+          --version "9.9.9" \
+          --input TA_dataset \
+          --output output \
+          --release release
+
+    - name: Fix Splunk Application
+      run: |
+        make dev-fix-package
+
+    # run Splunk
+    - name: Run Splunk
+      run: |
+        make docker-splunk-run-ci
+
+    # install node stuff
     - uses: actions/setup-node@v3
       with:
-        node-version: 18
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+        node-version: 20
+        cache: 'npm'
+    - name: Install NPM dependencies
+      run: |
+        make e2e-install
+
+    - name: Create .env file
+      run: |
+        echo "SPLUNK_USER=${{ secrets.SPLUNK_USER }}" >> .env
+        echo "SPLUNK_PASSWORD=${{ secrets.SPLUNK_PASSWORD }}" >> .env
+        echo "DATASET_URL=${{ secrets.DATASET_URL }}" >> .env
+        echo "DATASET_LOG_ACCESS_READ=${{ secrets.DATASET_LOG_ACCESS_READ }}" >> .env
+        echo "DATASET_LOG_ACCESS_WRITE=${{ secrets.DATASET_LOG_ACCESS_WRITE }}" >> .env
+
+    - name: Wait for Splunk
+      run: |
+        make dev-wait-for-splunk
+
     - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v3
+      run: |
+        make e2e-test
+
+    - name: Get Splunk logs
+      if: always()
+      run: |
+        make docker-splunk-tail-logs-count COUNT=1000 > splunk-logs.log
+
+    - name: Store playwright-report
+      uses: actions/upload-artifact@v3
       if: always()
       with:
         name: playwright-report
         path: playwright-report/
+        retention-days: 30
+
+    - name: Store playwright-screenshots
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: playwright-screenshots
+        path: playwright-screenshots/
+        retention-days: 30
+
+    - name: Store splunk-logs
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: splunk-logs.log
+        path: splunk-logs.log
         retention-days: 30
