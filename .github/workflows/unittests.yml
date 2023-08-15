@@ -18,6 +18,7 @@ jobs:
         cache: 'pip'
     - name: Install Python dependencies
       run: |
+        make dev-install-dependencies-lib
         make dev-install-dependencies-for-development
     - name: Run unit tests
       run: |
