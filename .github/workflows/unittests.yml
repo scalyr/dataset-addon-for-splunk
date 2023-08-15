@@ -1,0 +1,25 @@
+name: Unit tests
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  UnitTest:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    # install python stuff
+    - name: Setup python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+        cache: 'pip'
+    - name: Install Python dependencies
+      run: |
+        make dev-install-dependencies-lib
+        make dev-install-dependencies-for-development
+    - name: Run unit tests
+      run: |
+        make test
