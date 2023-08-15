@@ -21,7 +21,7 @@ repos:
     - id: mixed-line-ending
       args: ["--fix", "auto"]
     - id: name-tests-test
-      args: ["--pytest"]
+      args: ["--pytest-test-first"]
     - id: check-yaml
     - id: requirements-txt-fixer
     - id: sort-simple-yaml

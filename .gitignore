@@ -12,3 +12,4 @@ node_modules/
 .env
 playwright-screenshots
 e2e/.auth.json
+__pycache__

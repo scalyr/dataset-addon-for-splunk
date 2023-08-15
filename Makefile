@@ -134,6 +134,9 @@ dev-install-dependencies-lib:
 dev-install-dependencies-for-development:
 	pip install --upgrade-strategy only-if-needed -r requirements-dev.txt
 
+test:
+	pytest
+
 e2e-install:
 	npm ci
 	npm run playwright:install-browsers
