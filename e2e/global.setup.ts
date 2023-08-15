@@ -55,7 +55,7 @@ setup('login and create account', async ({ page }) => {
   // wait for table to appear
   await page.getByText(/Account name/).click()
 
-  const accountCount = await page.getByRole("main").getByRole("row").getByText(/QaTr/).count();
+  const accountCount = await page.getByRole("main").getByRole("row").getByText(/E2ET/).count();
   console.log("Number of accounts: ", accountCount);
   if (accountCount == 0) {
     // Open dialog
