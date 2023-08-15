@@ -22,3 +22,14 @@ def test_relative_to_epoch_produces_timestamp_with_4h_prior_now():
     epoch_start = relative_to_epoch("4h")
     now_rounded = int(now)
     assert epoch_start + 4 * 60 * 60 == now_rounded
+
+
+def test_relative_to_epoch_does_not_support_combination():
+    try:
+        relative_to_epoch("4h30m")
+        assert False
+    except ValueError:
+        print("Caught the correct exception")
+    except Exception:
+        print("Caught the wrong exception")
+        assert False
