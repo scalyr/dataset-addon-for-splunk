@@ -7,7 +7,9 @@ def test_ds_build_pq():
     query_filter = "source=ABC"
     columns = "source, host"
     limit = 30
-    expected_power_query = "{} | columns {} | limit {}".format(query_filter, columns, limit)
+    expected_power_query = "{} | columns {} | limit {}".format(
+        query_filter, columns, limit
+    )
     power_query = ds_build_pq(query_filter, columns, str(limit))
     assert power_query == expected_power_query
 
