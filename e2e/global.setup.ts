@@ -55,7 +55,7 @@ setup('login and create account', async ({ page }) => {
   // wait for table to appear
   await page.getByText(/Account name/).click()
 
-  const accountCount = await page.getByRole("main").getByRole("row").getByText(/QaTr/).count();
+  const accountCount = await page.getByRole("main").getByRole("row").getByText(/E2ET/).count();
   console.log("Number of accounts: ", accountCount);
   if (accountCount == 0) {
     // Open dialog
@@ -73,7 +73,7 @@ setup('login and create account', async ({ page }) => {
     const { DATASET_URL: datasetUrl, DATASET_LOG_ACCESS_READ: datasetReadKey, DATASET_LOG_ACCESS_WRITE: datasetWriteKey } = process.env;
 
     // Fill in values
-    const accountName = 'QaTr' + (Math.random() * 1e18)
+    const accountName = 'E2ET' + (Math.random() * 1e18)
     console.log("Create account: ", accountName);
     await locAccount.fill(accountName);
     await locUrl.fill(datasetUrl || '');
