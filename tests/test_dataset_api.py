@@ -30,7 +30,7 @@ def test_ds_build_pq_empty_columns_are_omitted():
     assert power_query == expected_power_query
 
 
-def test_ds_build_pq_empty_columns_are_omitted():
+def test_ds_build_pq_empty_limit_are_omitted():
     query_filter = "source=ABC"
     columns = "source, host"
     expected_power_query = "{} | columns {}".format(query_filter, columns)
