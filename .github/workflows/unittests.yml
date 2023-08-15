@@ -5,7 +5,7 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  UnitTest:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -21,6 +21,7 @@ jobs:
         make dev-install-dependencies-pack
         make dev-install-dependencies-pack-sudo
         make dev-install-dependencies-for-development
+        python -m unittest discover -s TA_dataset/bin/tests
 
-    - name: Run unit tests
-      run: python -m unittest discover -s TA_dataset/bin/tests
+#    - name: Run unit tests
+#      run: python -m unittest discover -s TA_dataset/bin/tests
