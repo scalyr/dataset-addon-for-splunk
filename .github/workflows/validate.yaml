@@ -1,4 +1,4 @@
-name: UCC Gen Validation
+name: UCC Gen Validation 2
 on: [pull_request]
 
 permissions:
