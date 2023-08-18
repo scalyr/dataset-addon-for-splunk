@@ -21,43 +21,33 @@ export async function goToSearch(page: Page) {
     await expect(page).toHaveTitle(/Search /);
 }
 
-export async function waitForData(page: Page, key: string, locStopWaitingIfExists: Locator | undefined = undefined) {
-    await page.waitForTimeout(2000);
+export async function waitForData(page: Page, key: string) {
+    await page.waitForTimeout(5000);
 
     let pic = 0
 
     await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
-    for (let i = 0; i < 3; i++) {
-        console.log("Wait for 'Waiting for queued job to start' to disappear")
-        await expect(page.getByText(/Waiting for queued job to start/)).toHaveCount(0, {timeout: 50000})
-        await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
+    console.log("Wait for 'Waiting for queued job to start' to disappear")
+    await expect(page.getByText(/Waiting for queued job to start/)).toHaveCount(0, {timeout: 50000})
+    await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
-        console.log("Wait for 'Waiting for data' to disappear")
-        await expect(page.getByText(/Waiting for data/)).toHaveCount(0, {timeout: 50000})
-        await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
+    console.log("Wait for 'Waiting for data' to disappear")
+    await expect(page.getByText(/Waiting for data/)).toHaveCount(0, {timeout: 50000})
+    await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
-        console.log("Wait for 'No results yet found' to disappear")
-        await expect(page.getByText(/No results yet found/)).toHaveCount(0, {timeout: 50000})
-        await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
+    console.log("Wait for 'No results yet found' to disappear")
+    await expect(page.getByText(/No results yet found/)).toHaveCount(0, {timeout: 50000})
+    await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
-        console.log("Wait for 'No results found' to disappear");
-        const locNoResults = page.getByText(/No results found/);
-        console.log("Text Content: " + await locNoResults.textContent());
-        console.log("Is Visible: " + await locNoResults.isVisible());
+    // It looks that No results found element is still there, but not visible
+    console.log("Wait for 'No results found' to disappear");
+    const locNoResults = page.getByText(/No results found/);
+    if (await locNoResults.count() > 0) {
         if (await locNoResults.isVisible()) {
             await expect(locNoResults).toHaveCount(0, {timeout: 50000})
             await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
         }
-
-        if ( locStopWaitingIfExists !== undefined ) {
-            const count = await locStopWaitingIfExists.count()
-            console.log(`locStopWaitingIfExists: ${ count}`);
-            if (count > 0) {
-                break;
-            }
-        }
-        await page.waitForTimeout(2000);
     }
 
     console.log("Page contains 'External search command exited unexpectedly'")
