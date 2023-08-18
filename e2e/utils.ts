@@ -7,18 +7,36 @@ export async function goToDataSet(page: Page) {
     await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
 }
 
+export async function goToInputs(page: Page) {
+    console.log("Go to inputs page");
+
+    await page.getByRole('link', { name: "Inputs" }).click();
+    const responsePromise = page.waitForResponse('**/TA_dataset_*');
+    await expect(page).toHaveTitle(/Inputs/);
+
+    const response = await responsePromise;
+    expect({'u': response.url(), 's': response.status()}).toBe("AAA");
+
+
+    await expectWithoutErrors(page);
+}
+
 export async function goToExamples(page: Page) {
     console.log("Go to example page");
-    await page.getByText("DataSet by Example").click();
+    await page.getByRole('link', { name: "DataSet by Example" }).click();
 
-    await expect(page).toHaveTitle(/DataSet by Example /);
+    await expect(page).toHaveTitle(/DataSet by Example/);
+
+    await expectWithoutErrors(page);
 }
 
 export async function goToSearch(page: Page) {
     console.log("Go to search page");
     await page.getByRole('link', { name: 'Search' }).click();
 
-    await expect(page).toHaveTitle(/Search /);
+    await expect(page).toHaveTitle(/Search/);
+
+    await expectWithoutErrors(page);
 }
 
 export async function waitForData(page: Page, key: string) {
@@ -59,4 +77,8 @@ export async function waitForData(page: Page, key: string) {
     console.log("Waiting for human for: ", waitForHumanMs);
 
     await page.waitForTimeout(waitForHumanMs);
+}
+
+async function expectWithoutErrors(page: Page) {
+    expect(page.getByRole("heading").getByText(/Failed to load/)).toHaveCount(0);
 }

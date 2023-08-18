@@ -657,7 +657,7 @@
           "type": "singleSelectSplunkSearch",
           "label": "Select Account",
           "field": "account",
-          "search": "| rest servicesNS/nobody/TA-dataset/admin/TA_dataset_account splunk_server=local | dedup title",
+          "search": "| rest servicesNS/nobody/TA_dataset/admin/TA_dataset_account splunk_server=local | dedup title",
           "valueField": "title",
           "labelField": "title",
           "required": true,
