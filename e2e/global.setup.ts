@@ -1,6 +1,6 @@
 import { join as pjoin } from 'path';
 import { test as setup, expect } from '@playwright/test';
-import { goToDataSet } from './utils';
+import { goToDataSet, goToConfiguration } from './utils';
 
 export const STORAGE_STATE = pjoin(__dirname, '.auth.json');
 
@@ -45,15 +45,7 @@ setup('login and create account', async ({ page }) => {
 
   await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
 
-  console.log("Go to configuration page");
-  await page.locator('[title="Configuration"]').click();
-
-  // Check that we are on the configuration page
-  await expect(page).toHaveTitle(/Configuration/);
-  await page.screenshot({ path: 'playwright-screenshots/page-configuration.png', fullPage: true });
-
-  // wait for table to appear
-  await page.getByText(/Account name/).click()
+  await goToConfiguration(page);
 
   const accountCount = await page.getByRole("main").getByRole("row").getByText(/E2ET/).count();
   console.log("Number of accounts: ", accountCount);
@@ -64,8 +56,8 @@ setup('login and create account', async ({ page }) => {
     await locAddDialog.click();
 
     // Setup locators
-    const locAccount = page.locator('div').filter({ hasText: /^Account nameEnter a unique name for this account\.$/ }).locator('[data-test="textbox"]');
-    const locUrl = page.locator('div').filter({ hasText: /^URLEnter DataSet URL\.$/ }).locator('[data-test="textbox"]');
+    const locAccount = page.locator('div').filter({ hasText: /^\*Account nameEnter a unique name for this account\.$/ }).locator('[data-test="textbox"]')
+    const locUrl = page.locator('div').filter({ hasText: /^\*URLEnter DataSet URL\.$/ }).locator('[data-test="textbox"]')
     const locReadKey = page.locator('[data-test="body"] form div').filter({ hasText: 'DataSet Log Read Access KeyRequired to enable inputs and SPL comand. Include tra' }).locator('[data-test="textbox"]');
     const locWriteKey = page.locator('[data-test="body"] form div').filter({ hasText: 'DataSet Log Write Access KeyRequired to enable alert action. Include trailing hy' }).locator('[data-test="textbox"]');
 

@@ -11,12 +11,36 @@ export async function goToInputs(page: Page) {
     console.log("Go to inputs page");
 
     await page.getByRole('link', { name: "Inputs" }).click();
-    const responsePromise = page.waitForResponse('**/TA_dataset_*');
+    const respQueryPromise = page.waitForResponse('**/TA_dataset_dataset_query*');
+    const respPowerqueryPromise = page.waitForResponse('**/TA_dataset_dataset_powerquery*');
+    const respAlertsPromise = page.waitForResponse('**/TA_dataset_dataset_alerts*');
+
     await expect(page).toHaveTitle(/Inputs/);
 
-    const response = await responsePromise;
-    expect({'u': response.url(), 's': response.status()}).toBe("AAA");
+    const respQuery = await respQueryPromise;
+    const respPowerquery = await respPowerqueryPromise;
+    const respAlerts = await respAlertsPromise;
+    expect(respQuery.status()).toBe(200);
+    expect(respPowerquery.status()).toBe(200);
+    expect(respAlerts.status()).toBe(200);
 
+    await expectWithoutErrors(page);
+}
+
+export async function goToConfiguration(page: Page) {
+    console.log("Go to configuration page");
+
+    await page.getByRole('link', { name: "Configuration" }).click();
+    const respAccountPromise = page.waitForResponse('**/TA_dataset_account*');
+
+    await page.screenshot({ path: 'playwright-screenshots/page-configuration.png', fullPage: true });
+
+    const respAccount = await respAccountPromise;
+    expect(respAccount.status()).toBe(200);
+
+
+    // wait for table to appear
+    await page.getByText(/Account name/).click()
 
     await expectWithoutErrors(page);
 }

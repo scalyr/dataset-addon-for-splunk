@@ -4,6 +4,8 @@ import os.path as op
 import sys
 import time
 
+# adjust paths to make the Splunk app working
+import import_declare_test  # noqa: F401
 from solnlib import conf_manager
 
 APP_NAME = __file__.split(op.sep)[-3]

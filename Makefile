@@ -95,6 +95,7 @@ inspect:
 
 .PHONY: pack
 pack:
+	find $(SOURCE_PACKAGE) -name __pycache__ -exec rm -rfv {} \;
 	version=$$(jq -r '.meta.version' globalConfig.json) && \
 	scripts/pack.sh \
 		--version "$${version}" \
