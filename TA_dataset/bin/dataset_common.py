@@ -81,10 +81,13 @@ def get_proxy(session_key, logger):
     try:
         cfm = get_conf_manager(session_key, logger)
         try:
+            # MM: it does not have key `proxy_enabled, it has key - disabled
+            #  {'disabled': '0', 'eai:appName': 'TA_dataset' ...
             proxy_details = cfm.get_conf(CONF_NAME + "_settings").get("proxy")
-            proxy_enabled = proxy_details.get("proxy_enabled")
-        except Exception:
-            logger.debug("No proxy information defined.")
+            logger.info("MM PROXY: " + repr(proxy_details))
+            proxy_enabled = proxy_details.get("proxy_enabled", 0)
+        except Exception as e:
+            logger.debug("No proxy information defined: {}".format(e))
             return None
 
         if int(proxy_enabled) == 0:
@@ -116,8 +119,8 @@ def get_proxy(session_key, logger):
             proxies["https"] = proxies["http"]
             return proxies
 
-    except Exception:
-        logger.info("Failed to fetch proxy information.")
+    except Exception as e:
+        logger.info("Failed to fetch proxy information: {}".format(e))
         return None
 
 
@@ -125,6 +128,7 @@ def get_acct_info(self, logger, account=None):
     logger.debug(
         "DataSetFunction={}, startTime={}".format("get_acct_info", time.time())
     )
+    logger.info("MM: Account: {}".format(account))
     acct_dict = {}
     if account is not None:
         # wildcard to use all accounts
@@ -142,6 +146,25 @@ def get_acct_info(self, logger, account=None):
                 return None
         else:
             try:
+                logger.info("AAAAAA")
+                logger.info(repr([(c.name, c.path) for c in self.service.confs.list()]))
+                logger.info(
+                    "ta_dataset_account - dir: "
+                    + repr(dir(self.service.confs["ta_dataset_account"]))
+                )
+                logger.info(
+                    "ta_dataset_account - itemmeta: "
+                    + repr(self.service.confs["ta_dataset_account"].itemmeta())
+                )
+                logger.info(
+                    "ta_dataset_account - name: "
+                    + repr(self.service.confs["ta_dataset_account"].name)
+                )
+                logger.info(
+                    "ta_dataset_account - list: "
+                    + repr(self.service.confs["ta_dataset_account"].list())
+                )
+                logger.info("BBBBBB")
                 # remove spaces and split by commas
                 account = account.replace(" ", "").split(",")
                 for entry in account:

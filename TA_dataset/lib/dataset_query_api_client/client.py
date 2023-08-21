@@ -57,10 +57,17 @@ class Client:
 
 def get_user_agent():
     """Get user agent"""
-    with open("../VERSION") as file:
-        version = file.readline().replace("\n", "").replace("\r", "")
-    with open("../../../splunk.version") as splunkVersionFile:
-        splunkVersion = splunkVersionFile.readline().replace("\n", "").replace("\r", "")
+    # TODO: MM - where are these files?
+    # File "/opt/splunk/etc/apps/TA_dataset/lib/dataset_query_api_client/client.py",
+    # line 60, in get_user_agent
+    # with open("../VERSION") as file:
+
+    # with open("../VERSION") as file:
+    #     version = file.readline().replace("\n", "").replace("\r", "")
+    # with open("../../../splunk.version") as splunkVersionFile:
+    #     splunkVersion = splunkVersionFile.readline().replace("\n", "").replace("\r", "")
+    version = "1.2.3"
+    splunkVersion = "4.5.6"
     return "dataset-splunk-addon;{};{};python-{};splunk-{};requests-{}".format(
         version,
         platform.platform(),

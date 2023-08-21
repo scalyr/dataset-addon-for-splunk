@@ -65,6 +65,13 @@ docker-splunk-tail-logs-python:
 		tail -f \
 			/opt/splunk/var/log/splunk/python.log
 
+.PHONY: docker-splunk-tail-logs-input
+docker-splunk-tail-logs-input:
+	docker exec $(CONTAINER_NAME) \
+		sudo -u splunk \
+		tail -f \
+			/opt/splunk/var/log/splunk/TA_dataset_input.log
+
 .PHONY: docker-splunk-tail-logs
 docker-splunk-tail-logs-count:
 	docker exec $(CONTAINER_NAME) \

@@ -56,8 +56,8 @@ setup('login and create account', async ({ page }) => {
     await locAddDialog.click();
 
     // Setup locators
-    const locAccount = page.locator('div').filter({ hasText: /^\*Account nameEnter a unique name for this account\.$/ }).locator('[data-test="textbox"]')
-    const locUrl = page.locator('div').filter({ hasText: /^\*URLEnter DataSet URL\.$/ }).locator('[data-test="textbox"]')
+    const locAccount = page.locator('div').filter({ hasText: /^\*?Account nameEnter a unique name for this account\.$/ }).locator('[data-test="textbox"]')
+    const locUrl = page.locator('div').filter({ hasText: /^\*?URLEnter DataSet URL\.$/ }).locator('[data-test="textbox"]')
     const locReadKey = page.locator('[data-test="body"] form div').filter({ hasText: 'DataSet Log Read Access KeyRequired to enable inputs and SPL comand. Include tra' }).locator('[data-test="textbox"]');
     const locWriteKey = page.locator('[data-test="body"] form div').filter({ hasText: 'DataSet Log Write Access KeyRequired to enable alert action. Include trailing hy' }).locator('[data-test="textbox"]');
 
@@ -65,7 +65,7 @@ setup('login and create account', async ({ page }) => {
     const { DATASET_URL: datasetUrl, DATASET_LOG_ACCESS_READ: datasetReadKey, DATASET_LOG_ACCESS_WRITE: datasetWriteKey } = process.env;
 
     // Fill in values
-    const accountName = 'E2ET' + (Math.random() * 1e18)
+    const accountName = ('E2ET' + (Math.random() * 1e18));
     console.log("Create account: ", accountName);
     await locAccount.fill(accountName);
     await locUrl.fill(datasetUrl || '');
