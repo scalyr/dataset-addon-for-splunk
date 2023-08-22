@@ -106,3 +106,14 @@ export async function waitForData(page: Page, key: string) {
 async function expectWithoutErrors(page: Page) {
     expect(page.getByRole("heading").getByText(/Failed to load/)).toHaveCount(0);
 }
+
+export function query2file(query: string): string {
+    return query.replace(/[| )(_.,]/, '')
+}
+
+export async function checkRowExists(page: Page, value: string) {
+  // check that the account is there
+  console.log("Check that it is there: ", value);
+  await page.getByRole('cell', { name: value }).click()
+
+}

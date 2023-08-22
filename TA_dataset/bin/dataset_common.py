@@ -128,7 +128,6 @@ def get_acct_info(self, logger, account=None):
     logger.debug(
         "DataSetFunction={}, startTime={}".format("get_acct_info", time.time())
     )
-    logger.info("MM: Account: {}".format(account))
     acct_dict = {}
     if account is not None:
         # wildcard to use all accounts
@@ -146,25 +145,6 @@ def get_acct_info(self, logger, account=None):
                 return None
         else:
             try:
-                logger.info("AAAAAA")
-                logger.info(repr([(c.name, c.path) for c in self.service.confs.list()]))
-                logger.info(
-                    "ta_dataset_account - dir: "
-                    + repr(dir(self.service.confs["ta_dataset_account"]))
-                )
-                logger.info(
-                    "ta_dataset_account - itemmeta: "
-                    + repr(self.service.confs["ta_dataset_account"].itemmeta())
-                )
-                logger.info(
-                    "ta_dataset_account - name: "
-                    + repr(self.service.confs["ta_dataset_account"].name)
-                )
-                logger.info(
-                    "ta_dataset_account - list: "
-                    + repr(self.service.confs["ta_dataset_account"].list())
-                )
-                logger.info("BBBBBB")
                 # remove spaces and split by commas
                 account = account.replace(" ", "").split(",")
                 for entry in account:

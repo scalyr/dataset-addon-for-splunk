@@ -47,7 +47,7 @@ setup('login and create account', async ({ page }) => {
 
   await goToConfiguration(page);
 
-  const accountCount = await page.getByRole("main").getByRole("row").getByText(/E2ET/).count();
+  const accountCount = await page.getByRole("main").getByRole("row").getByText(/E2E_T/).count();
   console.log("Number of accounts: ", accountCount);
   if (accountCount == 0) {
     // Open dialog
@@ -65,7 +65,7 @@ setup('login and create account', async ({ page }) => {
     const { DATASET_URL: datasetUrl, DATASET_LOG_ACCESS_READ: datasetReadKey, DATASET_LOG_ACCESS_WRITE: datasetWriteKey } = process.env;
 
     // Fill in values
-    const accountName = ('E2ET' + (Math.random() * 1e18));
+    const accountName = (('E2E_T_' + (Math.random() * 1e18))).slice(0, 15);
     console.log("Create account: ", accountName);
     await locAccount.fill(accountName);
     await locUrl.fill(datasetUrl || '');

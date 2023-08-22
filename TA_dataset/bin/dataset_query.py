@@ -146,7 +146,6 @@ class DATASET_QUERY_INPUT(smi.Script):
                 ds_st, ds_et, "query", ds_search, ds_columns, ds_maxcount
             )
             logger.debug("ds_payload = {}".format(ds_payload))
-            logger.info("AAAA - ds_payload = {}".format(ds_payload))
             proxy = get_proxy(session_key, logger)
             acct_dict = get_acct_info(self, logger, ds_account)
             for ds_acct in acct_dict.keys():
