@@ -3,6 +3,8 @@
 import json
 import time
 
+# adjust paths to make the Splunk app working
+import import_declare_test  # noqa: F401
 from dataset_common import normalize_time
 
 # Dataset V2 API client (generated)

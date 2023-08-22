@@ -7,18 +7,60 @@ export async function goToDataSet(page: Page) {
     await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
 }
 
+export async function goToInputs(page: Page) {
+    console.log("Go to inputs page");
+
+    await page.getByRole('link', { name: "Inputs" }).click();
+    const respQueryPromise = page.waitForResponse('**/TA_dataset_dataset_query*');
+    const respPowerqueryPromise = page.waitForResponse('**/TA_dataset_dataset_powerquery*');
+    const respAlertsPromise = page.waitForResponse('**/TA_dataset_dataset_alerts*');
+
+    await expect(page).toHaveTitle(/Inputs/);
+
+    const respQuery = await respQueryPromise;
+    const respPowerquery = await respPowerqueryPromise;
+    const respAlerts = await respAlertsPromise;
+    expect(respQuery.status()).toBe(200);
+    expect(respPowerquery.status()).toBe(200);
+    expect(respAlerts.status()).toBe(200);
+
+    await expectWithoutErrors(page);
+}
+
+export async function goToConfiguration(page: Page) {
+    console.log("Go to configuration page");
+
+    await page.getByRole('link', { name: "Configuration" }).click();
+    const respAccountPromise = page.waitForResponse('**/TA_dataset_account*');
+
+    await page.screenshot({ path: 'playwright-screenshots/page-configuration.png', fullPage: true });
+
+    const respAccount = await respAccountPromise;
+    expect(respAccount.status()).toBe(200);
+
+
+    // wait for table to appear
+    await page.getByText(/Account name/).click()
+
+    await expectWithoutErrors(page);
+}
+
 export async function goToExamples(page: Page) {
     console.log("Go to example page");
-    await page.getByText("DataSet by Example").click();
+    await page.getByRole('link', { name: "DataSet by Example" }).click();
 
-    await expect(page).toHaveTitle(/DataSet by Example /);
+    await expect(page).toHaveTitle(/DataSet by Example/);
+
+    await expectWithoutErrors(page);
 }
 
 export async function goToSearch(page: Page) {
     console.log("Go to search page");
     await page.getByRole('link', { name: 'Search' }).click();
 
-    await expect(page).toHaveTitle(/Search /);
+    await expect(page).toHaveTitle(/Search/);
+
+    await expectWithoutErrors(page);
 }
 
 export async function waitForData(page: Page, key: string) {
@@ -59,4 +101,19 @@ export async function waitForData(page: Page, key: string) {
     console.log("Waiting for human for: ", waitForHumanMs);
 
     await page.waitForTimeout(waitForHumanMs);
+}
+
+async function expectWithoutErrors(page: Page) {
+    expect(page.getByRole("heading").getByText(/Failed to load/)).toHaveCount(0);
+}
+
+export function query2file(query: string): string {
+    return query.replace(/[| )(.,"'/\\:]/g, '_')
+}
+
+export async function checkRowExists(page: Page, value: string) {
+  // check that the account is there
+  console.log("Check that it is there: ", value);
+  await page.getByRole('cell', { name: value }).click()
+
 }

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import platform
 import ssl
+from pathlib import Path
 from typing import Dict, Union
 
 import attr
@@ -57,15 +58,27 @@ class Client:
 
 def get_user_agent():
     """Get user agent"""
-    with open("../VERSION") as file:
-        version = file.readline().replace("\n", "").replace("\r", "")
-    with open("../../../splunk.version") as splunkVersionFile:
-        splunkVersion = splunkVersionFile.readline().replace("\n", "").replace("\r", "")
+
+    def extract(f: Path) -> str:
+        if not f.exists:
+            return str(f.resolve())
+        with f.open() as fh:
+            return fh.readline().replace("\n", "").replace("\r", "")
+
+    current_file = Path(__file__)
+    version_file = current_file.parent.parent.parent / "VERSION"
+    version = extract(version_file)
+
+    splunk_version_file = (
+        current_file.parent.parent.parent.parent.parent / "splunk.version"
+    )
+    splunk_version = extract(splunk_version_file)
+
     return "dataset-splunk-addon;{};{};python-{};splunk-{};requests-{}".format(
         version,
         platform.platform(),
         platform.python_version(),
-        splunkVersion,
+        splunk_version,
         requests.__version__,
     )
 

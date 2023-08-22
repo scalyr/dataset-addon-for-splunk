@@ -51,12 +51,26 @@ docker-splunk-show-app:
 		sudo -u splunk \
 		ls -l /opt/splunk/etc/apps/TA_dataset/
 
-.PHONY: docker-splunk-tail-logs-f
-docker-splunk-tail-logs-f:
+.PHONY: docker-splunk-tail-logs-splunkd
+docker-splunk-tail-logs-splunkd:
 	docker exec $(CONTAINER_NAME) \
 		sudo -u splunk \
 		tail -f \
 			/opt/splunk/var/log/splunk/splunkd.log
+
+.PHONY: docker-splunk-tail-logs-python
+docker-splunk-tail-logs-python:
+	docker exec $(CONTAINER_NAME) \
+		sudo -u splunk \
+		tail -f \
+			/opt/splunk/var/log/splunk/python.log
+
+.PHONY: docker-splunk-tail-logs-input
+docker-splunk-tail-logs-input:
+	docker exec $(CONTAINER_NAME) \
+		sudo -u splunk \
+		tail -f \
+			/opt/splunk/var/log/splunk/TA_dataset_input.log
 
 .PHONY: docker-splunk-tail-logs
 docker-splunk-tail-logs-count:
@@ -88,6 +102,7 @@ inspect:
 
 .PHONY: pack
 pack:
+	find $(SOURCE_PACKAGE) -name __pycache__ -exec rm -rfv {} \;
 	version=$$(jq -r '.meta.version' globalConfig.json) && \
 	scripts/pack.sh \
 		--version "$${version}" \

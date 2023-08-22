@@ -25,11 +25,14 @@ jobs:
         make dev-install-dependencies-pack-sudo
         make dev-install-dependencies-for-development
 
+    - name: Export current snapshot of app
+      run: echo "SDLAPP_VERSION_CURRENT_SNAPSHOT=$(jq -r '.meta.version' globalConfig.json)" >> $GITHUB_ENV
+
     # build splunk application
     - name: Build Splunk Application
       run: |
         scripts/pack.sh \
-          --version "9.9.9" \
+          --version "${{ env.SDLAPP_VERSION_CURRENT_SNAPSHOT }}-E2ETesting" \
           --input TA_dataset \
           --output output \
           --release release

@@ -4,6 +4,8 @@ import os.path as op
 import sys
 import time
 
+# adjust paths to make the Splunk app working
+import import_declare_test  # noqa: F401
 from solnlib import conf_manager
 
 APP_NAME = __file__.split(op.sep)[-3]
@@ -79,10 +81,13 @@ def get_proxy(session_key, logger):
     try:
         cfm = get_conf_manager(session_key, logger)
         try:
+            # MM: it does not have key `proxy_enabled, it has key - disabled
+            #  {'disabled': '0', 'eai:appName': 'TA_dataset' ...
             proxy_details = cfm.get_conf(CONF_NAME + "_settings").get("proxy")
-            proxy_enabled = proxy_details.get("proxy_enabled")
-        except Exception:
-            logger.debug("No proxy information defined.")
+            logger.info("MM PROXY: " + repr(proxy_details))
+            proxy_enabled = proxy_details.get("proxy_enabled", 0)
+        except Exception as e:
+            logger.debug("No proxy information defined: {}".format(e))
             return None
 
         if int(proxy_enabled) == 0:
@@ -114,8 +119,8 @@ def get_proxy(session_key, logger):
             proxies["https"] = proxies["http"]
             return proxies
 
-    except Exception:
-        logger.info("Failed to fetch proxy information.")
+    except Exception as e:
+        logger.info("Failed to fetch proxy information: {}".format(e))
         return None
 
 
