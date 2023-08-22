@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { goToDataSet, goToSearch } from './utils';
+import { goToDataSet, goToSearch, waitForData, query2file } from './utils';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -33,6 +33,8 @@ async function searchFor(page: Page, query: string, maxCount: number | undefined
   await page.getByRole('textbox', { name: 'Search' }).fill(finalQuery);
 
   await page.getByLabel("Search Button").click();
+
+  await waitForData(page, query2file(query))
 
   await expect(page.getByText(`Events (${maxCount})`)).toHaveCount(1);
 }

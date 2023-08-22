@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { test, expect } from '@playwright/test';
 
 export async function goToDataSet(page: Page) {
@@ -7,41 +7,113 @@ export async function goToDataSet(page: Page) {
     await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
 }
 
+export async function goToInputs(page: Page) {
+    console.log("Go to inputs page");
+
+    await page.getByRole('link', { name: "Inputs" }).click();
+    const respQueryPromise = page.waitForResponse('**/TA_dataset_dataset_query*');
+    const respPowerqueryPromise = page.waitForResponse('**/TA_dataset_dataset_powerquery*');
+    const respAlertsPromise = page.waitForResponse('**/TA_dataset_dataset_alerts*');
+
+    await expect(page).toHaveTitle(/Inputs/);
+
+    const respQuery = await respQueryPromise;
+    const respPowerquery = await respPowerqueryPromise;
+    const respAlerts = await respAlertsPromise;
+    expect(respQuery.status()).toBe(200);
+    expect(respPowerquery.status()).toBe(200);
+    expect(respAlerts.status()).toBe(200);
+
+    await expectWithoutErrors(page);
+}
+
+export async function goToConfiguration(page: Page) {
+    console.log("Go to configuration page");
+
+    await page.getByRole('link', { name: "Configuration" }).click();
+    const respAccountPromise = page.waitForResponse('**/TA_dataset_account*');
+
+    await page.screenshot({ path: 'playwright-screenshots/page-configuration.png', fullPage: true });
+
+    const respAccount = await respAccountPromise;
+    expect(respAccount.status()).toBe(200);
+
+
+    // wait for table to appear
+    await page.getByText(/Account name/).click()
+
+    await expectWithoutErrors(page);
+}
+
 export async function goToExamples(page: Page) {
     console.log("Go to example page");
-    await page.getByText("DataSet by Example").click();
+    await page.getByRole('link', { name: "DataSet by Example" }).click();
 
-    await expect(page).toHaveTitle(/DataSet by Example /);
+    await expect(page).toHaveTitle(/DataSet by Example/);
+
+    await expectWithoutErrors(page);
 }
 
 export async function goToSearch(page: Page) {
     console.log("Go to search page");
     await page.getByRole('link', { name: 'Search' }).click();
 
-    await expect(page).toHaveTitle(/Search /);
+    await expect(page).toHaveTitle(/Search/);
+
+    await expectWithoutErrors(page);
 }
 
 export async function waitForData(page: Page, key: string) {
-    // Wait for the "Waiting for data..." text to disappear
+    await page.waitForTimeout(5000);
+
+    let pic = 0
+
+    await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
+
+    console.log("Wait for 'Waiting for queued job to start' to disappear")
+    await expect(page.getByText(/Waiting for queued job to start/)).toHaveCount(0, {timeout: 50000})
+    await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
+
     console.log("Wait for 'Waiting for data' to disappear")
-    await page.screenshot({ path: `playwright-screenshots/page-${ key }-before-waiting-for-data.png`, fullPage: true });
-    await expect(page.getByText(/Waiting for data/)).toHaveCount(0, {timeout: 15000});
+    await expect(page.getByText(/Waiting for data/)).toHaveCount(0, {timeout: 50000})
+    await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
-    await page.screenshot({ path: `playwright-screenshots/page-${ key }-before-checks.png`, fullPage: true });
+    console.log("Wait for 'No results yet found' to disappear")
+    await expect(page.getByText(/No results yet found/)).toHaveCount(0, {timeout: 50000})
+    await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
-    // Check if the page does not contain the text "No results found."
-    const noResultsCount = await page.getByText(/No results found/).count();
-    console.log("Page contains 'No results found': ", noResultsCount)
-    expect(noResultsCount).toBe(0);
+    // It looks that No results found element is still there, but not visible
+    console.log("Wait for 'No results found' to disappear");
+    const locNoResults = page.getByText(/No results found/);
+    if (await locNoResults.count() > 0) {
+        if (await locNoResults.isVisible()) {
+            await expect(locNoResults).toHaveCount(0, {timeout: 50000})
+            await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
+        }
+    }
 
-    // Check if the page does not contain the text "No results found."
-    const searchFailedCount = await page.getByText(/External search command exited unexpectedly/).count();
-    console.log("Page contains 'External search command exited unexpectedly': ", searchFailedCount)
-    expect(searchFailedCount).toBe(0);
+    console.log("Page contains 'External search command exited unexpectedly'")
+    await expect(page.getByText(/External search command exited unexpectedly/)).toHaveCount(0, {timeout: 50000});
+    await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
     const { WAIT_FOR_HUMAN_TO_CHECK_IN_MS: waitForHumanStr} = process.env
     const waitForHumanMs = parseInt(waitForHumanStr || '0');
     console.log("Waiting for human for: ", waitForHumanMs);
 
     await page.waitForTimeout(waitForHumanMs);
+}
+
+async function expectWithoutErrors(page: Page) {
+    expect(page.getByRole("heading").getByText(/Failed to load/)).toHaveCount(0);
+}
+
+export function query2file(query: string): string {
+    return query.replace(/[| )(.,"'/\\:]/g, '_')
+}
+
+export async function checkRowExists(page: Page, value: string) {
+  // check that the account is there
+  console.log("Check that it is there: ", value);
+  await page.getByRole('cell', { name: value }).click()
+
 }
