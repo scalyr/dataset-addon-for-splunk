@@ -108,7 +108,7 @@ async function expectWithoutErrors(page: Page) {
 }
 
 export function query2file(query: string): string {
-    return query.replace(/[| )(_.,]/, '')
+    return query.replace(/[| )(_.,"']/, '')
 }
 
 export async function checkRowExists(page: Page, value: string) {
