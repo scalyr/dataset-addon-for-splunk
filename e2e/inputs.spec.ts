@@ -152,5 +152,5 @@ async function searchFor(page: Page, query: string) {
   await page.getByLabel("Search Button").click();
 
   await page.screenshot({ path: `playwright-screenshots/page-inputs-query-${query2file(query)}.png`, fullPage: true });
-  await expect(page.getByText("sourcetype").nth(1)).toBeVisible();
+  await expect(page.getByText("sourcetype").first()).toBeVisible();
 }
