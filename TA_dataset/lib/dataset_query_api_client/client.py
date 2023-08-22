@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import platform
 import ssl
+from pathlib import Path
 from typing import Dict, Union
 
 import attr
@@ -57,22 +58,27 @@ class Client:
 
 def get_user_agent():
     """Get user agent"""
-    # TODO: MM - where are these files?
-    # File "/opt/splunk/etc/apps/TA_dataset/lib/dataset_query_api_client/client.py",
-    # line 60, in get_user_agent
-    # with open("../VERSION") as file:
 
-    # with open("../VERSION") as file:
-    #     version = file.readline().replace("\n", "").replace("\r", "")
-    # with open("../../../splunk.version") as splunkVersionFile:
-    #     splunkVersion = splunkVersionFile.readline().replace("\n", "").replace("\r", "")
-    version = "1.2.3"
-    splunkVersion = "4.5.6"
+    def extract(f: Path) -> str:
+        if not f.exists:
+            return str(f.resolve())
+        with f.open() as fh:
+            return fh.readline().replace("\n", "").replace("\r", "")
+
+    current_file = Path(__file__)
+    version_file = current_file.parent.parent.parent / "VERSION"
+    version = extract(version_file)
+
+    splunk_version_file = (
+        current_file.parent.parent.parent.parent.parent / "splunk.version"
+    )
+    splunk_version = extract(splunk_version_file)
+
     return "dataset-splunk-addon;{};{};python-{};splunk-{};requests-{}".format(
         version,
         platform.platform(),
         platform.python_version(),
-        splunkVersion,
+        splunk_version,
         requests.__version__,
     )
 
