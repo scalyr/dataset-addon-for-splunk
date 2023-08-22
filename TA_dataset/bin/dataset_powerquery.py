@@ -4,6 +4,8 @@ import os.path as op
 import sys
 import time
 
+# adjust paths to make the Splunk app working
+import import_declare_test  # noqa: F401
 import requests
 from dataset_api import build_payload, parse_powerquery
 from dataset_common import get_acct_info, get_log_level, get_proxy, get_url

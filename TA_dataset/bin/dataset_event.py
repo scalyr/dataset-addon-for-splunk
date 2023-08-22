@@ -3,6 +3,8 @@
 
 import sys
 
+# adjust paths to make the Splunk app working
+import import_declare_test  # noqa: F401
 from splunktaucclib.alert_actions_base import ModularAlertBase
 from ta_dataset import modalert_dataset_event_helper
 

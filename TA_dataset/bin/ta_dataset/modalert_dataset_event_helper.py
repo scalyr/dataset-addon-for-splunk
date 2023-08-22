@@ -2,6 +2,8 @@
 import json
 import uuid
 
+# adjust paths to make the Splunk app working
+import import_declare_test  # noqa: F401
 from dataset_common import get_url
 
 

@@ -8,6 +8,8 @@ import os.path as op
 import sys
 import time
 
+# adjust paths to make the Splunk app working
+import import_declare_test  # noqa: F401
 import requests
 from dataset_api import build_payload, get_maxcount, parse_query, query_api_max
 from dataset_common import (

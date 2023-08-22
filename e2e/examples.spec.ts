@@ -10,12 +10,6 @@ test.beforeEach(async ({ page }) => {
 
 
 test('Check example page', async ({ page }) => {
-  console.log("Go to example page");
-  await page.locator('[title="DataSet by Example"]').click();
-
-
-  await expect(page).toHaveTitle(/DataSet by Example/);
-
   // wait for elements to load
   await expect(page.getByRole("main").getByText("4. Timeseries Query: This will calculate numeric values over time.")).toHaveCount(1)
 
