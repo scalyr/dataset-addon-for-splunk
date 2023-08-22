@@ -6,12 +6,11 @@ test.beforeEach(async ({ page }) => {
 
   await goToDataSet(page);
   await goToInputs(page);
+  await clearInputs(page);
 });
 
 
 test('New Input - DataSet Query', async ({ page }) => {
-
-  await clearInputs(page);
 
   await openDialog(page, "DataSet Query");
 
@@ -42,9 +41,6 @@ test('New Input - DataSet Query', async ({ page }) => {
 });
 
 test('New Input - DataSet PowerQuery', async ({ page }) => {
-
-  await clearInputs(page);
-
   await openDialog(page, "DataSet PowerQuery");
 
   console.log("Fill the form")
@@ -71,14 +67,40 @@ test('New Input - DataSet PowerQuery', async ({ page }) => {
   await searchFor(page, `source="dataset_powerquery://${queryName}"`)
 });
 
+test('New Input - DataSet Alerts', async ({ page }) => {
+  await openDialog(page, "DataSet Alerts");
+
+  console.log("Fill the form")
+  const queryName = ('QuErY_A_' + (Math.random() * 1e18)).slice(0, 15)
+  console.log("Create query: ", queryName);
+
+  await page.locator('div').filter({ hasText: /^\*?NameEnter a unique name for the data input$/ }).locator('[data-test="textbox"]').fill(queryName);
+  await page.locator('div').filter({ hasText: /^\*?IntervalTime interval of input in seconds\.$/ }).locator('[data-test="textbox"]').fill("60")
+  await page.locator('form div').filter({ hasText: /^\*?Start TimeRelative time to query back. Use short form relative time, e.g.: 24h/ }).locator('[data-test="textbox"]').fill("60m")
+
+  await page.getByLabel("Select a value").click();
+  await page.locator('[data-test="option"]').first().click();
+
+  await page.screenshot({ path: 'playwright-screenshots/page-inputs-alerts-01-filled-form.png', fullPage: true });
+
+  await confirmDialog(page);
+
+  await checkRowExists(page, queryName);
+
+  await goToSplunkSearch(page);
+
+  await searchFor(page, `source="dataset_alerts://${queryName}"`)
+});
+
 async function clearInputs(page: Page) {
   while ( 1 == 1 ) {
     const queryCount = await page.getByRole("main").getByRole("row").getByText(/QuErY/).count();
     console.log("Number of queries: ", queryCount);
 
-    if (queryCount > 5) {
-      console.log("Deleting input");
-      await page.getByRole("main").getByRole("row").getByRole("menubar").first().getByRole("button").nth(2).click()
+    if (queryCount > 6) {
+      const index = Math.floor(Math.random() * queryCount);
+      console.log(`Deleting input: ${index}`);
+      await page.getByRole("main").getByRole("row").getByRole("menubar").nth(index).getByRole("button").nth(2).click()
       await page.getByRole("button", {name: 'Delete'}).click();
     } else {
       break;

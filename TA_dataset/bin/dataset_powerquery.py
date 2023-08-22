@@ -151,7 +151,6 @@ class DATASET_POWERQUERY_INPUT(smi.Script):
                     if "cpuUsage" in r_json:
                         logger.info("cpuUsage={}".format(r_json["cpuUsage"]))
 
-                    logger.info(r_json)
                     # parse results, match returned columns with corresponding values
                     if "columns" in r_json and "values" in r_json:
                         for value_list in r_json["values"]:
