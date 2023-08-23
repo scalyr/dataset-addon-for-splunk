@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 
+import pytest
 from dataset_common import normalize_time, relative_to_epoch
 
 
@@ -25,11 +26,5 @@ def test_relative_to_epoch_produces_timestamp_with_4h_prior_now():
 
 
 def test_relative_to_epoch_does_not_support_combination():
-    try:
+    with pytest.raises(ValueError):
         relative_to_epoch("4h30m")
-        raise AssertionError
-    except ValueError:
-        print("Caught the correct exception")
-    except Exception:
-        print("Caught the wrong exception")
-        raise AssertionError
