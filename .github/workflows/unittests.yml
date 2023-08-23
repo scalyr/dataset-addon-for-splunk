@@ -21,5 +21,4 @@ jobs:
         make dev-install-dependencies-lib
         make dev-install-dependencies-for-development
     - name: Run unit tests
-      run: |
-        make test
+      run: make test
