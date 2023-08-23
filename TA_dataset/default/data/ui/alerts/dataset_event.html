@@ -1,4 +1,56 @@
 <form class="form-horizontal form-complex">
-    <h1>Custom Dataset alert action UI configuration</h1>
-    <p>TODO</p>
+    <div class="control-group">
+        <label class="control-label">Select Account <span class="required">*</span> </label>
+        <div class="controls">
+            <splunk-search-dropdown name="action.dataset_event.param.account"
+                                    search="| rest servicesNS/nobody/TA_dataset/admin/TA_dataset_account splunk_server=local | dedup title"
+                                    value-field="title" label-field="title">
+            </splunk-search-dropdown>
+            <span class="help-block">Select the DataSet Account</span>
+        </div>
+    </div>
+    <br clear="both"/>
+    <div class="control-group">
+        <label class="control-label" for="dataset_event_dataset_serverhost">ServerHost <span class="required">*</span>
+        </label>
+
+        <div class="controls">
+            <input type="text" name="action.dataset_event.param.dataset_serverhost"
+                   id="dataset_event_dataset_serverhost" placeholder="splunk"/>
+            <span class="help-block">DataSet serverHost value.</span>
+        </div>
+    </div>
+    <br clear="both"/>
+    <div class="control-group">
+        <label class="control-label" for="dataset_event_dataset_message">DataSet Message</label>
+
+        <div class="controls">
+            <input type="text" name="action.dataset_event.param.dataset_message" id="dataset_event_dataset_message"
+                   placeholder="$name$"/>
+            <span class="help-block">   DataSet message body</span>
+        </div>
+    </div>
+    <br clear="both"/>
+    <div class="control-group">
+        <label class="control-label" for="dataset_event_dataset_severity">Severity <span class="required">*</span>
+        </label>
+
+        <div class="controls">
+            <input type="text" name="action.dataset_event.param.dataset_severity" id="dataset_event_dataset_severity"
+                   placeholder="3"/>
+            <span class="help-block">DataSet Severity (1 - 6)</span>
+        </div>
+    </div>
+    <br clear="both"/>
+    <div class="control-group">
+        <label class="control-label" for="dataset_event_dataset_parser">Parser <span class="required">*</span>
+        </label>
+
+        <div class="controls">
+            <input type="text" name="action.dataset_event.param.dataset_parser" id="dataset_event_dataset_parser"
+                   placeholder="splunk" value="splunk"/>
+            <span class="help-block">DataSet parser</span>
+        </div>
+    </div>
+    <br clear="both"/>
 </form>
