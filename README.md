@@ -192,3 +192,12 @@ Splunk is a trademark or registered trademark of Splunk Inc. in the United State
 ## Security
 
 For information on how to report security vulnerabilities, please see [SECURITY.md](SECURITY.md).
+
+## Copyright, License, and Contributors Agreement
+
+Copyright 2023 SentinelOne, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this work except in
+compliance with the License. You may obtain a copy of the License in the [LICENSE](LICENSE.txt) file, or at:
+
+[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
