@@ -188,3 +188,16 @@ If Splunk events all show the same time, ensure results are returning a `timesta
 ##### Note
 This add-on was built with the [Splunk Add-on UCC framework](https://splunk.github.io/addonfactory-ucc-generator/) and uses the [Splunk Enterprise Python SDK](https://github.com/splunk/splunk-sdk-python).
 Splunk is a trademark or registered trademark of Splunk Inc. in the United States and other countries.
+
+## Security
+
+For information on how to report security vulnerabilities, please see [SECURITY.md](SECURITY.md).
+
+## Copyright, License, and Contributors Agreement
+
+Copyright 2023 SentinelOne, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this work except in
+compliance with the License. You may obtain a copy of the License in the [LICENSE](LICENSE.txt) file, or at:
+
+[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
