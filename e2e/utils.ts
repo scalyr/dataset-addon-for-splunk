@@ -1,5 +1,12 @@
 import { Locator, Page } from '@playwright/test';
 import { test, expect } from '@playwright/test';
+import {setTimeout} from "timers/promises";
+
+export async function goToDataSetSearchPage(page: Page) {
+    await page.goto('/');
+    await goToDataSet(page);
+    await goToSearch(page);
+}
 
 export async function goToDataSet(page: Page) {
     console.log("Go to DataSet page")
@@ -61,6 +68,17 @@ export async function goToSearch(page: Page) {
     await expect(page).toHaveTitle(/Search/);
 
     await expectWithoutErrors(page);
+}
+
+export async function dataSetSearch(page: Page, query: string) {
+    await goToDataSetSearchPage(page);
+    console.log(`Search for: ${query}`);
+    await page.getByRole('textbox', {name: 'Search'}).fill(query);
+    await page.getByLabel("Search Button").click();
+
+    await page.screenshot({path: `playwright-screenshots/page-search-query-${query2file(query)}.png`, fullPage: true});
+    await setTimeout(3000);
+    await expect(page.getByText("sourcetype").first()).toBeVisible();
 }
 
 export async function waitForData(page: Page, key: string) {

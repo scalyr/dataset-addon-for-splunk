@@ -1,22 +1,19 @@
 import { test, expect, Page } from '@playwright/test';
-import { goToDataSet, goToSearch, waitForData, query2file } from './utils';
+import {waitForData, query2file, dataSetSearch, goToDataSetSearchPage} from './utils';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
-
-  await goToDataSet(page);
-  await goToSearch(page);
+  await goToDataSetSearchPage(page);
 });
 
 
 test('Simple search - dataset', async ({ page }) => {
-  await searchFor(page, "| dataset");
+  await dataSetSearch(page, "| dataset");
 
   await page.screenshot({ path: 'playwright-screenshots/page-search-simple-search-dataset.png', fullPage: true });
 });
 
 test('Simple search - s1query', async ({ page }) => {
-  await searchFor(page, "| s1query");
+  await dataSetSearch(page, "| s1query");
 
   await page.screenshot({ path: 'playwright-screenshots/page-search-simple-search-s1query.png', fullPage: true });
 });
