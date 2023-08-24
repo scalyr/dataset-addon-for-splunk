@@ -30,10 +30,8 @@ async function saveAsAlertWithDataSetTrigger(page: Page, alertName: string, serv
     await page.getByText("Send to DataSet").click();
     await page.screenshot({path: `playwright-screenshots/page-alert-dialog-dataset-trigger.png`, fullPage: true});
     await expect(page.getByLabel(`ServerHost`)).toBeVisible();
-    await expect(page.getByLabel(`ServerHost`)).toBeVisible();
     await expect(page.getByLabel(`DataSet Message`)).toBeVisible();
     await expect(page.getByLabel(`Severity`)).toBeVisible();
-    await expect(page.getByLabel(`ServerHost`)).toBeVisible();
 
     console.log("Fill in Alert Dialog - trigger DataSet event");
     await setTimeout(500); // wait for select option to be populated
