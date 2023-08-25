@@ -11,8 +11,8 @@ test('Verify SDL addon is deployed properly', async ({page}) => {
     console.log("Go to DataSet page")
     await sdlAddonLink.click();
     await page.screenshot({ path: 'playwright-screenshots/dataset-addon-home.png', fullPage: true });
-    await expect(page.getByLabel('Inputs')).toHaveCount(1);
-    await expect(page.getByLabel('Configuration')).toHaveCount(1);
-    await expect(page.getByLabel('DataSet by Example')).toHaveCount(1);
-    await expect(page.getByLabel('Search')).toHaveCount(1);
+    await expect(page.getByRole('link', {name: 'Input'})).toHaveCount(1);
+    await expect(page.getByRole('link', {name: 'Configuration'})).toHaveCount(1);
+    await expect(page.getByRole('link', {name: 'DataSet by Example'})).toHaveCount(1);
+    await expect(page.getByRole('link', {name: 'Search'})).toHaveCount(1);
 });
