@@ -1,11 +1,8 @@
 import { test, expect, Page } from '@playwright/test';
-import { goToDataSet, goToInputs, waitForData, query2file, checkRowExists } from './utils';
+import { goToDataSetInputsPage, query2file, checkRowExists } from './utils';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
-
-  await goToDataSet(page);
-  await goToInputs(page);
+  await goToDataSetInputsPage(page);
   await clearInputs(page);
 });
 

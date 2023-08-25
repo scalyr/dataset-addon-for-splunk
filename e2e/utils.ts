@@ -3,21 +3,22 @@ import { test, expect } from '@playwright/test';
 import {setTimeout} from "timers/promises";
 
 export async function goToDataSetSearchPage(page: Page) {
-    await page.goto('/');
-    await goToDataSet(page);
-    await goToSearch(page);
+    console.log("Go to DataSet search page")
+    await page.goto('/en-GB/app/TA_dataset/search');
+    await expect(page).toHaveTitle(/Search/);
+    await expectWithoutErrors(page);
 }
 
-export async function goToDataSet(page: Page) {
+export async function goToDataSetPage(page: Page) {
     console.log("Go to DataSet page")
-    await page.getByLabel('Navigate to Security Data Lake Add-On for Splunk app').click()
+    await page.goto('/en-GB/app/TA_dataset');
     await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
 }
 
-export async function goToInputs(page: Page) {
-    console.log("Go to inputs page");
+export async function goToDataSetInputsPage(page: Page) {
+    console.log("Go to DataSet inputs page");
 
-    await page.getByRole('link', { name: "Inputs" }).click();
+    await page.goto('/en-GB/app/TA_dataset/inputs');
     const respQueryPromise = page.waitForResponse('**/TA_dataset_dataset_query*');
     const respPowerqueryPromise = page.waitForResponse('**/TA_dataset_dataset_powerquery*');
     const respAlertsPromise = page.waitForResponse('**/TA_dataset_dataset_alerts*');
@@ -34,10 +35,10 @@ export async function goToInputs(page: Page) {
     await expectWithoutErrors(page);
 }
 
-export async function goToConfiguration(page: Page) {
-    console.log("Go to configuration page");
+export async function goToDataSetConfigurationPage(page: Page) {
+    console.log("Go to DataSet configuration page");
 
-    await page.getByRole('link', { name: "Configuration" }).click();
+    await page.goto('/en-GB/app/TA_dataset/configuration');
     const respAccountPromise = page.waitForResponse('**/TA_dataset_account*');
 
     await page.screenshot({ path: 'playwright-screenshots/page-configuration.png', fullPage: true });

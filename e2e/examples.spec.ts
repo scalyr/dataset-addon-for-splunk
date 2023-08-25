@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { goToDataSet, goToExamples, waitForData } from './utils';
+import { goToDataSetPage, goToExamples, waitForData } from './utils';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
 
-  await goToDataSet(page);
+  await goToDataSetPage(page);
   await goToExamples(page);
 });
 
