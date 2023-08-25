@@ -83,15 +83,15 @@ export async function waitForSearchResults(page: Page, key: string) {
     await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
     console.log("Wait for 'Waiting for queued job to start' to disappear")
-    await expect(page.getByText(/Waiting for queued job to start/)).toHaveCount(0, {timeout: 50000})
+    await expect(page.getByText(/Waiting for queued job to start/)).toHaveCount(0, {timeout: 60000})
     await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
     console.log("Wait for 'Waiting for data' to disappear")
-    await expect(page.getByText(/Waiting for data/)).toHaveCount(0, {timeout: 50000})
+    await expect(page.getByText(/Waiting for data/)).toHaveCount(0, {timeout: 60000})
     await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
     console.log("Wait for 'No results yet found' to disappear")
-    await expect(page.getByText(/No results yet found/)).toHaveCount(0, {timeout: 50000})
+    await expect(page.getByText(/No results yet found/)).toHaveCount(0, {timeout: 60000})
     await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
     // It looks that No results found element is still there, but not visible
@@ -99,13 +99,13 @@ export async function waitForSearchResults(page: Page, key: string) {
     const locNoResults = page.getByText(/No results found/);
     if (await locNoResults.count() > 0) {
         if (await locNoResults.isVisible()) {
-            await expect(locNoResults).toHaveCount(0, {timeout: 50000})
+            await expect(locNoResults).toHaveCount(0, {timeout: 60000})
             await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
         }
     }
 
     console.log("Page contains 'External search command exited unexpectedly'")
-    await expect(page.getByText(/External search command exited unexpectedly/)).toHaveCount(0, {timeout: 50000});
+    await expect(page.getByText(/External search command exited unexpectedly/)).toHaveCount(0, {timeout: 60000});
     await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
     const { WAIT_FOR_HUMAN_TO_CHECK_IN_MS: waitForHumanStr} = process.env

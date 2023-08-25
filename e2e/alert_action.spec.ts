@@ -9,6 +9,11 @@ test('Alert action - create and delete alert with results propagation to DataSet
 
     await searchDataSet(page, "| dataset");
     await saveAsAlertWithDataSetTrigger(page, alertName, serverHost);
+
+    // verify splunk alert results in DataSet
+    await searchDataSet(page, "| dataset search=\"serverHost='" + serverHost + "' '" + alertName + "'\"");
+    await page.screenshot({path: `playwright-screenshots/page-search-query-splunk-alert-results-from_dataset.png`, fullPage: true});
+
     await removeAlertIfExists(page, alertName);
 });
 
