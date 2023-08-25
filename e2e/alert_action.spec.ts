@@ -45,10 +45,8 @@ async function saveAsAlertWithDataSetTrigger(page: Page, alertName: string, serv
 }
 
 async function removeAlertIfExists(page: Page, alertName: string) {
-    await page.goto('/');
-    console.log("View Alerts")
-    await page.getByRole('button', {name: 'Settings'}).click();
-    await page.getByRole('menuitem', {name: 'Searches, reports, and alerts'}).click();
+    console.log("View Alerts");
+    await page.goto('/en-GB/app/TA_dataset/saved/searches');
     await page.screenshot({path: `playwright-screenshots/page-alerts-list.png`, fullPage: true});
 
     const alertRow = page.getByRole("row").filter({hasText: alertName})
