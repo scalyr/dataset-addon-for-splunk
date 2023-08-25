@@ -1,6 +1,6 @@
 import { join as pjoin } from 'path';
 import { test as setup, expect } from '@playwright/test';
-import { goToDataSet, goToConfiguration } from './utils';
+import { goToDataSetPage, goToDataSetConfigurationPage } from './utils';
 
 export const STORAGE_STATE = pjoin(__dirname, '.auth.json');
 
@@ -41,11 +41,11 @@ setup('login and create account', async ({ page }) => {
 
   await page.screenshot({ path: 'playwright-screenshots/page-after-login-after-pop-up.png', fullPage: true });
 
-  await goToDataSet(page);
+  await goToDataSetPage(page);
 
   await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
 
-  await goToConfiguration(page);
+  await goToDataSetConfigurationPage(page);
 
   const accountCount = await page.getByRole("main").getByRole("row").getByText(/E2E_T/).count();
   console.log("Number of accounts: ", accountCount);

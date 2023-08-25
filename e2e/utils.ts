@@ -3,21 +3,22 @@ import { test, expect } from '@playwright/test';
 import {setTimeout} from "timers/promises";
 
 export async function goToDataSetSearchPage(page: Page) {
-    await page.goto('/');
-    await goToDataSet(page);
-    await goToSearch(page);
+    console.log("Go to DataSet search page")
+    await page.goto('/app/TA_dataset/search');
+    await expect(page).toHaveTitle(/Search/);
+    await expectWithoutErrors(page);
 }
 
-export async function goToDataSet(page: Page) {
+export async function goToDataSetPage(page: Page) {
     console.log("Go to DataSet page")
-    await page.getByLabel('Navigate to Security Data Lake Add-On for Splunk app').click()
+    await page.goto('/app/TA_dataset');
     await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
 }
 
-export async function goToInputs(page: Page) {
-    console.log("Go to inputs page");
+export async function goToDataSetInputsPage(page: Page) {
+    console.log("Go to DataSet inputs page");
 
-    await page.getByRole('link', { name: "Inputs" }).click();
+    await page.goto('/app/TA_dataset/inputs');
     const respQueryPromise = page.waitForResponse('**/TA_dataset_dataset_query*');
     const respPowerqueryPromise = page.waitForResponse('**/TA_dataset_dataset_powerquery*');
     const respAlertsPromise = page.waitForResponse('**/TA_dataset_dataset_alerts*');
@@ -34,10 +35,10 @@ export async function goToInputs(page: Page) {
     await expectWithoutErrors(page);
 }
 
-export async function goToConfiguration(page: Page) {
-    console.log("Go to configuration page");
+export async function goToDataSetConfigurationPage(page: Page) {
+    console.log("Go to DataSet configuration page");
 
-    await page.getByRole('link', { name: "Configuration" }).click();
+    await page.goto('/app/TA_dataset/configuration');
     const respAccountPromise = page.waitForResponse('**/TA_dataset_account*');
 
     await page.screenshot({ path: 'playwright-screenshots/page-configuration.png', fullPage: true });
@@ -52,8 +53,9 @@ export async function goToConfiguration(page: Page) {
     await expectWithoutErrors(page);
 }
 
-export async function goToExamples(page: Page) {
-    console.log("Go to example page");
+export async function goToDataSetExamplesPage(page: Page) {
+    console.log("Go to DataSet example page");
+    await page.goto('/app/TA_dataset/dataset_by_example');
     await page.getByRole('link', { name: "DataSet by Example" }).click();
 
     await expect(page).toHaveTitle(/DataSet by Example/);
@@ -61,27 +63,19 @@ export async function goToExamples(page: Page) {
     await expectWithoutErrors(page);
 }
 
-export async function goToSearch(page: Page) {
-    console.log("Go to search page");
-    await page.getByRole('link', { name: 'Search' }).click();
-
-    await expect(page).toHaveTitle(/Search/);
-
-    await expectWithoutErrors(page);
-}
-
-export async function dataSetSearch(page: Page, query: string) {
+export async function searchDataSet(page: Page, query: string) {
     await goToDataSetSearchPage(page);
-    console.log(`Search for: ${query}`);
+    console.log(`Search in DataSet for: ${query}`);
     await page.getByRole('textbox', {name: 'Search'}).fill(query);
     await page.getByLabel("Search Button").click();
 
-    await page.screenshot({path: `playwright-screenshots/page-search-query-${query2file(query)}.png`, fullPage: true});
-    await setTimeout(3000);
+    const queryScreenshotKey = query2file(query);
+    await page.screenshot({path: `playwright-screenshots/page-search-query-${queryScreenshotKey}.png`, fullPage: true});
+    await waitForSearchResults(page, queryScreenshotKey)
     await expect(page.getByText("sourcetype").first()).toBeVisible();
 }
 
-export async function waitForData(page: Page, key: string) {
+export async function waitForSearchResults(page: Page, key: string) {
     await page.waitForTimeout(5000);
 
     let pic = 0
