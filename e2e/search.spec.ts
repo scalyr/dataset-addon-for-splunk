@@ -1,10 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import {waitForData, query2file, searchDataSet, goToDataSetSearchPage} from './utils';
-
-test.beforeEach(async ({ page }) => {
-  await goToDataSetSearchPage(page);
-});
-
+import {waitForData, query2file, searchDataSet} from './utils';
 
 test('Simple search - dataset', async ({ page }) => {
   await searchDataSet(page, "| dataset");
