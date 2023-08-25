@@ -69,12 +69,13 @@ export async function searchDataSet(page: Page, query: string) {
     await page.getByRole('textbox', {name: 'Search'}).fill(query);
     await page.getByLabel("Search Button").click();
 
-    await page.screenshot({path: `playwright-screenshots/page-search-query-${query2file(query)}.png`, fullPage: true});
-    await setTimeout(3000);
+    const queryScreenshotKey = query2file(query);
+    await page.screenshot({path: `playwright-screenshots/page-search-query-${queryScreenshotKey}.png`, fullPage: true});
+    await waitForSearchResults(page, queryScreenshotKey)
     await expect(page.getByText("sourcetype").first()).toBeVisible();
 }
 
-export async function waitForData(page: Page, key: string) {
+export async function waitForSearchResults(page: Page, key: string) {
     await page.waitForTimeout(5000);
 
     let pic = 0
