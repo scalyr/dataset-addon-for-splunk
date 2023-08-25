@@ -63,15 +63,6 @@ export async function goToDataSetExamplesPage(page: Page) {
     await expectWithoutErrors(page);
 }
 
-export async function goToSearch(page: Page) {
-    console.log("Go to search page");
-    await page.getByRole('link', { name: 'Search' }).click();
-
-    await expect(page).toHaveTitle(/Search/);
-
-    await expectWithoutErrors(page);
-}
-
 export async function searchDataSet(page: Page, query: string) {
     await goToDataSetSearchPage(page);
     console.log(`Search in DataSet for: ${query}`);
