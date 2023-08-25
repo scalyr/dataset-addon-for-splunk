@@ -70,9 +70,9 @@ export async function goToSearch(page: Page) {
     await expectWithoutErrors(page);
 }
 
-export async function dataSetSearch(page: Page, query: string) {
+export async function searchDataSet(page: Page, query: string) {
     await goToDataSetSearchPage(page);
-    console.log(`Search for: ${query}`);
+    console.log(`Search in DataSet for: ${query}`);
     await page.getByRole('textbox', {name: 'Search'}).fill(query);
     await page.getByLabel("Search Button").click();
 

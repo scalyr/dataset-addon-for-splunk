@@ -37,7 +37,7 @@ test('New Input - DataSet Query', async ({ page }) => {
 
   await goToSplunkSearch(page);
 
-  await searchFor(page, `source="dataset_query://${queryName}"`)
+  await searchSplunk(page, `source="dataset_query://${queryName}"`)
 });
 
 test('New Input - DataSet PowerQuery', async ({ page }) => {
@@ -64,7 +64,7 @@ test('New Input - DataSet PowerQuery', async ({ page }) => {
 
   await goToSplunkSearch(page);
 
-  await searchFor(page, `source="dataset_powerquery://${queryName}"`)
+  await searchSplunk(page, `source="dataset_powerquery://${queryName}"`)
 });
 
 test('New Input - DataSet Alerts', async ({ page }) => {
@@ -89,7 +89,7 @@ test('New Input - DataSet Alerts', async ({ page }) => {
 
   await goToSplunkSearch(page);
 
-  await searchFor(page, `source="dataset_alerts://${queryName}"`)
+  await searchSplunk(page, `source="dataset_alerts://${queryName}"`)
 });
 
 async function clearInputs(page: Page) {
@@ -146,8 +146,8 @@ async function confirmDialog(page: Page) {
   await locAddConfirm.click();
 }
 
-async function searchFor(page: Page, query: string) {
-  console.log(`Search for: ${query}`);
+async function searchSplunk(page: Page, query: string) {
+  console.log(`Search in Splunk for: ${query}`);
   await page.getByRole('textbox', { name: 'Search' }).fill(query);
   await page.getByLabel("Search Button").click();
 

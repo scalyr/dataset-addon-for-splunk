@@ -1,5 +1,5 @@
 import {test, expect, Page} from '@playwright/test';
-import {dataSetSearch} from './utils';
+import {searchDataSet} from './utils';
 import {setTimeout} from 'timers/promises';
 
 test('Alert action - create and delete alert with results propagation to DataSet', async ({page}) => {
@@ -7,7 +7,7 @@ test('Alert action - create and delete alert with results propagation to DataSet
     const alertName = 'test_alert';
     await removeAlertIfExists(page, alertName);
 
-    await dataSetSearch(page, "| dataset");
+    await searchDataSet(page, "| dataset");
     await saveAsAlertWithDataSetTrigger(page, alertName, serverHost);
     await removeAlertIfExists(page, alertName);
 });
