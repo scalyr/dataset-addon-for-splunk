@@ -1,15 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { goToDataSetPage, goToExamples, waitForData } from './utils';
-
-test.beforeEach(async ({ page }) => {
-  await page.goto('/');
-
-  await goToDataSetPage(page);
-  await goToExamples(page);
-});
-
+import { goToDataSetExamplesPage, waitForData } from './utils';
 
 test('Check example page', async ({ page }) => {
+  await goToDataSetExamplesPage(page);
   // wait for elements to load
   await expect(page.getByRole("main").getByText("4. Timeseries Query: This will calculate numeric values over time.")).toHaveCount(1)
 
