@@ -3,6 +3,7 @@ import {searchDataSet} from './utils';
 import {setTimeout} from 'timers/promises';
 
 test('Alert action - create and delete alert with results propagation to DataSet', async ({page}) => {
+    test.setTimeout(120000); //default 60s may timeout jin job are scheduler for every 60s
     const serverHost = 'dataset_addon_for_splunk_playwright_CI_CD_e2e_test_host';
     const alertName = 'test_alert_'+ Math.random().toString(36).substring(2,7);
     await removeAlertIfExists(page, alertName);
