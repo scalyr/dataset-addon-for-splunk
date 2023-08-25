@@ -4,7 +4,7 @@ import {setTimeout} from 'timers/promises';
 
 test('Alert action - create and delete alert with results propagation to DataSet', async ({page}) => {
     const serverHost = 'host_splunk';
-    const alertName = 'test_alert';
+    const alertName = 'test_alert_'+ Math.random().toString(36).substring(2,7);
     await removeAlertIfExists(page, alertName);
 
     await searchDataSet(page, "| dataset");
