@@ -3,7 +3,7 @@ import {searchDataSet} from './utils';
 import {setTimeout} from 'timers/promises';
 
 test('Alert action - create and delete alert with results propagation to DataSet', async ({page}) => {
-    const serverHost = 'host_splunk';
+    const serverHost = 'dataset_addon_for_splunk_playwright_CI_CD_e2e_test_host';
     const alertName = 'test_alert_'+ Math.random().toString(36).substring(2,7);
     await removeAlertIfExists(page, alertName);
 
@@ -11,6 +11,7 @@ test('Alert action - create and delete alert with results propagation to DataSet
     await saveAsAlertWithDataSetTrigger(page, alertName, serverHost);
 
     // verify splunk alert results in DataSet
+    await setTimeout(60000); // wait for alert job to be triggered (cron job every 1 minute)
     await searchDataSet(page, "| dataset search=\"serverHost='" + serverHost + "' '" + alertName + "'\"");
     await page.screenshot({path: `playwright-screenshots/page-search-query-splunk-alert-results-from_dataset.png`, fullPage: true});
 
