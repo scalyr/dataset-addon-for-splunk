@@ -4,21 +4,21 @@ import {setTimeout} from "timers/promises";
 
 export async function goToDataSetSearchPage(page: Page) {
     console.log("Go to DataSet search page")
-    await page.goto('/en-GB/app/TA_dataset/search');
+    await page.goto('/en-US/app/TA_dataset/search');
     await expect(page).toHaveTitle(/Search/);
     await expectWithoutErrors(page);
 }
 
 export async function goToDataSetPage(page: Page) {
     console.log("Go to DataSet page")
-    await page.goto('/en-GB/app/TA_dataset');
+    await page.goto('/en-US/app/TA_dataset');
     await page.screenshot({ path: 'playwright-screenshots/page-home.png', fullPage: true });
 }
 
 export async function goToDataSetInputsPage(page: Page) {
     console.log("Go to DataSet inputs page");
 
-    await page.goto('/en-GB/app/TA_dataset/inputs');
+    await page.goto('/en-US/app/TA_dataset/inputs');
     const respQueryPromise = page.waitForResponse('**/TA_dataset_dataset_query*');
     const respPowerqueryPromise = page.waitForResponse('**/TA_dataset_dataset_powerquery*');
     const respAlertsPromise = page.waitForResponse('**/TA_dataset_dataset_alerts*');
@@ -38,7 +38,7 @@ export async function goToDataSetInputsPage(page: Page) {
 export async function goToDataSetConfigurationPage(page: Page) {
     console.log("Go to DataSet configuration page");
 
-    await page.goto('/en-GB/app/TA_dataset/configuration');
+    await page.goto('/en-US/app/TA_dataset/configuration');
     const respAccountPromise = page.waitForResponse('**/TA_dataset_account*');
 
     await page.screenshot({ path: 'playwright-screenshots/page-configuration.png', fullPage: true });
@@ -55,7 +55,7 @@ export async function goToDataSetConfigurationPage(page: Page) {
 
 export async function goToDataSetExamplesPage(page: Page) {
     console.log("Go to DataSet example page");
-    await page.goto('/en-GB/app/TA_dataset/dataset_by_example');
+    await page.goto('/en-US/app/TA_dataset/dataset_by_example');
     await page.getByRole('link', { name: "DataSet by Example" }).click();
 
     await expect(page).toHaveTitle(/DataSet by Example/);
