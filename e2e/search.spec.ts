@@ -1,5 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
-import {waitForData, query2file, searchDataSet} from './utils';
+import {test, expect} from '@playwright/test';
+import {searchDataSet} from './utils';
 
 test('Simple search - dataset', async ({ page }) => {
   await searchDataSet(page, "| dataset maxcount=5");
@@ -12,21 +12,3 @@ test('Simple search - s1query', async ({ page }) => {
   await page.screenshot({ path: 'playwright-screenshots/page-search-simple-search-s1query.png', fullPage: true });
   await expect(page.getByText(`Events (5)`)).toHaveCount(1);
 });
-
-async function searchFor(page: Page, query: string, maxCount: number | undefined = undefined) {
-  if (maxCount === undefined) {
-    maxCount = Math.ceil(1000 * Math.random()) % 10 + 5;
-  }
-
-  const finalQuery = `${query} maxcount=${maxCount}`
-
-  console.log(`Searching for '${finalQuery}', original was: ${query}`);
-
-  await page.getByRole('textbox', { name: 'Search' }).fill(finalQuery);
-
-  await page.getByLabel("Search Button").click();
-
-  await waitForData(page, query2file(query))
-
-  await expect(page.getByText(`Events (${maxCount})`)).toHaveCount(1);
-}
