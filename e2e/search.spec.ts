@@ -2,15 +2,15 @@ import { test, expect, Page } from '@playwright/test';
 import {waitForData, query2file, searchDataSet} from './utils';
 
 test('Simple search - dataset', async ({ page }) => {
-  await searchDataSet(page, "| dataset");
-
+  await searchDataSet(page, "| dataset maxcount=5");
   await page.screenshot({ path: 'playwright-screenshots/page-search-simple-search-dataset.png', fullPage: true });
+  await expect(page.getByText(`Events (5)`)).toHaveCount(1);
 });
 
 test('Simple search - s1query', async ({ page }) => {
-  await searchDataSet(page, "| s1query");
-
+  await searchDataSet(page, "| s1query maxcount=5");
   await page.screenshot({ path: 'playwright-screenshots/page-search-simple-search-s1query.png', fullPage: true });
+  await expect(page.getByText(`Events (5)`)).toHaveCount(1);
 });
 
 async function searchFor(page: Page, query: string, maxCount: number | undefined = undefined) {
