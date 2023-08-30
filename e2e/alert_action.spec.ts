@@ -12,9 +12,11 @@ test('Alert action - create and delete alert with results propagation to DataSet
     await searchDataSet(page, "| dataset");
     await saveAsAlertWithDataSetTrigger(page, alertName, serverHost);
     // AND wait for alert job to be triggered (cron job every 1 minute)
-    for (let i=0; i<=60; i=i+5) {
-        console.log("Waiting for splunk Job ("+i+"/60s)")
-        await setTimeout(5000);
+    const waitTotalS = 60;
+    const waitStepS = 5;
+    for (let i = 0; i <= waitTotalS; i = i + waitStepS) {
+        console.log(`Waiting for splunk Job (${i}/${waitTotalS})`)
+        await setTimeout(waitStepS * 1000);
     }
     // THEN verify splunk alert results in DataSet
     await searchDataSet(page, "| dataset search=\"serverHost='" + serverHost + "' '" + alertName + "'\"");
