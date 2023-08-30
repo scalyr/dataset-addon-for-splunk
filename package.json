@@ -6,7 +6,7 @@
   "scripts": {
     "playwright": "playwright test",
     "playwright:ui": "playwright test --ui",
-    "playwright:headed": "playwright test --headed",
+    "playwright:headed": "playwright test --headed --workers 1",
     "playwright:install-browsers": "playwright install chromium --with-deps"
   },
   "keywords": [],
