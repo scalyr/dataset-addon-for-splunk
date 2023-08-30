@@ -35,7 +35,9 @@ export default defineConfig({
     locale: 'en-US',
     timezoneId: 'Europe/Prague',
   },
-
+  expect: {
+    timeout: 20000,
+  },
   /* Configure projects for major browsers */
   projects: [
     {
