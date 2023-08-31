@@ -2,7 +2,7 @@
   "meta": {
     "name": "TA_dataset",
     "displayName": "Security Data Lake Add-On for Splunk",
-    "version": "2.0.38-SNAPSHOT",
+    "version": "2.0.39-SNAPSHOT",
     "restRoot": "TA_dataset",
     "schemaVersion": "0.0.3"
   },
