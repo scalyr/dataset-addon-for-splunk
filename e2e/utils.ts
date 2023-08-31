@@ -91,12 +91,12 @@ export async function waitForSearchResults(page: Page, key: string) {
     await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
     console.log("Wait for 'No results yet found' to disappear")
-    await expect(page.getByText(/No results yet found/)).toHaveCount(0, {timeout: 50000})
+    await expect(page.getByText(/No results yet found/, { exact: true })).toHaveCount(0, {timeout: 50000})
     await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });
 
     // It looks that No results found element is still there, but not visible
     console.log("Wait for 'No results found' to disappear");
-    const locNoResults = page.getByText(/No results found/);
+    const locNoResults = page.getByText('No results found.', { exact: true });
     if (await locNoResults.count() > 0) {
         if (await locNoResults.isVisible()) {
             await expect(locNoResults).toHaveCount(0, {timeout: 50000})
