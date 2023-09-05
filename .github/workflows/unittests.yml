@@ -8,7 +8,7 @@ jobs:
   UnitTest:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # install python stuff
     - name: Setup python

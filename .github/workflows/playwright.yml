@@ -11,7 +11,7 @@ jobs:
     # fow now, skip it
     # if: false
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # install python stuff
     - name: Setup python
