@@ -1,13 +1,13 @@
 #  Security Data Lake Add-On for Splunk
-The Security Data Lake Add-On for Splunk provides integration with [DataSet](https://www.dataset.com) and [XDR](https://www.sentinelone.com/platform/xdr-ingestion) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
+The Security Data Lake Add-On for Splunk provides integration with [Security DataLake](https://www.sentinelone.com/platform/xdr-ingestion/) and [DataSet](https://www.dataset.com) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
 - SPL custom command to query directly from the Splunk UI.
 - Inputs to index alerts as CIM-compliant, or any user-defined query results.
 - Alert action to send events from Splunk.
 
 ## Installation
-The add-on can be installed from [Splunkbase](https://splunkbase.splunk.com/app/6575) or manually via the .tgz file. For those looking to customize, the package subdirectory contains all artifacts. To compile, reference Splunk's [UCC Framework instructions](https://splunk.github.io/addonfactory-ucc-generator/how_to_use/) to use `ucc-gen` and `slim package`.
+The add-on can be installed manually via the .tgz file in the [release directory](/release). Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons). For Splunk Cloud customers, reference Splunk documentation for private app installation on [Classic Experience](https://docs.splunk.com/Documentation/SplunkCloud/latest/Admin/PrivateApps#Install_private_apps_on_Splunk_Cloud_Platform) or [Victoria Experience](https://docs.splunk.com/Documentation/SplunkCloud/latest/Admin/PrivateApps#Install_a_private_app_on_Classic_Experience).
 
-Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons).
+For those looking to customize, the package subdirectory contains all artifacts. To compile, reference Splunk's [UCC Framework instructions](https://splunk.github.io/addonfactory-ucc-generator/how_to_use/) to use `ucc-gen` and `slim package`.
 
 ## Splunk Permission Requirements
 The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_objects` to create secret storage objects and users require `list_storage_passwords` capability to retrieve secrets.
@@ -27,7 +27,7 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 | Inputs Data Manager | Optional | For Splunk Cloud Classic Experience, if the modular inputs are used, this add-on is installed on an IDM. |
 
 ## Configuration
-### XDR
+### Security DataLake
 1. From the SentinelOne console, ensure Enhanced Deep Visibility is enabled by clicking your name > My User > Change Deep Visibility Mode > Enhanced.
 
 ![Setting Enhanced Deep Visibility](README_images/setup_enhanced_dv.png)
@@ -35,8 +35,8 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 2. Open Enhanced Deep Visibility.
 3. Continue following the DataSet instructions below.
 
-### Dataset (and XDR continued)
-1. Make note of the URL (e.g. `https://app.scalyr.com` or `https://xdr.us1.sentinelone.net`). For XDR users, note this differs from the core SentinelOne console URL.
+### Dataset (and Security DataLake continued)
+1. Make note of the URL (e.g. `https://app.scalyr.com` or `https://xdr.us1.sentinelone.net`). For SentinelOne users, note this differs from the core SentinelOne console URL.
 2. Navigate to API Keys.
 
 ![Creating DataSet API keys](README_images/dataset_key.png)
