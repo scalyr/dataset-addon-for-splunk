@@ -1,5 +1,5 @@
 #  Security Data Lake Add-On for Splunk
-The Security Data Lake Add-On for Splunk provides integration with [Security DataLake](https://www.sentinelone.com/platform/xdr-ingestion/) and [DataSet](https://www.dataset.com) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
+The Security Data Lake Add-On for Splunk provides integration with [Singularity DataLake](https://www.sentinelone.com/platform/xdr-ingestion/) and [DataSet](https://www.dataset.com) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
 - SPL custom command to query directly from the Splunk UI.
 - Inputs to index alerts as CIM-compliant, or any user-defined query results.
 - Alert action to send events from Splunk.
@@ -27,7 +27,7 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 | Inputs Data Manager | Optional | For Splunk Cloud Classic Experience, if the modular inputs are used, this add-on is installed on an IDM. |
 
 ## Configuration
-### Security DataLake
+### Singularity DataLake
 1. From the SentinelOne console, ensure Enhanced Deep Visibility is enabled by clicking your name > My User > Change Deep Visibility Mode > Enhanced.
 
 ![Setting Enhanced Deep Visibility](README_images/setup_enhanced_dv.png)
@@ -35,7 +35,7 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 2. Open Enhanced Deep Visibility.
 3. Continue following the DataSet instructions below.
 
-### Dataset (and Security DataLake continued)
+### Dataset (and Singularity DataLake continued)
 1. Make note of the URL (e.g. `https://app.scalyr.com` or `https://xdr.us1.sentinelone.net`). For SentinelOne users, note this differs from the core SentinelOne console URL.
 2. Navigate to API Keys.
 
