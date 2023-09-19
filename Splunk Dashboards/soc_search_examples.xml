@@ -32,10 +32,6 @@
           <earliest>-15m</earliest>
           <latest>now</latest>
         </search>
-        <option name="drilldown">cell</option>
-        <drilldown>
-          <link target="_blank">https://xdr.us1.sentinelone.net/query?filter=src.process.user+%3D+*+%28net_ipsubnet%28dst.ip.address%2C+%27172.0.0.0%2F16%27%29+OR+net_ipsubnet%28dst.ip.address%2C+%2710.0.0.0%2F8%27%29%29+NOT+%28net_ipsubnet%28src.ip.address%2C+%2710.0.0.0%2F24%27%29%29%0A%7C+group+uniqueDestinations+%3D+estimate_distinct%28dst.ip.address%29%2C+uniquePorts+%3D+estimate_distinct%28dst.port.number%29%2C+fullPortList+%3D+array_sort%28array_agg_distinct%28dst.port.number%29%29%2C+dstList+%3D+array_sort%28array_agg_distinct%28dst.ip.address%29%29+by+src.ip.address%2C+src.process.user%0A%7C+filter+%28uniqueDestinations+%3E+1%29+AND+%28uniquePorts+%3E+1%29%0A%7C+let+topPortList+%3D+array_slice%28fullPortList%2C+0%2C+20%29%0A%7C+columns+src.ip.address%2C+src.process.user%2C+uniqueDestinations%2C+uniquePorts%2C+dstList%2C+fullPortList%2C+topPortList%0A%2F%2F+src+user+is+not+null%2C+src+and+dst+IPs+are+within+defined+subnets%0A%2F%2F+get+distinct+count+of+dst+IPs+and+ports%2C+plus+arrays+of+dst+IPs+%28sorted%29+and+ports+for+each+src+IP+and+user%0A%2F%2F+filter+unique+destinations+and+ports+to+a+high+number%2C+in+this+case+a+static+number+of+1+for+testing%0A%2F%2F+create+a+2nd+shorter+array+of+ports+only+showing+the+first+20%0A%2F%2F+order+columns&amp;teamEmails=-&amp;view=xdr&amp;startTime=10+min</link>
-        </drilldown>
       </table>
     </panel>
   </row>
@@ -57,7 +53,6 @@
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
-        <option name="drilldown">cell</option>
         <option name="refresh.display">progressbar</option>
         <format type="color" field="last_country">
           <colorPalette type="sharedList"></colorPalette>
@@ -67,9 +62,6 @@
           <colorPalette type="sharedList"></colorPalette>
           <scale type="sharedCategory"></scale>
         </format>
-        <drilldown>
-          <link target="_blank">https://xdr.us1.sentinelone.net/query?view=edr&amp;filter=%2F%2Fsrc.process.user+%3D+*+src.ip.address+%3D+*%0A%2F%2F%7C+group+first_ip+%3D+oldest%28src.ip.address%29%2C+last_ip+%3D+newest%28src.ip.address%29+by+src.process.user%0A%7C+limit+1%0A%7C+let+src.process.user+%3D+%27Matt+Balcer%27%2C+first_ip%3D%2787.203.45.78%27%2C+last_ip%3D%2798.24.6.8%27%0A%7C+let+first_location+%3D+geo_ip_location%28first_ip%29%2C+last_location+%3D+geo_ip_location%28last_ip%29%0A%7C+let+kilometers+%3D+geo_distance%28first_location%2C+last_location%29%0A%7C+let+hours%3D%28queryend%28%29+-+querystart%28%29%29%2F1000000000%2F60%2F60%0A%7C+let+speed+%3D+kilometers+%2F+hours%0A%7C+filter+speed+%3E+500%0A%2F%2F+logic%3A+get+IP+addresses%2C+get+geo+locations%2C+determine+distance%2C+convert+timestamps+from+nano+epoch+to+delta+in+hours%2C+then+filter+to+speed+%3E+500km%0A%2F%2F+usage%3A+for+real+use%2C+uncomment+lines+1%2C2+and+remove+lines+3%2C4&amp;startTime=4+hours</link>
-        </drilldown>
       </table>
     </panel>
   </row>
@@ -122,9 +114,6 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
-        <drilldown>
-          <link target="_blank">https://xdr.us1.sentinelone.net/query?filter=bytes.sent+%3D+*%0A%7C+let+time_hour+%3D+number%28strftime%28timestamp%2C+%27%25H%27%29%29%0A%7C+group+bytes%3Dsum%28bytes.sent%29%2C+hour+%3D+oldest%28time_hour%29+by+timebucket%28%271h%27%29%0A%7C+let+gb+%3D+%28bytes%2F1024%2F1024%2F1024%29%0A%7C+filter+gb+%3E+0+AND+%28hour+%3C%3D+9+OR+hour+%3E%3D+18%29%0A%2F%2F+logic%3A+get+numeric+2-digit+hour+from+timestamp%2C+group+bytes+per+hour%2C+convert+to+gb%2C+then+filter+to+volume+and+hours+of+day%0A%2F%2F+usage%3A+change+the+last+filter+line+to+anomalous+gb+traffic+and+adjust+to+business+hours&amp;startTime=24+hours&amp;view=xdr</link>
-        </drilldown>
       </chart>
     </panel>
   </row>
