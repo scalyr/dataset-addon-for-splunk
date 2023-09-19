@@ -19,4 +19,12 @@
     <view name="configuration" default="true"/>
     <view name="dataset_by_example"/>
     <view name="search"/>
+   	<collection label="Dashboards">
+      <view name="dashboards" />
+      <view name="dataset_by_example" />
+      <view name="sentinelone_use_case_query_examples" />
+      <view name="soc_search_examples" />
+      <view name="ingestion_summary" />
+      <view name="splunk_app_usage" />
+   	</collection>
 </nav>

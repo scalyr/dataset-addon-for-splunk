@@ -1,5 +1,5 @@
-#  Security Data Lake Add-On for Splunk
-The Security Data Lake Add-On for Splunk provides integration with [Singularity DataLake](https://www.sentinelone.com/platform/xdr-ingestion/) and [DataSet](https://www.dataset.com) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
+#  Singularity Data Lake Add-On for Splunk
+The Singularity Data Lake Add-On for Splunk provides integration with [Singularity DataLake](https://www.sentinelone.com/platform/xdr-ingestion/) and [DataSet](https://www.dataset.com) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
 - SPL custom command to query directly from the Splunk UI.
 - Inputs to index alerts as CIM-compliant, or any user-defined query results.
 - Alert action to send events from Splunk.
@@ -60,7 +60,7 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 
 3. Optionally, configure logging level and proxy information on the associated tabs.
 4. Click Save.
-5. The included Security Data Lake by Example dashboard can be used to confirm connectivity and also shows example searches to get started.
+5. The included Singularity Data Lake by Example dashboard can be used to confirm connectivity and also shows example searches to get started.
 
 ## SPL Command
 The `| dataset` command allows queries against the [DataSet APIs](https://app.scalyr.com/help/api) directly from Splunk's search bar.

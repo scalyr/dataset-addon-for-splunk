@@ -1,0 +1,120 @@
+<dashboard version="1.1">
+  <label>SOC Search Examples</label>
+<row depends="false">
+  <panel>
+    <html>
+      <style>
+        #$powerQuery$   .splunk-textinput input{  width: 1000px; !important; }
+        .dashboard-panel h2{
+          background:#6B0AEA !important;
+          color:white !important;
+          text-align: left !important;
+          font-weight: bold !important;
+          border-top-right-radius: 15px;
+          border-top-left-radius: 15px;
+        }
+      </style>
+    </html>
+  </panel>
+</row>
+<row>
+    <panel>
+      <title>Network Recon</title>
+      <table>
+        <search>
+          <query>| dataset account=xdr method=powerquery search="src.process.user = * (net_ipsubnet(dst.ip.address, '172.0.0.0/16') OR net_ipsubnet(dst.ip.address, '10.0.0.0/8')) NOT (net_ipsubnet(src.ip.address, '10.0.0.0/24'))
+| group uniqueDestinations = estimate_distinct(dst.ip.address), uniquePorts = estimate_distinct(dst.port.number), fullPortList = array_sort(array_agg_distinct(dst.port.number)), dstList = array_sort(array_agg_distinct(dst.ip.address)) by src.ip.address, src.process.user
+| filter (uniqueDestinations &gt; 5) AND (uniquePorts &gt; 5)
+| let topPortList = array_slice(fullPortList, 0, 20)
+| columns src.ip.address, src.process.user, uniqueDestinations, uniquePorts, dstList, fullPortList, topPortList"
+| spath
+| table src.ip.address, src.process.user, uniqueDestinations, uniquePorts, dstList, fullPortList, topPortList</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Impossible Traveler</title>
+      <table>
+        <search>
+          <query>| dataset account=xdr method=powerquery search="//src.process.user = * src.ip.address = *
+//| group first_ip = oldest(src.ip.address), last_ip = newest(src.ip.address) by src.process.user
+| limit 1
+| let src.process.user = 'Matt Balcer', first_ip='87.203.45.78', last_ip='98.24.6.8'
+| let first_location = geo_ip_location(first_ip), last_location = geo_ip_location(last_ip), first_country=geo_ip_country(first_ip), last_country=geo_ip_country(last_ip)
+| let kilometers = geo_distance(first_location, last_location)
+| let hours=(queryend() - querystart())/1000000000/60/60
+| let speed = kilometers / hours"
+| spath
+| table src.process.user, first_ip, last_ip, first_country, first_location, last_country, last_location, kilometers, speed</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+        <format type="color" field="last_country">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="first_country">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Network Traffic Off-Hours</title>
+      <chart>
+        <search>
+          <query>| dataset account=xdr method=powerquery search="bytes.sent = *
+| let time_hour = number(strftime(timestamp, '%H'))
+| group bytes=sum(bytes.sent), hour = oldest(time_hour) by timebucket('1h')
+| let gb = (bytes/1024/1024/1024)
+| filter gb &gt; 0 AND (hour &lt;= 9 OR hour &gt;= 18)
+// logic: get numeric 2-digit hour from timestamp, group bytes per hour, convert to gb, then filter to volume and hours of day
+// usage: change the last filter line to anomalous gb traffic and adjust to business hours"
+| spath
+| table hour, gb</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+</dashboard>
