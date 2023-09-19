@@ -40,10 +40,8 @@
       <title>Impossible Traveler</title>
       <table>
         <search>
-          <query>| dataset account=xdr method=powerquery search="//src.process.user = * src.ip.address = *
-//| group first_ip = oldest(src.ip.address), last_ip = newest(src.ip.address) by src.process.user
-| limit 1
-| let src.process.user = 'Matt Balcer', first_ip='87.203.45.78', last_ip='98.24.6.8'
+          <query>| dataset account=xdr method=powerquery search="src.process.user = * src.ip.address = *
+| group first_ip = oldest(src.ip.address), last_ip = newest(src.ip.address) by src.process.user
 | let first_location = geo_ip_location(first_ip), last_location = geo_ip_location(last_ip), first_country=geo_ip_country(first_ip), last_country=geo_ip_country(last_ip)
 | let kilometers = geo_distance(first_location, last_location)
 | let hours=(queryend() - querystart())/1000000000/60/60
