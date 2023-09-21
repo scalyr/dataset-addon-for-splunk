@@ -174,13 +174,15 @@ For use cases requiring data indexed in Splunk, optional inputs are provided uti
 An alert action allows sending an event to the DataSet [addEvents API](https://app.scalyr.com/help/api#addEvents).
 
 ## Support and troubleshooting
+SentinelOne Data Lake users are able to see meta logs, such as search actions, but no endpoint data in Splunk - Ensure the read API token was provisioned from an account, not Global.
+
 Error saving configuration "CSRF validation failed" - This is a Splunk browser issue; try reloading the page, using a private window or clearing cache and cookies then retrying.
 
 Search errors `Account token error, review search log for details` or `Splunk configuration error, see search log for details.` - API token was unable to be retrieved. Common issues include user role missing list_storage_passwords permission, API token not set or incorrect account name given that has not been configured. Review job inspector search log for errors returned by Splunk. `Error retrieving account settings, error = UrlEncoded('broken')` indicates a likely misconfigured or incorrect account name; `splunklib.binding.HTTPError: HTTP 403 Forbidden -- You (user=username) do not have permission to perform this operation (requires capability: list_storage_passwords OR admin_all_objects)` indicates missing Splunk user permissions (list_storage_passwords).
 
 To troubleshoot the custom command, check the Job Inspector search log, also available in the internal index: `index=_internal app="TA_dataset" sourcetype=splunk_search_messages`.
 
-For support, open a ticket with DataSet (or SentinelOne for XDR) support including any logged errors, or open a GitHub issue.
+For support, open a ticket with SentinelOne or DataSet support, including any logged errors.
 
 ## Additional Notes
 Though not typically an issue for users, DataSet does have [API rate limiting](https://app.scalyr.com/help/api#rateLimiting). If issues are encountered, open a case with support to review and potentially increase limits.
