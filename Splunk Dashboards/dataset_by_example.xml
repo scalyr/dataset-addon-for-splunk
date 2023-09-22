@@ -1,5 +1,5 @@
 <form version="1.1">
-  <label>Security Data Lake by Example</label>
+  <label>Singularity Data Lake by Example</label>
   <init>
     <set token="myMaxCount">maxcount=10</set>
     <set token="baseQuery"></set>
@@ -12,7 +12,6 @@
     <input type="checkbox" token="hideAPItest">
       <label></label>
       <choice value="1">Show Connection Test Results</choice>
-      <initialValue>1</initialValue>
       <change>
         <condition value="1">
           <eval token="my_boolean">"1"</eval>
@@ -24,6 +23,26 @@
       <delimiter> </delimiter>
     </input>
   </fieldset>
+  <row depends="false">
+    <panel>
+      <html>
+        <style>
+          #baseQuery        .splunk-textinput input{  width: 600px; !important; }
+          #basePowerQuery   .splunk-textinput input{  width: 1000px; !important; }
+          #baseFacetQuery   .splunk-textinput input{  width: 1000px; !important; }
+          #splunkAggregate  .splunk-textinput input{  width: 1000px; !important; }
+          .dashboard-panel h2{
+            background:#6B0AEA !important;
+            color:white !important;
+            text-align: left !important;
+            font-weight: bold !important;
+            border-top-right-radius: 15px;
+            border-top-left-radius: 15px;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
   <row>
     <panel>
       <title>Searching Your Data in DataSet</title>
@@ -71,7 +90,7 @@
         <li>
             <b>Timeseries Query</b> - This will calculate numeric values over time. For repeated queries, summaries allow precomputed results (fastest).</li>
       </ol>
-      Depending on your use case, you may have a need for any or all of these.
+      Depending on your use case, you may have a need for any or all of these.  
       <h1>Let's get started searching! </h1>
     </html>
     </panel>
@@ -101,7 +120,7 @@
         <fieldForLabel>serverHost</fieldForLabel>
         <fieldForValue>serverHost</fieldForValue>
         <search>
-          <query>| dataset method=facet field=serverHost search="serverHost=* "
+          <query>| dataset method=facet field=serverHost search="serverHost=* " 
 | spath
 | rename value as serverHost
 |  table serverHost count
@@ -126,22 +145,6 @@
         <label>Base DataSet query</label>
         <default>$baseQuery$</default>
       </input>
-      <html>
-        <style>
-          #baseQuery        .splunk-textinput input{  width: 600px; !important; }
-          #basePowerQuery   .splunk-textinput input{  width: 1000px; !important; }
-          #baseFacetQuery   .splunk-textinput input{  width: 1000px; !important; }
-          #splunkAggregate  .splunk-textinput input{  width: 1000px; !important; }
-          .dashboard-panel h2{
-            background:#0000ff !important;
-            color:white !important;
-            text-align: left !important;
-            font-weight: bold !important;
-            border-top-right-radius: 15px;
-            border-top-left-radius: 15px;
-          }
-        </style>
-      </html>
     </panel>
   </row>
   <row>
@@ -149,7 +152,7 @@
       <table>
         <title>SPL:  | dataset method=query search="$baseQuery$" $myMaxCount$  | spath</title>
         <search>
-          <query>| dataset method=query search="$baseQuery$" $myMaxCount$
+          <query>| dataset method=query search="$baseQuery$" $myMaxCount$ 
 |  spath</query>
           <earliest>$myTime.earliest$</earliest>
           <latest>$myTime.latest$</latest>
