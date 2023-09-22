@@ -1,13 +1,13 @@
-#  Security Data Lake Add-On for Splunk
-The Security Data Lake Add-On for Splunk provides integration with [DataSet](https://www.dataset.com) and [XDR](https://www.sentinelone.com/platform/xdr-ingestion) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
+#  Singularity Data Lake Add-On for Splunk
+The Singularity Data Lake Add-On for Splunk provides integration with [Singularity Data Lake](https://www.sentinelone.com/platform/xdr-ingestion/) and [DataSet](https://www.dataset.com) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
 - SPL custom command to query directly from the Splunk UI.
 - Inputs to index alerts as CIM-compliant, or any user-defined query results.
 - Alert action to send events from Splunk.
 
 ## Installation
-The add-on can be installed from [Splunkbase](https://splunkbase.splunk.com/app/6575) or manually via the .tgz file. For those looking to customize, the package subdirectory contains all artifacts. To compile, reference Splunk's [UCC Framework instructions](https://splunk.github.io/addonfactory-ucc-generator/how_to_use/) to use `ucc-gen` and `slim package`.
+The add-on can be installed manually via the .tgz file in the [release directory](/release). Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons). For Splunk Cloud customers, reference Splunk documentation for private app installation on [Classic Experience](https://docs.splunk.com/Documentation/SplunkCloud/latest/Admin/PrivateApps#Install_private_apps_on_Splunk_Cloud_Platform) or [Victoria Experience](https://docs.splunk.com/Documentation/SplunkCloud/latest/Admin/PrivateApps#Install_a_private_app_on_Classic_Experience).
 
-Reference Splunk documentation for [installing add-ons](https://docs.splunk.com/Documentation/AddOns/released/Overview/Installingadd-ons).
+For those looking to customize, the package subdirectory contains all artifacts. To compile, reference Splunk's [UCC Framework instructions](https://splunk.github.io/addonfactory-ucc-generator/how_to_use/) to use `ucc-gen` and `slim package`.
 
 ## Splunk Permission Requirements
 The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_objects` to create secret storage objects and users require `list_storage_passwords` capability to retrieve secrets.
@@ -27,16 +27,20 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 | Inputs Data Manager | Optional | For Splunk Cloud Classic Experience, if the modular inputs are used, this add-on is installed on an IDM. |
 
 ## Configuration
-### XDR
+### Singularity Data Lake
 1. From the SentinelOne console, ensure Enhanced Deep Visibility is enabled by clicking your name > My User > Change Deep Visibility Mode > Enhanced.
 
 ![Setting Enhanced Deep Visibility](README_images/setup_enhanced_dv.png)
 
 2. Open Enhanced Deep Visibility.
-3. Continue following the DataSet instructions below.
+3. In the top left, ensure an account is selected (not `Global`)
 
-### Dataset (and XDR continued)
-1. Make note of the URL (e.g. `https://app.scalyr.com` or `https://xdr.us1.sentinelone.net`). For XDR users, note this differs from the core SentinelOne console URL.
+![Selecting SentinelOne account](README_images/s1_account.png)
+
+4. Continue following the DataSet instructions below.
+
+### Dataset (and Singularity Data Lake continued)
+1. Make note of the URL (e.g. `https://app.scalyr.com`, `https://xdr.us1.sentinelone.net` or `https://xdr.eu1.sentinelone.net`). For SentinelOne users, note this differs from the core SentinelOne console URL.
 2. Navigate to API Keys.
 
 ![Creating DataSet API keys](README_images/dataset_key.png)
@@ -53,14 +57,14 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 2. On the configuration > account tab:
 - Click Add
 - Enter a user-friendly account name. For multiple accounts, the account name can be used in queries (more details below).
-- Enter the full URL noted above (e.g.: `https://app.scalyr.com` or `https://xdr.us1.sentinelone.net`).
+- Enter the full URL noted above (e.g.: `https://app.scalyr.com`, `https://xdr.us1.sentinelone.net` or `https://xdr.eu1.sentinelone.net`).
 - Enter the DataSet read key from above (required for searching)
 - Enter the DataSet write key from above (only required for alert actions).
 - Click Save
 
 3. Optionally, configure logging level and proxy information on the associated tabs.
 4. Click Save.
-5. The included Security Data Lake by Example dashboard can be used to confirm connectivity and also shows example searches to get started.
+5. The included Singularity Data Lake by Example dashboard can be used to confirm connectivity and also shows example searches to get started.
 
 ## SPL Command
 The `| dataset` command allows queries against the [DataSet APIs](https://app.scalyr.com/help/api) directly from Splunk's search bar.
@@ -170,13 +174,15 @@ For use cases requiring data indexed in Splunk, optional inputs are provided uti
 An alert action allows sending an event to the DataSet [addEvents API](https://app.scalyr.com/help/api#addEvents).
 
 ## Support and troubleshooting
+SentinelOne Data Lake users are able to see meta logs, such as search actions, but no endpoint data in Splunk - Ensure the read API token was provisioned from an account, not Global.
+
 Error saving configuration "CSRF validation failed" - This is a Splunk browser issue; try reloading the page, using a private window or clearing cache and cookies then retrying.
 
 Search errors `Account token error, review search log for details` or `Splunk configuration error, see search log for details.` - API token was unable to be retrieved. Common issues include user role missing list_storage_passwords permission, API token not set or incorrect account name given that has not been configured. Review job inspector search log for errors returned by Splunk. `Error retrieving account settings, error = UrlEncoded('broken')` indicates a likely misconfigured or incorrect account name; `splunklib.binding.HTTPError: HTTP 403 Forbidden -- You (user=username) do not have permission to perform this operation (requires capability: list_storage_passwords OR admin_all_objects)` indicates missing Splunk user permissions (list_storage_passwords).
 
 To troubleshoot the custom command, check the Job Inspector search log, also available in the internal index: `index=_internal app="TA_dataset" sourcetype=splunk_search_messages`.
 
-For support, open a ticket with DataSet (or SentinelOne for XDR) support including any logged errors, or open a GitHub issue.
+For support, open a ticket with SentinelOne or DataSet support, including any logged errors.
 
 ## Additional Notes
 Though not typically an issue for users, DataSet does have [API rate limiting](https://app.scalyr.com/help/api#rateLimiting). If issues are encountered, open a case with support to review and potentially increase limits.

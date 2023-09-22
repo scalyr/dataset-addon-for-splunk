@@ -1,287 +1,266 @@
 <form version="1.1">
-    <label>DataSet by Example</label>
-    <init>
-        <set token="myMaxCount">maxcount=10</set>
-        <set token="baseQuery"></set>
-        <set token="basePowerQuery">| group count=count() by tag" | spath | table tag count</set>
-        <set token="baseFacetQuery">| spath | rename value as tag | table tag count</set>
-        <set token="baseTimeseriesQuery">| spath | timechart values(rate) as rate</set>
-        <set token="splunkAggregate">| spath | stats count by attributes.status</set>
-    </init>
-    <fieldset submitButton="false">
-        <input type="checkbox" token="hideAPItest">
-            <label></label>
-            <choice value="1">Show Connection Test Results</choice>
-            <initialValue>1</initialValue>
-            <change>
-                <condition value="1">
-                    <eval token="my_boolean">"1"</eval>
-                </condition>
-                <condition>
-                    <eval token="my_boolean"></eval>
-                </condition>
-            </change>
-            <delimiter></delimiter>
-        </input>
-    </fieldset>
-    <row>
-        <panel>
-            <title>Searching Your Data in DataSet</title>
-            <html>
-                <b>This dashboard will help get you started on your journey. The first thing you'll want to do after
-                    configuring your DataSet Read API Key is to run a simple test to make sure you can access Dataset.
-                </b>
-            </html>
-        </panel>
-    </row>
-    <row depends="$hideAPItest$">
-        <panel>
-            <title>API Connection Test</title>
-            <table>
-                <title>SPL: | dataset maxcount=5</title>
-                <search>
-                    <query>| dataset maxcount=6
-                        | spath
-                    </query>
-                    <earliest>$myTime.earliest$</earliest>
-                    <latest>$myTime.latest$</latest>
-                </search>
-                <option name="count">3</option>
-                <option name="drilldown">none</option>
-                <option name="refresh.display">progressbar</option>
-            </table>
-        </panel>
-    </row>
-    <row depends="$hideAPItest$">
-        <panel>
-            <html>
-                If you see data, your API Keys are working!
-            </html>
-        </panel>
-    </row>
-    <row>
-        <panel>
-            <html>
-                <h3>Now let's talk about executing queries against DataSet.</h3>
-                The first thing you need to know is that this Add-On provides four methods to query DataSet:
-                <ol>
-                    <li>
-                        <b>Base Data Query</b>
-                        - This will return the raw event data (fast, but very verbose). This type of query returns all
-                        evetn data so be mindful of the amount of data pushed across the wire and held in memory.
-                    </li>
-                    <li>
-                        <b>PowerQuery</b>
-                        - This will aggregrate data by any supported operator (sum, count, average, etc.) and return the
-                        summary level statistics (faster).
-                    </li>
-                    <li>
-                        <b>Facet Query</b>
-                        - This will summarize data by a specific field and return the summary level statistics for the
-                        most common values of the field (fastest).
-                    </li>
-                    <li>
-                        <b>Timeseries Query</b>
-                        - This will calculate numeric values over time. For repeated queries, summaries allow
-                        precomputed results (fastest).
-                    </li>
-                </ol>
-                Depending on your use case, you may have a need for any or all of these.
-                <h1>Let's get started searching!</h1>
-            </html>
-        </panel>
-    </row>
-    <row>
-        <panel>
-            <title>1. Base Data Query: Get the raw events</title>
-            <input type="time" token="myTime" searchWhenChanged="true">
-                <label>Time</label>
-                <default>
-                    <earliest>-4h@m</earliest>
-                    <latest>now</latest>
-                </default>
-            </input>
-            <input type="dropdown" token="myMaxCount" searchWhenChanged="true">
-                <label>Max rows of data to return</label>
-                <choice value="maxcount=10">10</choice>
-                <choice value="maxcount=50">50</choice>
-                <choice value="maxcount=1000">1000</choice>
-                <choice value="maxcount=5000">5000</choice>
-                <default>maxcount=10</default>
-                <initialValue>maxcount=10</initialValue>
-            </input>
-            <input type="dropdown" token="myServerHost" searchWhenChanged="true">
-                <label>ServerHosts</label>
-                <choice value="All">All</choice>
-                <fieldForLabel>serverHost</fieldForLabel>
-                <fieldForValue>serverHost</fieldForValue>
-                <search>
-                    <query>| dataset method=facet field=serverHost search="serverHost=* "
-                        | spath
-                        | rename value as serverHost
-                        | table serverHost count
-                        | sort serverHost
-                    </query>
-                    <earliest>$myTime.earliest$</earliest>
-                    <latest>$myTime.latest$</latest>
-                </search>
-                <change>
-                    <condition value="All">
-                        <set token="baseQuery">serverHost=*</set>
-                        <set token="myTag">tag</set>
-                    </condition>
-                    <condition>
-                        <set token="baseQuery">serverHost='$value$'</set>
-                        <set token="myTag">tag</set>
-                    </condition>
-                </change>
-                <default>All</default>
-                <initialValue>All</initialValue>
-            </input>
-            <input id="baseQuery" type="text" token="baseQuery">
-                <label>Base DataSet query</label>
-                <default>$baseQuery$</default>
-            </input>
-            <html>
-                <style>
-                    #baseQuery .splunk-textinput input{ width: 600px; !important; }
-                    #basePowerQuery .splunk-textinput input{ width: 1000px; !important; }
-                    #baseFacetQuery .splunk-textinput input{ width: 1000px; !important; }
-                    #splunkAggregate .splunk-textinput input{ width: 1000px; !important; }
-                    .dashboard-panel h2{
-                    background:#0000ff !important;
-                    color:white !important;
-                    text-align: left !important;
-                    font-weight: bold !important;
-                    border-top-right-radius: 15px;
-                    border-top-left-radius: 15px;
-                    }
-                </style>
-            </html>
-        </panel>
-    </row>
-    <row>
-        <panel>
-            <table>
-                <title>SPL: | dataset method=query search="$baseQuery$" $myMaxCount$ | spath</title>
-                <search>
-                    <query>| dataset method=query search="$baseQuery$" $myMaxCount$
-                        | spath
-                    </query>
-                    <earliest>$myTime.earliest$</earliest>
-                    <latest>$myTime.latest$</latest>
-                    <sampleRatio>1</sampleRatio>
-                </search>
-                <option name="count">5</option>
-                <option name="drilldown">none</option>
-                <option name="refresh.display">progressbar</option>
-            </table>
-        </panel>
-    </row>
-    <row>
-        <panel>
-            <title>Now let's select a field to aggregate statistics on in DataSet. (This is exponentially better
-                performance than returning all data and using SPL to summarize.)
-            </title>
-            <input type="dropdown" token="myTag" searchWhenChanged="true">
-                <label>Field to aggregate by</label>
-                <choice value="tag">tag</choice>
-                <choice value="status">status</choice>
-                <choice value="severity">severity</choice>
-                <choice value="description">description</choice>
-                <choice value="Application">Application</choice>
-                <default>tag</default>
-                <initialValue>tag</initialValue>
-                <change>
-                    <condition>
-                        <set token="basePowerQuery">| group count=count() by $value$" | spath | table $value$ count
-                        </set>
-                        <set token="baseFacetQuery">| spath | rename value as $value$ | table $value$ count</set>
-                    </condition>
-                </change>
-            </input>
-        </panel>
-    </row>
-    <row>
-        <panel>
-            <title>2. PowerQuery: Aggregate in DataSet and display in Splunk!</title>
-            <input id="basePowerQuery" type="text" token="basePowerQuery">
-                <label>Enter a PowerQuery to apply to the base query</label>
-                <default>$basePowerQuery$</default>
-            </input>
-        </panel>
-    </row>
-    <row>
-        <panel>
-            <chart>
-                <title>SPL: | dataset method=powerquery search="$baseQuery$ $basePowerQuery$</title>
-                <search>
-                    <query>| dataset method=powerquery search="$baseQuery$ $basePowerQuery$
-                    </query>
-                    <earliest>$myTime.earliest$</earliest>
-                    <latest>$myTime.latest$</latest>
-                </search>
-                <option name="charting.chart">pie</option>
-                <option name="charting.drilldown">none</option>
-                <option name="refresh.display">progressbar</option>
-            </chart>
-        </panel>
-    </row>
-    <row>
-        <panel>
-            <title>3. Facet Query: Aggregate in DataSet, Facet by a specific field and display in Splunk!</title>
-            <input id="baseFacetQuery" type="text" token="baseFacetQuery">
-                <label>Enter a Facet Query to apply to the base query</label>
-                <default>$baseFacetQuery$</default>
-            </input>
-        </panel>
-    </row>
-    <row>
-        <panel>
-            <title></title>
-            <chart>
-                <title>SPL: | dataset method=facet field=$myTag$ search="$baseQuery$" $baseFacetQuery$</title>
-                <search>
-                    <query>| dataset method=facet field=$myTag$ search="$baseQuery$" $baseFacetQuery$
-                    </query>
-                    <earliest>$myTime.earliest$</earliest>
-                    <latest>$myTime.latest$</latest>
-                </search>
-                <option name="charting.chart">pie</option>
-                <option name="charting.drilldown">none</option>
-                <option name="refresh.display">progressbar</option>
-            </chart>
-        </panel>
-    </row>
-    <row>
-        <panel>
-            <title>4. Timeseries Query: This will calculate numeric values over time.</title>
-            <input id="baseTimeseriesQuery" type="text" token="baseTimeseriesQuery">
-                <label>Enter a Timeseries Query to apply to the base query</label>
-                <default>$baseTimeseriesQuery$</default>
-            </input>
-        </panel>
-    </row>
-    <row>
-        <panel>
-            <title></title>
-            <chart>
-                <title>SPL: | dataset method=timeseries search="$baseQuery$" function="rate" buckets=24
-                    createsummaries=false onlyusesummaries=false $baseTimeseriesQuery$
-                </title>
-                <search>
-                    <query>| dataset method=timeseries search="$baseQuery$" function="rate" buckets=24
-                        createsummaries=false onlyusesummaries=false $baseTimeseriesQuery$
-                    </query>
-                    <earliest>$myTime.earliest$</earliest>
-                    <latest>$myTime.latest$</latest>
-                </search>
-                <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
-                <option name="charting.chart">line</option>
-                <option name="charting.chart.nullValueMode">gaps</option>
-                <option name="charting.drilldown">none</option>
-                <option name="refresh.display">progressbar</option>
-            </chart>
-        </panel>
-    </row>
+  <label>Singularity Data Lake by Example</label>
+  <init>
+    <set token="myMaxCount">maxcount=10</set>
+    <set token="baseQuery"></set>
+    <set token="basePowerQuery">| group count=count() by tag"  |  spath |  table tag count</set>
+    <set token="baseFacetQuery">| spath | rename value as tag | table tag count</set>
+    <set token="baseTimeseriesQuery">| spath | timechart values(rate) as rate</set>
+    <set token="splunkAggregate">| spath  | stats count by attributes.status</set>
+  </init>
+  <fieldset submitButton="false">
+    <input type="checkbox" token="hideAPItest">
+      <label></label>
+      <choice value="1">Show Connection Test Results</choice>
+      <change>
+        <condition value="1">
+          <eval token="my_boolean">"1"</eval>
+        </condition>
+        <condition>
+          <eval token="my_boolean"></eval>
+        </condition>
+      </change>
+      <delimiter> </delimiter>
+    </input>
+  </fieldset>
+  <row depends="false">
+    <panel>
+      <html>
+        <style>
+          #baseQuery        .splunk-textinput input{  width: 600px; !important; }
+          #basePowerQuery   .splunk-textinput input{  width: 1000px; !important; }
+          #baseFacetQuery   .splunk-textinput input{  width: 1000px; !important; }
+          #splunkAggregate  .splunk-textinput input{  width: 1000px; !important; }
+          .dashboard-panel h2{
+            background:#6B0AEA !important;
+            color:white !important;
+            text-align: left !important;
+            font-weight: bold !important;
+            border-top-right-radius: 15px;
+            border-top-left-radius: 15px;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Searching Your Data in DataSet</title>
+      <html>
+      <b>This dashboard will help get you started on your journey. The first thing you'll want to do after configuring your DataSet Read API Key is to run a simple test to make sure you can access Dataset.</b>
+    </html>
+    </panel>
+  </row>
+  <row depends="$hideAPItest$">
+    <panel>
+      <title>API Connection Test</title>
+      <table>
+        <title>SPL:   | dataset maxcount=5</title>
+        <search>
+          <query>| dataset  maxcount=6
+| spath</query>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+        </search>
+        <option name="count">3</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$hideAPItest$">
+    <panel>
+      <html>
+      If you see data, your API Keys are working!
+    </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+      <h3>Now let's talk about executing queries against DataSet.</h3>
+      The first thing you need to know is that this Add-On provides four methods to query DataSet:
+      <ol>
+        <li>
+            <b>Base Data Query</b> - This will return the raw event data (fast, but very verbose). This type of query returns all evetn data so be mindful of the amount of data pushed across the wire and held in memory.</li>
+        <li>
+            <b>PowerQuery</b> - This will aggregrate data by any supported operator (sum, count, average, etc.) and return the summary level statistics (faster).</li>
+        <li>
+            <b>Facet Query</b> - This will summarize data by a specific field and return the summary level statistics for the most common values of the field (fastest).</li>
+        <li>
+            <b>Timeseries Query</b> - This will calculate numeric values over time. For repeated queries, summaries allow precomputed results (fastest).</li>
+      </ol>
+      Depending on your use case, you may have a need for any or all of these.  
+      <h1>Let's get started searching! </h1>
+    </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>1. Base Data Query:  Get the raw events</title>
+      <input type="time" token="myTime" searchWhenChanged="true">
+        <label>Time</label>
+        <default>
+          <earliest>-4h@m</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <input type="dropdown" token="myMaxCount" searchWhenChanged="true">
+        <label>Max rows of data to return</label>
+        <choice value="maxcount=10">10</choice>
+        <choice value="maxcount=50">50</choice>
+        <choice value="maxcount=1000">1000</choice>
+        <choice value="maxcount=5000">5000</choice>
+        <default>maxcount=10</default>
+        <initialValue>maxcount=10</initialValue>
+      </input>
+      <input type="dropdown" token="myServerHost" searchWhenChanged="true">
+        <label>ServerHosts</label>
+        <choice value="All">All</choice>
+        <fieldForLabel>serverHost</fieldForLabel>
+        <fieldForValue>serverHost</fieldForValue>
+        <search>
+          <query>| dataset method=facet field=serverHost search="serverHost=* " 
+| spath
+| rename value as serverHost
+|  table serverHost count
+| sort serverHost</query>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+        </search>
+        <change>
+          <condition value="All">
+            <set token="baseQuery">serverHost=*</set>
+            <set token="myTag">tag</set>
+          </condition>
+          <condition>
+            <set token="baseQuery">serverHost='$value$'</set>
+            <set token="myTag">tag</set>
+          </condition>
+        </change>
+        <default>All</default>
+        <initialValue>All</initialValue>
+      </input>
+      <input id="baseQuery" type="text" token="baseQuery">
+        <label>Base DataSet query</label>
+        <default>$baseQuery$</default>
+      </input>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>SPL:  | dataset method=query search="$baseQuery$" $myMaxCount$  | spath</title>
+        <search>
+          <query>| dataset method=query search="$baseQuery$" $myMaxCount$ 
+|  spath</query>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Now let's select a field to aggregate statistics on in DataSet.   (This is exponentially better performance than returning all data and using SPL to summarize.)</title>
+      <input type="dropdown" token="myTag" searchWhenChanged="true">
+        <label>Field to aggregate by</label>
+        <choice value="tag">tag</choice>
+        <choice value="status">status</choice>
+        <choice value="severity">severity</choice>
+        <choice value="description">description</choice>
+        <choice value="Application">Application</choice>
+        <default>tag</default>
+        <initialValue>tag</initialValue>
+        <change>
+          <condition>
+            <set token="basePowerQuery">| group count=count() by $value$"  |  spath |  table $value$ count</set>
+            <set token="baseFacetQuery">| spath | rename value as $value$ | table $value$ count</set>
+          </condition>
+        </change>
+      </input>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>2. PowerQuery:  Aggregate in DataSet and display in Splunk!</title>
+      <input id="basePowerQuery" type="text" token="basePowerQuery">
+        <label>Enter a PowerQuery to apply to the base query</label>
+        <default>$basePowerQuery$</default>
+      </input>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>SPL:   | dataset method=powerquery search="$baseQuery$ $basePowerQuery$</title>
+        <search>
+          <query>| dataset method=powerquery search="$baseQuery$ $basePowerQuery$
+          </query>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>3. Facet Query:  Aggregate in DataSet, Facet by a specific field and display in Splunk!</title>
+      <input id="baseFacetQuery" type="text" token="baseFacetQuery">
+        <label>Enter a Facet Query to apply to the base query</label>
+        <default>$baseFacetQuery$</default>
+      </input>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title></title>
+      <chart>
+        <title>SPL:   | dataset method=facet field=$myTag$ search="$baseQuery$" $baseFacetQuery$</title>
+        <search>
+          <query>| dataset method=facet field=$myTag$ search="$baseQuery$" $baseFacetQuery$
+          </query>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>4. Timeseries Query:  This will calculate numeric values over time.</title>
+      <input id="baseTimeseriesQuery" type="text" token="baseTimeseriesQuery">
+        <label>Enter a Timeseries Query to apply to the base query</label>
+        <default>$baseTimeseriesQuery$</default>
+      </input>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title></title>
+      <chart>
+        <title>SPL:   | dataset method=timeseries search="$baseQuery$" function="rate" buckets=24 createsummaries=false onlyusesummaries=false $baseTimeseriesQuery$</title>
+        <search>
+          <query>| dataset method=timeseries search="$baseQuery$" function="rate" buckets=24 createsummaries=false onlyusesummaries=false $baseTimeseriesQuery$</query>
+          <earliest>$myTime.earliest$</earliest>
+          <latest>$myTime.latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
 </form>
