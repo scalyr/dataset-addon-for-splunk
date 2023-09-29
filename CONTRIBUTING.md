@@ -23,6 +23,9 @@ You need Python 3.8 for development and package building.
     # If you get "ImportError: failed to find libmagic.  Check your installation" error when
     # running inspect target, you also need to install libmagic dependency
     brew install libmagic
+    # If you get "getopt: illegal option -- n" this means you don't have GNU getopt tool installed
+    # You can install it using command below
+    brew install gnu-getopt 
   ```
 * Test it:
   * By packing the application: `make pack`
