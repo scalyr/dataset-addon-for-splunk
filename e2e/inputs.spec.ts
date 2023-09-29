@@ -65,6 +65,8 @@ test('New Input - DataSet PowerQuery', async ({ page }) => {
 });
 
 test('New Input - DataSet Alerts', async ({ page }) => {
+  test.setTimeout(3 * 60 * 1000);
+
   await openDialog(page, "DataSet Alerts");
 
   console.log("Fill the form")
@@ -72,7 +74,7 @@ test('New Input - DataSet Alerts', async ({ page }) => {
   console.log("Create query: ", queryName);
 
   await page.locator('div').filter({ hasText: /^\*?NameEnter a unique name for the data input$/ }).locator('[data-test="textbox"]').fill(queryName);
-  await page.locator('div').filter({ hasText: /^\*?IntervalTime interval of input in seconds\.$/ }).locator('[data-test="textbox"]').fill("60")
+  await page.locator('div').filter({ hasText: /^\*?IntervalTime interval of input in seconds\.$/ }).locator('[data-test="textbox"]').fill("20")
   await page.locator('form div').filter({ hasText: /^\*?Start TimeRelative time to query back. Use short form relative time, e.g.: 24h/ }).locator('[data-test="textbox"]').fill("60m")
 
   await page.getByLabel("Select a value").click();
@@ -83,6 +85,11 @@ test('New Input - DataSet Alerts', async ({ page }) => {
   await confirmDialog(page);
 
   await checkRowExists(page, queryName);
+
+  // Alerts are evaluated + alert state is reported every 1 minute so we need to wait at least 2 minutes to avoid
+  // flaky tests. 3 minutes would be even better
+  console.log("Waiting ~2 minutes since alerts are evaluated and state is reported only every 1 minute")
+  await page.waitForTimeout(2 * 65 * 1000);
 
   await goToSplunkSearch(page);
 
