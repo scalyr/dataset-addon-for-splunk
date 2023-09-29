@@ -49,7 +49,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git rm -r --cached release
           git commit -m "chore: remove old releases"
-          git push --force origin main
+          git push
 
       - name: Build release
         run: |
