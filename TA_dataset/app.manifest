@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "info": {
-    "title": "Security Data Lake Add-On for Splunk",
+    "title": "Singularity Data Lake Add-On for Splunk",
     "id": {
       "group": null,
       "name": "TA_dataset",
@@ -15,7 +15,7 @@
       }
     ],
     "releaseDate": null,
-    "description": "The Security Data Lake Add-On for Splunk provides integration with DataSet by SentinelOne.",
+    "description": "The Singularity Data Lake Add-On for Splunk provides integration with DataSet by SentinelOne.",
     "classification": {
       "intendedAudience": "IT",
       "categories": [
