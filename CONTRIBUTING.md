@@ -20,6 +20,9 @@ You need Python 3.8 for development and package building.
     sudo make dev-install-dependencies-pack-sudo
     # install library dependencies
     make dev-install-dependencies-lib
+    # If you get "ImportError: failed to find libmagic.  Check your installation" error when
+    # running inspect target, you also need to install libmagic dependency
+    brew install libmagic
   ```
 * Test it:
   * By packing the application: `make pack`
