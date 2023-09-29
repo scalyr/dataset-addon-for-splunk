@@ -56,9 +56,9 @@ export async function goToDataSetConfigurationPage(page: Page) {
 export async function goToDataSetExamplesPage(page: Page) {
     console.log("Go to DataSet example page");
     await page.goto('/app/TA_dataset/dataset_by_example');
-    await page.getByRole('link', { name: "Singularity Data Lake by Example" }).click();
+    await page.getByRole('link', { name: "DataSet by Example" }).click();
 
-    await expect(page).toHaveTitle(/Singularity Data Lake by Example/);
+    await expect(page).toHaveTitle(/DataSet by Example/);
 
     await expectWithoutErrors(page);
 }
