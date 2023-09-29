@@ -17,7 +17,7 @@ test('Verify SDL addon is deployed properly', async ({page}) => {
     const configLinks = page.getByRole('link', {name: 'Configuration'});
     await expect(configLinks).toHaveCount(1);
     await expect(configLinks.first()).toHaveAttribute('href','/en-US/app/TA_dataset/configuration');
-    const exampleLinks = page.getByRole('link', {name: 'Singularity Data Lake by Example'});
+    const exampleLinks = page.getByRole('link', {name: 'DataSet by Example'});
     await expect(exampleLinks).toHaveCount(1);
     await expect(exampleLinks.first()).toHaveAttribute('href','/en-US/app/TA_dataset/dataset_by_example');
     const searchLinks = page.getByRole('link', {name: 'Search'});
