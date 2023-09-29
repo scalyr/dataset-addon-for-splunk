@@ -8,6 +8,7 @@ permissions:
   contents: write
 
 jobs:
+  # TODO: Only run if other CI workflows pass
   release:
     runs-on: ubuntu-latest
 
