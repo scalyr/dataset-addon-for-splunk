@@ -1,4 +1,7 @@
 #  Singularity Data Lake Add-On for Splunk
+
+[![Check Code Quality](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/check-code-quality.yaml/badge.svg)](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/check-code-quality.yaml) [![Unit tests](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/unittests.yml/badge.svg)](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/unittests.yml) [![UCC Gen Validation](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/validate.yaml/badge.svg)](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/validate.yaml) [![Playwright E2E Tests](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/playwright.yml/badge.svg)](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/playwright.yml)
+
 The Singularity Data Lake Add-On for Splunk provides integration with [Singularity Data Lake](https://www.sentinelone.com/platform/xdr-ingestion/) and [DataSet](https://www.dataset.com) by [SentinelOne](https://sentinelone.com). The key functions allow two-way integration:
 - SPL custom command to query directly from the Splunk UI.
 - Inputs to index alerts as CIM-compliant, or any user-defined query results.
