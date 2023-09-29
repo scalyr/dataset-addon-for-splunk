@@ -4,6 +4,12 @@ on: [pull_request]
 permissions:
   contents: read
 
+# We don't want to cancel any redundant runs on main so we use run_id when head_ref is
+# not available
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   UnitTest:
     runs-on: ubuntu-latest
