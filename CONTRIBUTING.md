@@ -88,7 +88,7 @@ Since Splunk does not have [Docker image for Apple Sillicon](https://github.com/
 
 To clean up container run `docker container rm splunk` command
 
-## Install Security Data Lake Add-On for Splunk to running Docker container
+## Install Singularity Data Lake Add-On for Splunk to running Docker container
 Assuming application was previously built
 
 ### From existing release
