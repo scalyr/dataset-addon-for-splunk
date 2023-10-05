@@ -40,7 +40,7 @@ index=_internal sourcetype=splunk_web_access host=* user=*
 | rex   field=panel "\s+\&lt;(?&lt;panel_type&gt;[^\&lt;]+)\&gt;"
 
 ``` filter for the types of panels that typically have searches  ```
-| search panel_type IN ("chart","single","table","event","search","viz","map")
+| search panel_type IN ("chart","single","table","event","search","viz","map","title")
 | search NOT app_name IN($myExcludedApps$)
 
 ```   total, sort and print the results  ```
