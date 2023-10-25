@@ -57,11 +57,11 @@ index=_internal sourcetype=splunk_web_access host=* user=*
 
 | eval datasources = json_extract(v2_source, "dataSources")
 
-```   Get all the queries and their associated datasource names  ``` 
+```   Get all the queries and their associated datasource names  ```
 | rex max_match=0 field=datasources "\"query\"\s*:\s*\"(?&lt;query2&gt;[^,]+)\"|\"name\"\s*:\s*\"(?&lt;search_name&gt;[^\"]+)\""
 
 
-```   Create separate events for each Dashboard Studio query   ``` 
+```   Create separate events for each Dashboard Studio query   ```
 | eval zipped=mvzip(search_name, query2, "%")
 | fields - search_name,query2
 | mvexpand zipped
