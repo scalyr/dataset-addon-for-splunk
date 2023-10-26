@@ -25,8 +25,10 @@ from dataset_query_api_client.models import (
 
 
 # Executes Dataset LongRunningQuery for log events
-def ds_lrq_log_query(base_url, api_key, start_time, end_time, filter_expr, limit):
-    client = AuthenticatedClient(base_url=base_url, token=api_key)
+def ds_lrq_log_query(
+    base_url, api_key, start_time, end_time, filter_expr, limit, proxy
+):
+    client = AuthenticatedClient(base_url=base_url, token=api_key, proxy=proxy)
     body = PostQueriesLaunchQueryRequestBody(
         query_type=PostQueriesLaunchQueryRequestBodyQueryType.LOG,
         start_time=start_time,
@@ -37,8 +39,8 @@ def ds_lrq_log_query(base_url, api_key, start_time, end_time, filter_expr, limit
 
 
 # Executes Dataset LongRunningQuery using PowerQuery language
-def ds_lrq_power_query(base_url, api_key, start_time, end_time, query):
-    client = AuthenticatedClient(base_url=base_url, token=api_key)
+def ds_lrq_power_query(base_url, api_key, start_time, end_time, query, proxy):
+    client = AuthenticatedClient(base_url=base_url, token=api_key, proxy=proxy)
     body = PostQueriesLaunchQueryRequestBody(
         query_type=PostQueriesLaunchQueryRequestBodyQueryType.PQ,
         start_time=start_time,
@@ -50,9 +52,9 @@ def ds_lrq_power_query(base_url, api_key, start_time, end_time, query):
 
 # Executes Dataset LongRunningQuery to fetch facet values
 def ds_lrq_facet_values(
-    base_url, api_key, start_time, end_time, filter, name, max_values
+    base_url, api_key, start_time, end_time, filter, name, max_values, proxy
 ):
-    client = AuthenticatedClient(base_url=base_url, token=api_key)
+    client = AuthenticatedClient(base_url=base_url, token=api_key, proxy=proxy)
     body = PostQueriesLaunchQueryRequestBody(
         query_type=PostQueriesLaunchQueryRequestBodyQueryType.FACET_VALUES,
         start_time=start_time,
@@ -66,7 +68,9 @@ def ds_lrq_facet_values(
 
 # Executes LRQ run loop of launch-ping-remove API requests until the query completes
 # with a result
-def ds_lrq_run_loop(client, body: PostQueriesLaunchQueryRequestBody):
+def ds_lrq_run_loop(
+    client: AuthenticatedClient, body: PostQueriesLaunchQueryRequestBody
+):
     body.query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority.HIGH
     response = post_queries.sync_detailed(client=client, json_body=body)
     result = response.parsed

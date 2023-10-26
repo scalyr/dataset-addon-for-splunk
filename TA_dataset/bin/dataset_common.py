@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import json
+import logging
 import os.path as op
 import sys
 import time
 
 # adjust paths to make the Splunk app working
 import import_declare_test  # noqa: F401
-from solnlib import conf_manager
+from solnlib import conf_manager, log
 
 APP_NAME = __file__.split(op.sep)[-3]
 CONF_NAME = "ta_dataset"
@@ -26,6 +27,15 @@ def get_url(base_url, ds_method):
         ds_api_endpoint = "addEvents"
 
     return base_url + "/api/" + ds_api_endpoint
+
+
+# returns logger that logs data into file
+# /opt/splunk/var/log/splunk/${APP_NAME}/${suffix}
+def get_logger(session_key, suffix: str):
+    logger = log.Logs().get_logger("{}_{}".format(APP_NAME, suffix))
+    log_level = get_log_level(session_key, logging)
+    logger.setLevel(log_level)
+    return logger
 
 
 # one conf manager to rule them all

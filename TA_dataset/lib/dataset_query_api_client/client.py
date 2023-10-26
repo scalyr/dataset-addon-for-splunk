@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, Union
 
 import attr
+import httpx
 import requests
 
 
@@ -32,6 +33,7 @@ class Client:
     verify_ssl: Union[str, bool, ssl.SSLContext] = attr.ib(True, kw_only=True)
     raise_on_unexpected_status: bool = attr.ib(False, kw_only=True)
     follow_redirects: bool = attr.ib(False, kw_only=True)
+    proxy: Dict[str, str] = attr.ib(factory=dict, kw_only=True)
 
     def get_headers(self) -> Dict[str, str]:
         """Get headers to be used in all endpoints"""
@@ -55,6 +57,13 @@ class Client:
         """Get a new client matching this one with a new timeout (in seconds)"""
         return attr.evolve(self, timeout=timeout)
 
+    def get_proxy(self) -> Dict[str, str]:
+        return {**self.proxy}
+
+    def with_proxy(self, proxy: Dict[str, str]) -> "Client":
+        """Get a new client matching this one with additional cookies"""
+        return attr.evolve(self, proxy={**self.proxy, **proxy})
+
 
 def get_user_agent():
     """Get user agent"""
@@ -74,12 +83,13 @@ def get_user_agent():
     )
     splunk_version = extract(splunk_version_file)
 
-    return "dataset-splunk-addon;{};{};python-{};splunk-{};requests-{}".format(
+    return "dataset-splunk-addon;{};{};python-{};splunk-{};requests-{},httpx-{}".format(
         version,
         platform.platform(),
         platform.python_version(),
         splunk_version,
         requests.__version__,
+        httpx.__version__,
     )
 
 

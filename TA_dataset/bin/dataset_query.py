@@ -14,13 +14,12 @@ import requests
 from dataset_api import build_payload, get_maxcount, parse_query, query_api_max
 from dataset_common import (
     get_acct_info,
-    get_log_level,
+    get_logger,
     get_proxy,
     get_url,
     relative_to_epoch,
 )
 from dataset_query_api_client.client import get_user_agent
-from solnlib import log
 from solnlib.modular_input import checkpointer
 from splunklib import modularinput as smi
 
@@ -115,11 +114,7 @@ class DATASET_QUERY_INPUT(smi.Script):
 
         # Generate logger with input name
         _, input_name = input_name.split("//", 2)
-        logger = log.Logs().get_logger("{}_input".format(APP_NAME))
-
-        # Log level configuration
-        log_level = get_log_level(session_key, logger)
-        logger.setLevel(log_level)
+        logger = get_logger(session_key, "input")
 
         logger.debug("Modular input invoked.")
 

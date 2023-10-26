@@ -125,10 +125,14 @@ Note that build cleans previously created configuration. To prevent removal of c
 * Remove Splunk container - `make docker-splunk-remove`
 * Restore configuration - `make dev-config-backup`
 * Backup configuration - `make dev-config-restore` - it's not clear whether it really works
-* Tail Splunk logs - Splunkd - `make docker-tail-logs-splunk`
-* Tail Splunk logs - Python - `make docker-tail-logs-python`
-* Tail Splunk logs - Inputs - `make docker-tail-logs-inputs`
+* To see all available logs - `make docker-splunk-list-logs`
+* To see particular log, you may use - `make docker-splunk-tail-log LOG_NAME=log-file`
+  * Logs related to Splunk Python - `make docker-splunk-tail-logs-python` calls `make docker-splunk-tail-log LOG_NAME=python.log`
+  * Logs related to Search command - `make docker-splunk-tail-logs-app-search-command` calls `make docker-splunk-tail-log LOG_NAME="TA_dataset_search_command.log"`
 
+#### Where are errors:
+
+* `search_messages.log` - error message that is shown in the UI, no stack trace :/
 # E2E Testing
 
 We are using Playwright - https://playwright.dev/
