@@ -45,9 +45,9 @@
   </row>
   <row>
     <panel>
-      <title>Searching Your Data in DataSet</title>
+      <title>Searching Your Data in Singularity Data Lake</title>
       <html>
-      <b>This dashboard will help get you started on your journey. The first thing you'll want to do after configuring your DataSet Read API Key is to run a simple test to make sure you can access Dataset.</b>
+      <b>This dashboard will help get you started on your journey. The first thing you'll want to do after configuring your Singularity Data Lake Read API Key is to run a simple test to make sure you can access Singularity Data Lake.</b>
     </html>
     </panel>
   </row>
@@ -78,8 +78,8 @@
   <row>
     <panel>
       <html>
-      <h3>Now let's talk about executing queries against DataSet.</h3>
-      The first thing you need to know is that this Add-On provides four methods to query DataSet:
+      <h3>Now let's talk about executing queries against Singularity Data Lake.</h3>
+      The first thing you need to know is that this Add-On provides four methods to query Singularity Data Lake:
       <ol>
         <li>
             <b>Base Data Query</b> - This will return the raw event data (fast, but very verbose). This type of query returns all evetn data so be mindful of the amount of data pushed across the wire and held in memory.</li>
@@ -90,7 +90,7 @@
         <li>
             <b>Timeseries Query</b> - This will calculate numeric values over time. For repeated queries, summaries allow precomputed results (fastest).</li>
       </ol>
-      Depending on your use case, you may have a need for any or all of these.  
+      Depending on your use case, you may have a need for any or all of these.
       <h1>Let's get started searching! </h1>
     </html>
     </panel>
@@ -120,7 +120,7 @@
         <fieldForLabel>serverHost</fieldForLabel>
         <fieldForValue>serverHost</fieldForValue>
         <search>
-          <query>| dataset method=facet field=serverHost search="serverHost=* " 
+          <query>| dataset method=facet field=serverHost search="serverHost=* "
 | spath
 | rename value as serverHost
 |  table serverHost count
@@ -142,7 +142,7 @@
         <initialValue>All</initialValue>
       </input>
       <input id="baseQuery" type="text" token="baseQuery">
-        <label>Base DataSet query</label>
+        <label>Base query</label>
         <default>$baseQuery$</default>
       </input>
     </panel>
@@ -152,7 +152,7 @@
       <table>
         <title>SPL:  | dataset method=query search="$baseQuery$" $myMaxCount$  | spath</title>
         <search>
-          <query>| dataset method=query search="$baseQuery$" $myMaxCount$ 
+          <query>| dataset method=query search="$baseQuery$" $myMaxCount$
 |  spath</query>
           <earliest>$myTime.earliest$</earliest>
           <latest>$myTime.latest$</latest>
@@ -166,7 +166,7 @@
   </row>
   <row>
     <panel>
-      <title>Now let's select a field to aggregate statistics on in DataSet.   (This is exponentially better performance than returning all data and using SPL to summarize.)</title>
+      <title>Now let's select a field to aggregate statistics on in Singularity Data Lake.   (This is exponentially better performance than returning all data and using SPL to summarize.)</title>
       <input type="dropdown" token="myTag" searchWhenChanged="true">
         <label>Field to aggregate by</label>
         <choice value="tag">tag</choice>
@@ -187,7 +187,7 @@
   </row>
   <row>
     <panel>
-      <title>2. PowerQuery:  Aggregate in DataSet and display in Splunk!</title>
+      <title>2. PowerQuery:  Aggregate in Singularity Data Lake and display in Splunk!</title>
       <input id="basePowerQuery" type="text" token="basePowerQuery">
         <label>Enter a PowerQuery to apply to the base query</label>
         <default>$basePowerQuery$</default>
@@ -212,7 +212,7 @@
   </row>
   <row>
     <panel>
-      <title>3. Facet Query:  Aggregate in DataSet, Facet by a specific field and display in Splunk!</title>
+      <title>3. Facet Query:  Aggregate in Singularity Data Lake, Facet by a specific field and display in Splunk!</title>
       <input id="baseFacetQuery" type="text" token="baseFacetQuery">
         <label>Enter a Facet Query to apply to the base query</label>
         <default>$baseFacetQuery$</default>

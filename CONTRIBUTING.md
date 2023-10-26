@@ -20,6 +20,12 @@ You need Python 3.8 for development and package building.
     sudo make dev-install-dependencies-pack-sudo
     # install library dependencies
     make dev-install-dependencies-lib
+    # If you get "ImportError: failed to find libmagic.  Check your installation" error when
+    # running inspect target, you also need to install libmagic dependency
+    brew install libmagic
+    # If you get "getopt: illegal option -- n" this means you don't have GNU getopt tool installed
+    # You can install it using command below
+    brew install gnu-getopt
   ```
 * Test it:
   * By packing the application: `make pack`
@@ -82,7 +88,7 @@ Since Splunk does not have [Docker image for Apple Sillicon](https://github.com/
 
 To clean up container run `docker container rm splunk` command
 
-## Install Security Data Lake Add-On for Splunk to running Docker container
+## Install Singularity Data Lake Add-On for Splunk to running Docker container
 Assuming application was previously built
 
 ### From existing release
