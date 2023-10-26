@@ -43,6 +43,9 @@ jobs:
       - name: Delete previous releases
         run: rm -rf release
 
+      # TODO: Switch to PAT + bot user for push so we can still utilize branch protection.
+      # Without that, we can't enable branch protection. See https://github.com/orgs/community/discussions/25305
+      # for details
       - name: Remove old releases
         run: |
           git config user.email "github-actions@github.com"

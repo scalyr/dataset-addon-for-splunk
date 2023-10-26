@@ -1,5 +1,5 @@
 #  TA_dataset
-This add-on integrates with [DataSet](https://www.dataset.com) by [SentinelOne](https://www.sentinelone.com).
+This add-on integrates with [DataSet](https://www.dataset.com) and [Singularity Data Lake](https://www.sentinelone.com/platform/xdr-ingestion) by [SentinelOne](https://www.sentinelone.com).
 
 For more information, see the [GitHub](https://github.com/scalyr/dataset-addon-for-splunk) repository.
 ##### Note

@@ -21,7 +21,7 @@
     <view name="search"/>
    	<collection label="Dashboards">
       <view name="dashboards" />
-      <view name="dataset_by_example" />
+      <view name="sdl_by_example" />
       <view name="sentinelone_use_case_query_examples" />
       <view name="soc_search_examples" />
       <view name="ingestion_summary" />
