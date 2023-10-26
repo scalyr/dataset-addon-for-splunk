@@ -145,6 +145,7 @@ dev-config-restore:
 dev-update-source:
 	rsync -av $(SOURCE_PACKAGE)/bin/ $(OUTPUT_PACKAGE)/bin/
 	rsync -av $(SOURCE_PACKAGE)/default/ $(OUTPUT_PACKAGE)/default/
+	rsync -av $(SOURCE_PACKAGE)/lib/dataset_query_api_client/ $(OUTPUT_PACKAGE)/lib/dataset_query_api_client/
 
 dev-install-dependencies-pack:
 	pip install --upgrade-strategy only-if-needed -r requirements-pack.txt
