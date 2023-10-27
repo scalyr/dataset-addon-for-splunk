@@ -313,7 +313,7 @@ class DataSetSearch(GeneratingCommand):
                         limit=ds_maxcount,
                         proxy=proxy,
                     )
-                    logger.info("QUERY RESULT, result={}".format(result))
+                    logger.debug("QUERY RESULT, result={}".format(result))
 
                     matches_list = result.data.matches  # List<LogEvent>
 
@@ -355,7 +355,7 @@ class DataSetSearch(GeneratingCommand):
                         query=pq,
                         proxy=proxy,
                     )
-                    logger.info("QUERY RESULT, result={}".format(result))
+                    logger.debug("QUERY RESULT, result={}".format(result))
                     data = result.data  # TableResultData
                     columns = data.columns
                     for row in data.values:
@@ -391,7 +391,7 @@ class DataSetSearch(GeneratingCommand):
                         max_values=ds_maxcount,
                         proxy=proxy,
                     )
-                    logger.info("QUERY RESULT, result={}".format(result))
+                    logger.debug("QUERY RESULT, result={}".format(result))
                     facet = result.data.facet  # FacetValuesResultData.data -> FacetData
                     values = facet.values  # List[FacetValue]
                     for i in range(len(values)):
