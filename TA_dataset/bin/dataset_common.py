@@ -102,23 +102,28 @@ def get_proxy(session_key, logger):
         if int(proxy_enabled) == 0:
             return None
         else:
+            proxy_type = proxy_details.get("proxy_type")
             proxy_host = proxy_details.get("proxy_url")
             proxy_port = proxy_details.get("proxy_port")
             proxy_username = proxy_details.get("proxy_username")
             proxy_password = proxy_details.get("proxy_password")
             proxies = {}
             proxy_url = ""
+            if proxy_type:
+                proxy_url += proxy_type
+            else:
+                proxy_url += "http"
+            proxy_url += "://"
             if proxy_username:
                 proxy_url += proxy_username
             if proxy_password:
                 proxy_url += ":" + proxy_password
             if proxy_username:
                 proxy_url += "@"
-            proxy_url += proxy_host + ":" + proxy_port
+            proxy_url += proxy_host
+            proxy_url += ":" + proxy_port
 
-            # TODO: We are only supporting HTTP proxies
-            # Is this expected?
-            proxies["http"] = "http://" + proxy_url
+            proxies["http"] = proxy_url
             proxies["https"] = proxies["http"]
 
             return proxies
