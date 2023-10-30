@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import json
+import logging
 import os.path as op
 import sys
 import time
 
 # adjust paths to make the Splunk app working
 import import_declare_test  # noqa: F401
-from solnlib import conf_manager
+from solnlib import conf_manager, log
 
 APP_NAME = __file__.split(op.sep)[-3]
 CONF_NAME = "ta_dataset"
@@ -26,6 +27,15 @@ def get_url(base_url, ds_method):
         ds_api_endpoint = "addEvents"
 
     return base_url + "/api/" + ds_api_endpoint
+
+
+# returns logger that logs data into file
+# /opt/splunk/var/log/splunk/${APP_NAME}/${suffix}
+def get_logger(session_key, suffix: str):
+    logger = log.Logs().get_logger("{}_{}".format(APP_NAME, suffix))
+    log_level = get_log_level(session_key, logging)
+    logger.setLevel(log_level)
+    return logger
 
 
 # one conf manager to rule them all
@@ -84,7 +94,6 @@ def get_proxy(session_key, logger):
             # MM: it does not have key `proxy_enabled, it has key - disabled
             #  {'disabled': '0', 'eai:appName': 'TA_dataset' ...
             proxy_details = cfm.get_conf(CONF_NAME + "_settings").get("proxy")
-            logger.info("MM PROXY: " + repr(proxy_details))
             proxy_enabled = proxy_details.get("proxy_enabled", 0)
         except Exception as e:
             logger.debug("No proxy information defined: {}".format(e))
@@ -93,30 +102,30 @@ def get_proxy(session_key, logger):
         if int(proxy_enabled) == 0:
             return None
         else:
-            proxy_url = proxy_details.get("proxy_url")
+            proxy_type = proxy_details.get("proxy_type")
+            proxy_host = proxy_details.get("proxy_url")
             proxy_port = proxy_details.get("proxy_port")
             proxy_username = proxy_details.get("proxy_username")
             proxy_password = proxy_details.get("proxy_password")
-            proxy_type = proxy_details.get("proxy_type")
             proxies = {}
-            if proxy_username and proxy_password:
-                proxies["http"] = (
-                    proxy_username
-                    + ":"
-                    + proxy_password
-                    + "@"
-                    + proxy_url
-                    + ":"
-                    + proxy_port
-                )
-            elif proxy_username:
-                proxies["http"] = proxy_username + "@" + proxy_url + ":" + proxy_port
+            proxy_url = ""
+            if proxy_type:
+                proxy_url += proxy_type
             else:
-                proxies["http"] = proxy_url + ":" + proxy_port
-            if proxy_type and proxy_type != "http":
-                proxies["http"] = proxy_type + "://" + proxies["http"]
+                proxy_url += "http"
+            proxy_url += "://"
+            if proxy_username:
+                proxy_url += proxy_username
+            if proxy_password:
+                proxy_url += ":" + proxy_password
+            if proxy_username:
+                proxy_url += "@"
+            proxy_url += proxy_host
+            proxy_url += ":" + proxy_port
 
+            proxies["http"] = proxy_url
             proxies["https"] = proxies["http"]
+
             return proxies
 
     except Exception as e:
