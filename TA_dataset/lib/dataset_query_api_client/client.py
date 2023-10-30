@@ -16,8 +16,8 @@ class Client:
     Attributes:
         base_url: The base URL for the API, all requests are made to a relative path to this URL
         cookies: A dictionary of cookies to be sent with every request
-        headers: A dictionary of proxy settings to be used for every request
-        headers: A dictionary of headers to be sent with every request
+        headers: A dictionary of headers settings to be used for every request
+        proxy: A dictionary of proxy to be sent with every request
         timeout: The maximum amount of a time in seconds a request can take. API functions will raise
             httpx.TimeoutException if this is exceeded.
         verify_ssl: Whether to verify the SSL certificate of the API server. This should be True in production,

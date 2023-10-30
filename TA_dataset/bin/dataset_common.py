@@ -94,7 +94,6 @@ def get_proxy(session_key, logger):
             # MM: it does not have key `proxy_enabled, it has key - disabled
             #  {'disabled': '0', 'eai:appName': 'TA_dataset' ...
             proxy_details = cfm.get_conf(CONF_NAME + "_settings").get("proxy")
-            logger.info("MM PROXY: " + repr(proxy_details))
             proxy_enabled = proxy_details.get("proxy_enabled", 0)
         except Exception as e:
             logger.debug("No proxy information defined: {}".format(e))
@@ -103,30 +102,25 @@ def get_proxy(session_key, logger):
         if int(proxy_enabled) == 0:
             return None
         else:
-            proxy_url = proxy_details.get("proxy_url")
+            proxy_host = proxy_details.get("proxy_url")
             proxy_port = proxy_details.get("proxy_port")
             proxy_username = proxy_details.get("proxy_username")
             proxy_password = proxy_details.get("proxy_password")
-            proxy_type = proxy_details.get("proxy_type")
             proxies = {}
-            if proxy_username and proxy_password:
-                proxies["http"] = (
-                    proxy_username
-                    + ":"
-                    + proxy_password
-                    + "@"
-                    + proxy_url
-                    + ":"
-                    + proxy_port
-                )
-            elif proxy_username:
-                proxies["http"] = proxy_username + "@" + proxy_url + ":" + proxy_port
-            else:
-                proxies["http"] = proxy_url + ":" + proxy_port
-            if proxy_type and proxy_type != "http":
-                proxies["http"] = proxy_type + "://" + proxies["http"]
+            proxy_url = ""
+            if proxy_username:
+                proxy_url += proxy_username
+            if proxy_password:
+                proxy_url += ":" + proxy_password
+            if proxy_username:
+                proxy_url += "@"
+            proxy_url += proxy_host + ":" + proxy_port
 
+            # TODO: We are only supporting HTTP proxies
+            # Is this expected?
+            proxies["http"] = "http://" + proxy_url
             proxies["https"] = proxies["http"]
+
             return proxies
 
     except Exception as e:
