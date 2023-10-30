@@ -21,7 +21,13 @@ from dataset_api import (
     get_maxcount,
     parse_splunk_dt,
 )
-from dataset_common import get_acct_info, get_proxy, get_url, relative_to_epoch
+from dataset_common import (
+    get_acct_info,
+    get_logger,
+    get_proxy,
+    get_url,
+    relative_to_epoch,
+)
 
 # Dataset V2 API client (generated)
 from dataset_query_api_client.client import get_user_agent
@@ -270,8 +276,11 @@ class DataSetSearch(GeneratingCommand):
             ts_create_summ,
             ts_use_summ,
         )
-        proxy = get_proxy(self.service.token, logging)
-        acct_dict = get_acct_info(self, logging, ds_account)
+
+        logger = get_logger(self.service.token, "search_command")
+
+        proxy = get_proxy(self.service.token, logger)
+        acct_dict = get_acct_info(self, logger, ds_account)
         if acct_dict is None:
             search_error_exit(
                 self, "Account token error, review search log for details"
@@ -302,14 +311,15 @@ class DataSetSearch(GeneratingCommand):
                         end_time=ds_end,
                         filter_expr=ds_search,
                         limit=ds_maxcount,
+                        proxy=proxy,
                     )
-                    logging.info("QUERY RESULT, result={}".format(result))
+                    logger.debug("QUERY RESULT, result={}".format(result))
 
                     matches_list = result.data.matches  # List<LogEvent>
 
                     if len(matches_list) == 0:
-                        logging.warning("DataSet response success, no matches returned")
-                        # logging.warning(r_json)
+                        logger.warning("DataSet response success, no matches returned")
+                        # logger.warning(r_json)
 
                     for event in matches_list:
                         ds_event = json.loads(
@@ -328,7 +338,7 @@ class DataSetSearch(GeneratingCommand):
                             account=ds_acct,
                             _raw=ds_event,
                         )
-                    logging.debug(
+                    logger.debug(
                         "DataSetFunction=completeEvents, startTime={}".format(
                             time.time()
                         )
@@ -336,15 +346,16 @@ class DataSetSearch(GeneratingCommand):
                     GeneratingCommand.flush
                 elif ds_method == "powerquery":
                     pq = ds_build_pq(ds_search, ds_columns, ds_maxcount)
-                    logging.info("PQ: {}".format(pq))
+                    logger.info("PQ: {}".format(pq))
                     result = ds_lrq_power_query(
                         base_url=ds_base_url,
                         api_key=ds_api_key,
                         start_time=ds_start,
                         end_time=ds_end,
                         query=pq,
+                        proxy=proxy,
                     )
-                    logging.info("QUERY RESULT, result={}".format(result))
+                    logger.debug("QUERY RESULT, result={}".format(result))
                     data = result.data  # TableResultData
                     columns = data.columns
                     for row in data.values:
@@ -362,7 +373,7 @@ class DataSetSearch(GeneratingCommand):
                             _raw=ds_event,
                         )
 
-                    logging.debug(
+                    logger.debug(
                         "DataSetFunction=completeEvents, startTime={}".format(
                             time.time()
                         )
@@ -378,8 +389,9 @@ class DataSetSearch(GeneratingCommand):
                         filter=ds_search,
                         name=f_field,
                         max_values=ds_maxcount,
+                        proxy=proxy,
                     )
-                    logging.info("QUERY RESULT, result={}".format(result))
+                    logger.debug("QUERY RESULT, result={}".format(result))
                     facet = result.data.facet  # FacetValuesResultData.data -> FacetData
                     values = facet.values  # List[FacetValue]
                     for i in range(len(values)):
@@ -396,7 +408,7 @@ class DataSetSearch(GeneratingCommand):
                             _raw=ds_event,
                         )
 
-                    logging.debug(
+                    logger.debug(
                         "DataSetFunction=completeEvents, startTime={}".format(
                             time.time()
                         )
@@ -406,14 +418,14 @@ class DataSetSearch(GeneratingCommand):
                     # TODO: There is no equivalent to the old timeseries API in
                     #  the new async version, but we can look into replacing this
                     #  with a PLOT query type
-                    logging.debug(
+                    logger.debug(
                         "DataSetFunction=makeRequest, destination={}, startTime={}"
                         .format(ds_url, time.time())
                     )
                     r = requests.post(
                         url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy
                     )
-                    logging.debug(
+                    logger.debug(
                         "DataSetFunction=getResponse, elapsed={}".format(r.elapsed)
                     )
                     r_json = r.json()
@@ -443,16 +455,16 @@ class DataSetSearch(GeneratingCommand):
                             yield record
 
                     else:
-                        logging.warning("DataSet response success, no matches returned")
+                        logger.warning("DataSet response success, no matches returned")
 
-                    logging.debug(
+                    logger.debug(
                         "DataSetFunction=completeEvents, startTime={}".format(
                             time.time()
                         )
                     )
                     GeneratingCommand.flush
                 else:
-                    logging.debug(
+                    logger.debug(
                         "DataSetFunction=completeEvents, startTime={}".format(
                             time.time()
                         )

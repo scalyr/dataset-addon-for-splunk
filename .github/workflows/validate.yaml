@@ -40,3 +40,19 @@ jobs:
             --input TA_dataset \
             --output output \
             --release release
+
+      - name: Store Release Folder
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: release
+          path: release
+          retention-days: 30
+
+      - name: Store Output Folder
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: output
+          path: output
+          retention-days: 30

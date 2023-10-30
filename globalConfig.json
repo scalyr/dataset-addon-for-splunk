@@ -150,6 +150,21 @@
               "type": "checkbox"
             },
             {
+              "type": "singleSelect",
+              "label": "Proxy Type",
+              "options": {
+                "disableSearch": true,
+                "autoCompleteFields": [
+                  {
+                    "value": "http",
+                    "label": "http"
+                  }
+                ]
+              },
+              "defaultValue": "http",
+              "field": "proxy_type"
+            },
+            {
               "field": "proxy_url",
               "label": "Host",
               "type": "text",

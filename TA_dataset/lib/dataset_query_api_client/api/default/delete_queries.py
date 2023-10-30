@@ -19,6 +19,7 @@ def _get_kwargs(
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
+    proxies: Dict[str, str] = client.get_proxy()
 
     headers["x-dataset-query-forward-tag"] = forward_tag
 
@@ -27,6 +28,7 @@ def _get_kwargs(
         "url": url,
         "headers": headers,
         "cookies": cookies,
+        "proxies": proxies,
         "timeout": client.get_timeout(),
         "follow_redirects": client.follow_redirects,
     }
