@@ -2,6 +2,7 @@
 
 import json
 import time
+from logging import Logger
 
 # adjust paths to make the Splunk app working
 import import_declare_test  # noqa: F401
@@ -38,8 +39,16 @@ def convert_proxy(proxy):
 
 
 # Executes Dataset LongRunningQuery for log events
+# Returns tuple - value, error message
 def ds_lrq_log_query(
-    base_url, api_key, start_time, end_time, filter_expr, limit, proxy
+    base_url,
+    api_key,
+    start_time,
+    end_time,
+    filter_expr,
+    limit,
+    proxy,
+    logger: Logger,
 ):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
@@ -50,11 +59,14 @@ def ds_lrq_log_query(
         end_time=end_time,
         log=LogAttributes(filter_=filter_expr, limit=limit),
     )
-    return ds_lrq_run_loop(client=client, body=body)
+    return ds_lrq_run_loop(client=client, body=body, logger=logger)
 
 
 # Executes Dataset LongRunningQuery using PowerQuery language
-def ds_lrq_power_query(base_url, api_key, start_time, end_time, query, proxy):
+# Returns tuple - value, error message
+def ds_lrq_power_query(
+    base_url, api_key, start_time, end_time, query, proxy, logger: Logger
+):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
     )
@@ -64,12 +76,21 @@ def ds_lrq_power_query(base_url, api_key, start_time, end_time, query, proxy):
         end_time=end_time,
         pq=PQAttributes(query=query),
     )
-    return ds_lrq_run_loop(client=client, body=body)
+    return ds_lrq_run_loop(client=client, body=body, logger=logger)
 
 
 # Executes Dataset LongRunningQuery to fetch facet values
+# Returns tuple - value, error message
 def ds_lrq_facet_values(
-    base_url, api_key, start_time, end_time, filter, name, max_values, proxy
+    base_url,
+    api_key,
+    start_time,
+    end_time,
+    filter,
+    name,
+    max_values,
+    proxy,
+    logger: Logger,
 ):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
@@ -82,34 +103,42 @@ def ds_lrq_facet_values(
             filter_=filter, name=name, max_values=max_values
         ),
     )
-    return ds_lrq_run_loop(client=client, body=body)
+    return ds_lrq_run_loop(client=client, body=body, logger=logger)
 
 
 # Executes LRQ run loop of launch-ping-remove API requests until the query completes
 # with a result
+# Returns tuple - value, error message
 def ds_lrq_run_loop(
-    client: AuthenticatedClient, body: PostQueriesLaunchQueryRequestBody
+    client: AuthenticatedClient, body: PostQueriesLaunchQueryRequestBody, logger: Logger
 ):
     body.query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority.HIGH
     response = post_queries.sync_detailed(client=client, json_body=body)
+    logger.info(response)
     result = response.parsed
-    forward_tag = response.headers["x-dataset-query-forward-tag"]
-    steps_done = result.steps_completed
-    steps_total = result.steps_total
-    query_id = result.id
-    while steps_done < steps_total:
-        response = get_queries.sync_detailed(
-            id=query_id,
-            query_type=body.query_type,
-            client=client,
-            last_step_seen=steps_done,
-            forward_tag=forward_tag,
-        )
-        result = response.parsed
+    logger.info(result)
+    logger.info(response.content)
+    if result:
+        forward_tag = response.headers["x-dataset-query-forward-tag"]
         steps_done = result.steps_completed
-    delete_queries.sync_detailed(id=query_id, client=client, forward_tag=forward_tag)
+        steps_total = result.steps_total
+        query_id = result.id
+        while steps_done < steps_total:
+            response = get_queries.sync_detailed(
+                id=query_id,
+                query_type=body.query_type,
+                client=client,
+                last_step_seen=steps_done,
+                forward_tag=forward_tag,
+            )
+            result = response.parsed
+            steps_done = result.steps_completed
+        delete_queries.sync_detailed(
+            id=query_id, client=client, forward_tag=forward_tag
+        )
 
-    return result
+        return result, None
+    return None, json.loads(response.content)
 
 
 # Returns a valid PowerQuery incorporating provided filter, columns and limit

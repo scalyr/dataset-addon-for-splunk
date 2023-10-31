@@ -304,7 +304,7 @@ class DataSetSearch(GeneratingCommand):
 
             try:
                 if ds_method == "query":
-                    result = ds_lrq_log_query(
+                    result, error = ds_lrq_log_query(
                         base_url=ds_base_url,
                         api_key=ds_api_key,
                         start_time=ds_start,
@@ -312,7 +312,11 @@ class DataSetSearch(GeneratingCommand):
                         filter_expr=ds_search,
                         limit=ds_maxcount,
                         proxy=proxy,
+                        logger=logger,
                     )
+                    if error:
+                        search_error_exit(self, error)
+
                     logger.debug("QUERY RESULT, result={}".format(result))
 
                     matches_list = result.data.matches  # List<LogEvent>
@@ -347,14 +351,17 @@ class DataSetSearch(GeneratingCommand):
                 elif ds_method == "powerquery":
                     pq = ds_build_pq(ds_search, ds_columns, ds_maxcount)
                     logger.info("PQ: {}".format(pq))
-                    result = ds_lrq_power_query(
+                    result, error = ds_lrq_power_query(
                         base_url=ds_base_url,
                         api_key=ds_api_key,
                         start_time=ds_start,
                         end_time=ds_end,
                         query=pq,
                         proxy=proxy,
+                        logger=logger,
                     )
+                    if error:
+                        search_error_exit(self, error)
                     logger.debug("QUERY RESULT, result={}".format(result))
                     data = result.data  # TableResultData
                     columns = data.columns
@@ -381,7 +388,7 @@ class DataSetSearch(GeneratingCommand):
                     GeneratingCommand.flush
                 elif ds_method == "facet":
                     # Facet Values query
-                    result = ds_lrq_facet_values(
+                    result, error = ds_lrq_facet_values(
                         base_url=ds_base_url,
                         api_key=ds_api_key,
                         start_time=ds_start,
@@ -390,7 +397,10 @@ class DataSetSearch(GeneratingCommand):
                         name=f_field,
                         max_values=ds_maxcount,
                         proxy=proxy,
+                        logger=logger,
                     )
+                    if error:
+                        search_error_exit(self, error)
                     logger.debug("QUERY RESULT, result={}".format(result))
                     facet = result.data.facet  # FacetValuesResultData.data -> FacetData
                     values = facet.values  # List[FacetValue]
