@@ -2,16 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import json
-import logging
 import re
 import sys
 import time
+from typing import Any, Dict, Union
 
 # ignore flake8 rule unused import, see
 # https://splunk.github.io/addonfactory-ucc-generator/troubleshooting/#modulenotfounderror-no-module-named-library-name
 import import_declare_test  # noqa: F401
 import requests
 from dataset_api import (
+    APIException,
     build_payload,
     ds_build_pq,
     ds_lrq_facet_values,
@@ -26,6 +27,7 @@ from dataset_common import (
     get_logger,
     get_proxy,
     get_url,
+    logger,
     relative_to_epoch,
 )
 
@@ -116,17 +118,19 @@ def get_search_arguments(self):
     )
 
 
-def search_error_exit(self, r_json):
+def search_error_exit(self, r_json: Union[Dict[str, Any], str]) -> None:
+    logger().error(r_json)
     if "message" in r_json:
-        logging.error(r_json["message"])
         if r_json["message"].startswith("Couldn't decode API token"):
             error_message = (  # make API error more user-friendly
                 "API token rejected, check add-on configuration"
             )
         else:
             error_message = r_json["message"]
+
+        if "code" in r_json:
+            error_message += " (" + r_json["code"] + ")"
     else:
-        logging.error(r_json)
         try:
             error_message = str(r_json)
         except Exception as e:
@@ -304,7 +308,7 @@ class DataSetSearch(GeneratingCommand):
 
             try:
                 if ds_method == "query":
-                    result, error = ds_lrq_log_query(
+                    result = ds_lrq_log_query(
                         base_url=ds_base_url,
                         api_key=ds_api_key,
                         start_time=ds_start,
@@ -312,10 +316,7 @@ class DataSetSearch(GeneratingCommand):
                         filter_expr=ds_search,
                         limit=ds_maxcount,
                         proxy=proxy,
-                        logger=logger,
                     )
-                    if error:
-                        search_error_exit(self, error)
 
                     logger.debug("QUERY RESULT, result={}".format(result))
 
@@ -323,7 +324,6 @@ class DataSetSearch(GeneratingCommand):
 
                     if len(matches_list) == 0:
                         logger.warning("DataSet response success, no matches returned")
-                        # logger.warning(r_json)
 
                     for event in matches_list:
                         ds_event = json.loads(
@@ -351,17 +351,14 @@ class DataSetSearch(GeneratingCommand):
                 elif ds_method == "powerquery":
                     pq = ds_build_pq(ds_search, ds_columns, ds_maxcount)
                     logger.info("PQ: {}".format(pq))
-                    result, error = ds_lrq_power_query(
+                    result = ds_lrq_power_query(
                         base_url=ds_base_url,
                         api_key=ds_api_key,
                         start_time=ds_start,
                         end_time=ds_end,
                         query=pq,
                         proxy=proxy,
-                        logger=logger,
                     )
-                    if error:
-                        search_error_exit(self, error)
                     logger.debug("QUERY RESULT, result={}".format(result))
                     data = result.data  # TableResultData
                     columns = data.columns
@@ -388,7 +385,7 @@ class DataSetSearch(GeneratingCommand):
                     GeneratingCommand.flush
                 elif ds_method == "facet":
                     # Facet Values query
-                    result, error = ds_lrq_facet_values(
+                    result = ds_lrq_facet_values(
                         base_url=ds_base_url,
                         api_key=ds_api_key,
                         start_time=ds_start,
@@ -397,10 +394,7 @@ class DataSetSearch(GeneratingCommand):
                         name=f_field,
                         max_values=ds_maxcount,
                         proxy=proxy,
-                        logger=logger,
                     )
-                    if error:
-                        search_error_exit(self, error)
                     logger.debug("QUERY RESULT, result={}".format(result))
                     facet = result.data.facet  # FacetValuesResultData.data -> FacetData
                     values = facet.values  # List[FacetValue]
@@ -439,6 +433,9 @@ class DataSetSearch(GeneratingCommand):
                         "DataSetFunction=getResponse, elapsed={}".format(r.elapsed)
                     )
                     r_json = r.json()
+                    status = r_json.get("status", "error")
+                    if status != "success":
+                        search_error_exit(self, r_json)
                     if "results" in r_json:
                         bucket_time = get_bucket_increments(
                             ds_start, ds_end, ts_buckets
@@ -480,6 +477,8 @@ class DataSetSearch(GeneratingCommand):
                         )
                     )
                     GeneratingCommand.flush
+            except APIException as e:
+                search_error_exit(self, e.payload)
             except Exception as e:
                 search_error_exit(self, str(e))
 
