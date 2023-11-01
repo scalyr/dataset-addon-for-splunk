@@ -24,6 +24,8 @@ from dataset_query_api_client.models import (
 )
 
 
+# APIException stores response payload received by API.
+# Payload is passed as is into search_error_exit.
 class APIException(Exception):
     def __init__(self, payload):
         self.payload = payload
@@ -133,6 +135,10 @@ def ds_lrq_run_loop(
                 steps_done = result.steps_completed
                 retry = 0
             else:
+                # 2023-11-01: QA server is sometimes returns 500 Operation not
+                # permitted, after several batches have been received.
+                # Idea is to try few retries. However, based on my handful of examples
+                # when this happened, retries has never helped.
                 retry += 1
                 logger().warning("Retrying: {}; {}".format(retry, response))
                 if retry > 5:
