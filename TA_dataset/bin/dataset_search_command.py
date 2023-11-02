@@ -280,11 +280,14 @@ class DataSetSearch(GeneratingCommand):
         logger = get_logger(self.service.token, "search_command")
 
         proxy = get_proxy(self.service.token, logger)
-        acct_dict = get_acct_info(self, logger, ds_account)
-        if acct_dict is None:
-            search_error_exit(
-                self, "Account token error, review search log for details"
-            )
+        try:
+            acct_dict = get_acct_info(self, logger, ds_account)
+            if not acct_dict:
+                search_error_exit(
+                    self, "Account token error, review search log for details"
+                )
+        except Exception as e:
+            search_error_exit(self, str(e))
 
         for ds_acct in acct_dict.keys():
             try:

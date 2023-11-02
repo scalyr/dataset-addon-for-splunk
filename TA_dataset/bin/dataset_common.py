@@ -41,12 +41,15 @@ def get_logger(session_key, suffix: str):
 # one conf manager to rule them all
 def get_conf_manager(session_key, logger):
     try:
+        realm = "__REST_CREDENTIAL__#{}#configs/conf-{}_settings".format(
+            APP_NAME, CONF_NAME
+        )
+        logger.debug("Get conf manager - App: {}; Realm: {}".format(APP_NAME, realm))
+        assert realm == "foo", realm
         cfm = conf_manager.ConfManager(
             session_key,
             APP_NAME,
-            realm="__REST_CREDENTIAL__#{}#configs/conf-{}_settings".format(
-                APP_NAME, CONF_NAME
-            ),
+            realm=realm,
         )
 
         return cfm
@@ -150,8 +153,9 @@ def get_acct_info(self, logger, account=None):
                         self, conf.name, "read", logger
                     )
             except Exception as e:
-                logger.error("Error retrieving add-on settings, error = {}".format(e))
-                return None
+                msg = "Error retrieving add-on settings, error = {}".format(e)
+                logger.error(msg)
+                raise Exception(msg)
         else:
             try:
                 # remove spaces and split by commas
@@ -164,8 +168,9 @@ def get_acct_info(self, logger, account=None):
                         self, entry, "read", logger
                     )
             except Exception as e:
-                logger.error("Error retrieving account settings, error = {}".format(e))
-                return None
+                msg = "Error retrieving account settings, error = {}".format(e)
+                logger.error(msg)
+                raise Exception(msg)
     # if account is not defined, try to get the first entry
     # (Splunk sorts alphabetically)
     else:
@@ -179,7 +184,9 @@ def get_acct_info(self, logger, account=None):
                 )
                 break
         except Exception as e:
-            logger.error("Error retrieving settings, error = {}".format(e))
+            msg = "Error retrieving settings, error = {}".format(e)
+            logger.error(msg)
+            raise Exception(msg)
     logger.debug("DataSetFunction={}, endTime={}".format("get_acct_info", time.time()))
     return acct_dict
 
