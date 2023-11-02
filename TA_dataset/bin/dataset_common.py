@@ -4,6 +4,8 @@ import logging
 import os.path as op
 import sys
 import time
+from logging import Logger
+from typing import Optional  # noqa: F401
 
 # adjust paths to make the Splunk app working
 import import_declare_test  # noqa: F401
@@ -11,6 +13,8 @@ from solnlib import conf_manager, log
 
 APP_NAME = __file__.split(op.sep)[-3]
 CONF_NAME = "ta_dataset"
+
+LOGGER = None  # type: Optional[Logger]
 
 
 # define DataSet API URL for all environments
@@ -29,12 +33,22 @@ def get_url(base_url, ds_method):
     return base_url + "/api/" + ds_api_endpoint
 
 
+def logger() -> Logger:
+    if LOGGER:
+        return LOGGER
+    return logging.getLogger()
+
+
 # returns logger that logs data into file
 # /opt/splunk/var/log/splunk/${APP_NAME}/${suffix}
-def get_logger(session_key, suffix: str):
+# you should call this function as soon as possible, to set up proper logging
+def get_logger(session_key, suffix: str) -> Logger:
     logger = log.Logs().get_logger("{}_{}".format(APP_NAME, suffix))
     log_level = get_log_level(session_key, logging)
     logger.setLevel(log_level)
+
+    global LOGGER
+    LOGGER = logger
     return logger
 
 
