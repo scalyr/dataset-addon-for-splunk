@@ -101,7 +101,7 @@
       <input type="time" token="myTime" searchWhenChanged="true">
         <label>Time</label>
         <default>
-          <earliest>-4h@m</earliest>
+          <earliest>-15m@m</earliest>
           <latest>now</latest>
         </default>
       </input>
