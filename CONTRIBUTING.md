@@ -159,8 +159,8 @@ new version by following these instructions:
 2. Click on [Draft new release](https://github.com/scalyr/dataset-addon-for-splunk/releases/new).
 3. Create new release by:
    1. Pick the latest tag.
-   2. As previous tag pick the tag of the latest release from 1.
+   2. As previous tag pick the tag of the latest release from 1. ![dataset-addon-for-splunk-begin](https://github.com/scalyr/dataset-addon-for-splunk/assets/122797378/c53af6ce-7066-47cc-93a5-cdd14d5cedb5)
    3. Click on `Generate release notes`.
    4. Upload the file from the [release](release) folder - `TA_dataset-x.y.z.tar.gz`.
    5. Append some short description to the Release title.
-4. Click on `Publish release`.
+4. Click on `Publish release`. ![dataset-addon-for-splunk-end](https://github.com/scalyr/dataset-addon-for-splunk/assets/122797378/6601fb40-619e-411f-8bdf-9401d1b66eda)
