@@ -148,3 +148,19 @@ We are using Playwright - https://playwright.dev/
 * Make sure, that your Splunk is running - `make docker-splunk-run`
 * Use `make e2e-test` - to run e2e tests without the browser
 * Use `make e2e-test-headed` - to run e2e tests with the browser
+
+# Release
+
+When code is merged, new tag is created and content of the [release](release)
+folder is updated with the tarball containing the latest version. You can release
+new version by following these instructions:
+
+1. Go to [Releases](https://github.com/scalyr/dataset-addon-for-splunk/releases) and remember what was the latest version released.
+2. Click on [Draft new release](https://github.com/scalyr/dataset-addon-for-splunk/releases/new).
+3. Create new release by:
+   1. Pick the latest tag.
+   2. As previous tag pick the tag of the latest release from 1.
+   3. Click on `Generate release notes`.
+   4. Upload the file from the [release](release) folder - `TA_dataset-x.y.z.tar.gz`.
+   5. Append some short description to the Release title.
+4. Click on `Publish release`.
