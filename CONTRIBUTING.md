@@ -113,15 +113,23 @@ Note that build cleans previously created configuration. To prevent removal of c
 #### Alternative Build and Run Workflow for Docker using make commands
 
 1. At the beginning of the day:
-   1. Create package - `make pack`
-   2. Run Splunk in Docker - `make docker-splunk-run` (if it already exists use `make docker-splunk-start`)
+   1. Remove non-running container - `make docker-splunk-remove`
+   2. Create package - `make pack`
+   3. Run Splunk in Docker - `make docker-splunk-run` (if it already exists use `make docker-splunk-start`)
+   4. You can combine this into - `make docker-splunk-remove pack docker-splunk-run`
 2. Do your code changes (assuming docker is already running, see previous steps):
    1. Update source code - `make dev-update-source`
 
+You have to do 1. when you are changing other files (matadata, assets, ...). If the container is still running, you can
+use `make docker-splunk-kill`.
+
 #### Other Useful Commands
 
+* Run Splunk without DataSet Add-On - `make docker-splunk-run-vanilla`
 * Restart Splunk - `make docker-splunk-restart`
-* Stop Splunk - `make docker-splunk-restart`
+* Stop Splunk - `make docker-splunk-stop`
+* Start stopped Splunk container - `make docker-splunk-start`
+* Kill Splunk container - `make docker-splunk-kill`
 * Remove Splunk container - `make docker-splunk-remove`
 * Restore configuration - `make dev-config-backup`
 * Backup configuration - `make dev-config-restore` - it's not clear whether it really works
