@@ -22,6 +22,15 @@ docker-splunk-run-shared:
 		-p 8000:8000 \
 		splunk/splunk:9.1 start
 
+docker-splunk-run-vanilla:
+	docker run -it \
+		-e SPLUNK_START_ARGS=--accept-license \
+		-e SPLUNK_PASSWORD=Test0101 \
+		--platform=linux/amd64 \
+		--name $(CONTAINER_NAME) \
+		-p 8000:8000 \
+		splunk/splunk:9.1 start
+
 .PHONY: docker-splunk-start
 docker-splunk-start:
 	docker start -a $(CONTAINER_NAME)
