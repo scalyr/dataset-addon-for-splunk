@@ -119,7 +119,7 @@ def get_search_arguments(self):
 
 
 def search_error_exit(self, r_json: Union[Dict[str, Any], str]) -> None:
-    logger().error(r_json)
+    logger().error("search_error_exit: %r", r_json)
     if "message" in r_json:
         if r_json["message"].startswith("Couldn't decode API token"):
             error_message = (  # make API error more user-friendly
@@ -284,26 +284,36 @@ class DataSetSearch(GeneratingCommand):
         logger = get_logger(self.service.token, "search_command")
 
         proxy = get_proxy(self.service.token, logger)
-        acct_dict = get_acct_info(self, logger, ds_account)
-        if acct_dict is None:
-            search_error_exit(
-                self, "Account token error, review search log for details"
-            )
+        try:
+            acct_dict = get_acct_info(self, logger, ds_account)
+            if not acct_dict:
+                search_error_exit(
+                    self, "Account token error, review search log for details"
+                )
+        except Exception as e:
+            search_error_exit(self, str(e))
 
         for ds_acct in acct_dict.keys():
             try:
                 ds_base_url = acct_dict[ds_acct]["base_url"]
+                if not ds_base_url:
+                    raise Exception("Configuration error: URL is not specified")
                 ds_url = get_url(ds_base_url, ds_method)
                 ds_api_key = acct_dict[ds_acct]["ds_api_key"]
+                if not ds_api_key:
+                    raise Exception(
+                        "Configuration error: Read access key is not specified"
+                    )
                 ds_headers = {
-                    "Authorization": "Bearer " + acct_dict[ds_acct]["ds_api_key"],
+                    "Authorization": "Bearer " + ds_api_key,
                     "User-Agent": get_user_agent(),
                 }
             except Exception as e:
+                logger.error("Cannot extract configuration: %s", e, exc_info=True)
                 search_error_exit(
                     self,
-                    "Splunk configuration error, see search log for details.error={}"
-                    .format(e),
+                    "Splunk configuration error when extracting account configuration,"
+                    " see search log for details. error={}".format(e),
                 )
 
             try:
@@ -478,8 +488,10 @@ class DataSetSearch(GeneratingCommand):
                     )
                     GeneratingCommand.flush
             except APIException as e:
+                logger.error("API exception", e, exc_info=True)
                 search_error_exit(self, e.payload)
             except Exception as e:
+                logger.error("Cannot perform dataset command", e, exc_info=True)
                 search_error_exit(self, str(e))
 
 
