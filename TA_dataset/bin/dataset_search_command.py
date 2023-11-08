@@ -2,16 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import json
-import logging
 import re
 import sys
 import time
+from typing import Any, Dict, Union
 
 # ignore flake8 rule unused import, see
 # https://splunk.github.io/addonfactory-ucc-generator/troubleshooting/#modulenotfounderror-no-module-named-library-name
 import import_declare_test  # noqa: F401
 import requests
 from dataset_api import (
+    APIException,
     build_payload,
     ds_build_pq,
     ds_lrq_facet_values,
@@ -26,6 +27,7 @@ from dataset_common import (
     get_logger,
     get_proxy,
     get_url,
+    logger,
     relative_to_epoch,
 )
 
@@ -116,17 +118,19 @@ def get_search_arguments(self):
     )
 
 
-def search_error_exit(self, r_json):
+def search_error_exit(self, r_json: Union[Dict[str, Any], str]) -> None:
+    logger().error(r_json)
     if "message" in r_json:
-        logging.error(r_json["message"])
         if r_json["message"].startswith("Couldn't decode API token"):
             error_message = (  # make API error more user-friendly
                 "API token rejected, check add-on configuration"
             )
         else:
             error_message = r_json["message"]
+
+        if "code" in r_json:
+            error_message += " (" + r_json["code"] + ")"
     else:
-        logging.error(r_json)
         try:
             error_message = str(r_json)
         except Exception as e:
@@ -316,13 +320,13 @@ class DataSetSearch(GeneratingCommand):
                         limit=ds_maxcount,
                         proxy=proxy,
                     )
+
                     logger.debug("QUERY RESULT, result={}".format(result))
 
                     matches_list = result.data.matches  # List<LogEvent>
 
                     if len(matches_list) == 0:
                         logger.warning("DataSet response success, no matches returned")
-                        # logger.warning(r_json)
 
                     for event in matches_list:
                         ds_event = json.loads(
@@ -432,6 +436,9 @@ class DataSetSearch(GeneratingCommand):
                         "DataSetFunction=getResponse, elapsed={}".format(r.elapsed)
                     )
                     r_json = r.json()
+                    status = r_json.get("status", "error")
+                    if status != "success":
+                        search_error_exit(self, r_json)
                     if "results" in r_json:
                         bucket_time = get_bucket_increments(
                             ds_start, ds_end, ts_buckets
@@ -473,6 +480,8 @@ class DataSetSearch(GeneratingCommand):
                         )
                     )
                     GeneratingCommand.flush
+            except APIException as e:
+                search_error_exit(self, e.payload)
             except Exception as e:
                 search_error_exit(self, str(e))
 

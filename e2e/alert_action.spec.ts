@@ -4,7 +4,7 @@ import {setTimeout} from 'timers/promises';
 
 test('Alert action - create and delete alert with results propagation to DataSet', async ({page}) => {
     // GIVEN
-    test.setTimeout(120000); //default 60s may time out since job are scheduled for every 60s
+    test.setTimeout(200000); //default 60s may time out since job are scheduled for every 60s
     const serverHost = 'dataset_addon_for_splunk_playwright_CI_CD_e2e_test_host';
     const alertName = 'splunk_addon_test_alert_'+ Math.random().toString(36).substring(2,7);
     await removeAlertIfExists(page, alertName);
@@ -12,7 +12,7 @@ test('Alert action - create and delete alert with results propagation to DataSet
     await searchDataSet(page, "| dataset");
     await saveAsAlertWithDataSetTrigger(page, alertName, serverHost);
     // AND wait for alert job to be triggered (cron job every 1 minute)
-    const waitTotalS = 60;
+    const waitTotalS = 120;
     const waitStepS = 5;
     for (let i = 0; i <= waitTotalS; i = i + waitStepS) {
         console.log(`Waiting for splunk Job (${i}/${waitTotalS})`)
