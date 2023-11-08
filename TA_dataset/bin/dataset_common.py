@@ -2,7 +2,6 @@
 import json
 import logging
 import os.path as op
-import sys
 import time
 from logging import Logger
 from typing import Optional  # noqa: F401
@@ -54,12 +53,11 @@ def get_logger(session_key, suffix: str) -> Logger:
 
 # one conf manager to rule them all
 def get_conf_manager(session_key, logger):
+    realm = "__REST_CREDENTIAL__#{}#configs/conf-{}_settings".format(
+        APP_NAME, CONF_NAME
+    )
     try:
-        realm = "__REST_CREDENTIAL__#{}#configs/conf-{}_settings".format(
-            APP_NAME, CONF_NAME
-        )
         logger.debug("Get conf manager - App: {}; Realm: {}".format(APP_NAME, realm))
-        assert realm == "foo", realm
         cfm = conf_manager.ConfManager(
             session_key,
             APP_NAME,
@@ -69,10 +67,12 @@ def get_conf_manager(session_key, logger):
         return cfm
 
     except Exception as e:
-        logger.error(
-            "Failed to fetch configuration. Check permissions. error={}".format(e)
+        msg = (
+            "Failed to fetch configuration for realm {}. Check permissions. error={}"
+            .format(realm, e)
         )
-        sys.exit(1)
+        logger.error(msg + " - %s", e, exc_info=True)
+        raise Exception(msg) from e
 
 
 def get_log_level(session_key, logger):
@@ -91,10 +91,12 @@ def get_log_level(session_key, logger):
         )
         return log_level
 
-    except Exception:
+    except Exception as e:
         logger.error(
             "Failed to fetch the log details from the configuration taking INFO as"
-            " default level."
+            " default level - %s",
+            e,
+            exc_info=True,
         )
         return "INFO"
 
@@ -113,7 +115,7 @@ def get_proxy(session_key, logger):
             proxy_details = cfm.get_conf(CONF_NAME + "_settings").get("proxy")
             proxy_enabled = proxy_details.get("proxy_enabled", 0)
         except Exception as e:
-            logger.debug("No proxy information defined: {}".format(e))
+            logger.debug("No proxy information defined: {}".format(e), exc_info=True)
             return None
 
         if int(proxy_enabled) == 0:
@@ -146,7 +148,7 @@ def get_proxy(session_key, logger):
             return proxies
 
     except Exception as e:
-        logger.info("Failed to fetch proxy information: {}".format(e))
+        logger.info("Failed to fetch proxy information: {}".format(e), exc_info=True)
         return None
 
 
@@ -155,11 +157,13 @@ def get_acct_info(self, logger, account=None):
         "DataSetFunction={}, startTime={}".format("get_acct_info", time.time())
     )
     acct_dict = {}
+    conf_name = "ta_dataset_account"
+
     if account is not None:
         # wildcard to use all accounts
         if account == "*":
             try:
-                confs = self.service.confs["ta_dataset_account"]
+                confs = self.service.confs[conf_name]
                 for conf in confs:
                     acct_dict[conf.name] = {}
                     acct_dict[conf.name]["base_url"] = conf.url
@@ -168,14 +172,14 @@ def get_acct_info(self, logger, account=None):
                     )
             except Exception as e:
                 msg = "Error retrieving add-on settings, error = {}".format(e)
-                logger.error(msg)
-                raise Exception(msg)
+                logger.error(msg + " - %s", e, exc_info=True)
+                raise Exception(msg) from e
         else:
             try:
                 # remove spaces and split by commas
                 account = account.replace(" ", "").split(",")
                 for entry in account:
-                    conf = self.service.confs["ta_dataset_account"][entry]
+                    conf = self.service.confs[conf_name][entry]
                     acct_dict[entry] = {}
                     acct_dict[entry]["base_url"] = conf.url
                     acct_dict[entry]["ds_api_key"] = get_token(
@@ -183,13 +187,13 @@ def get_acct_info(self, logger, account=None):
                     )
             except Exception as e:
                 msg = "Error retrieving account settings, error = {}".format(e)
-                logger.error(msg)
-                raise Exception(msg)
+                logger.error(msg + " - %s", e, exc_info=True)
+                raise Exception(msg) from e
     # if account is not defined, try to get the first entry
     # (Splunk sorts alphabetically)
     else:
         try:
-            confs = self.service.confs["ta_dataset_account"]
+            confs = self.service.confs[conf_name]
             for conf in confs:
                 acct_dict[conf.name] = {}
                 acct_dict[conf.name]["base_url"] = conf.url
@@ -198,9 +202,12 @@ def get_acct_info(self, logger, account=None):
                 )
                 break
         except Exception as e:
-            msg = "Error retrieving settings, error = {}".format(e)
-            logger.error(msg)
-            raise Exception(msg)
+            msg = (
+                "Error retrieving settings. Do you have at least one account in"
+                " Configuration?, error = {}".format(e)
+            )
+            logger.error(msg + " - %s", e, exc_info=True)
+            raise Exception(msg) from e
     logger.debug("DataSetFunction={}, endTime={}".format("get_acct_info", time.time()))
     return acct_dict
 
@@ -229,7 +236,11 @@ def get_token(self, account, rw, logger):
     except Exception as e:
         logger.error(
             self,
-            "Unable to retrieve API token, check configuration. error={}".format(e),
+            "Unable to retrieve API token, check configuration. error={} - %s".format(
+                e
+            ),
+            e,
+            exc_info=True,
         )
 
 
