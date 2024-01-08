@@ -5,7 +5,7 @@ import time
 
 # adjust paths to make the Splunk app working
 import import_declare_test  # noqa: F401
-from dataset_common import normalize_time
+from dataset_common import logger, normalize_time
 
 # Dataset V2 API client (generated)
 from dataset_query_api_client import AuthenticatedClient
@@ -24,9 +24,39 @@ from dataset_query_api_client.models import (
 )
 
 
+# APIException stores response payload received by API.
+# Payload is passed as is into search_error_exit.
+class APIException(Exception):
+    def __init__(self, payload):
+        self.payload = payload
+
+
+# TODO: Convert to the expected format
+# https://www.python-httpx.org/advanced/#http-proxying
+def convert_proxy(proxy):
+    if not proxy:
+        return {}
+    new_proxy = {}
+    if "http" in proxy:
+        new_proxy["http://"] = proxy["http"]
+    if "https" in proxy:
+        new_proxy["https://"] = proxy["https"]
+    return new_proxy
+
+
 # Executes Dataset LongRunningQuery for log events
-def ds_lrq_log_query(base_url, api_key, start_time, end_time, filter_expr, limit):
-    client = AuthenticatedClient(base_url=base_url, token=api_key)
+def ds_lrq_log_query(
+    base_url,
+    api_key,
+    start_time,
+    end_time,
+    filter_expr,
+    limit,
+    proxy,
+):
+    client = AuthenticatedClient(
+        base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
+    )
     body = PostQueriesLaunchQueryRequestBody(
         query_type=PostQueriesLaunchQueryRequestBodyQueryType.LOG,
         start_time=start_time,
@@ -37,8 +67,10 @@ def ds_lrq_log_query(base_url, api_key, start_time, end_time, filter_expr, limit
 
 
 # Executes Dataset LongRunningQuery using PowerQuery language
-def ds_lrq_power_query(base_url, api_key, start_time, end_time, query):
-    client = AuthenticatedClient(base_url=base_url, token=api_key)
+def ds_lrq_power_query(base_url, api_key, start_time, end_time, query, proxy):
+    client = AuthenticatedClient(
+        base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
+    )
     body = PostQueriesLaunchQueryRequestBody(
         query_type=PostQueriesLaunchQueryRequestBodyQueryType.PQ,
         start_time=start_time,
@@ -50,9 +82,18 @@ def ds_lrq_power_query(base_url, api_key, start_time, end_time, query):
 
 # Executes Dataset LongRunningQuery to fetch facet values
 def ds_lrq_facet_values(
-    base_url, api_key, start_time, end_time, filter, name, max_values
+    base_url,
+    api_key,
+    start_time,
+    end_time,
+    filter,
+    name,
+    max_values,
+    proxy,
 ):
-    client = AuthenticatedClient(base_url=base_url, token=api_key)
+    client = AuthenticatedClient(
+        base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
+    )
     body = PostQueriesLaunchQueryRequestBody(
         query_type=PostQueriesLaunchQueryRequestBodyQueryType.FACET_VALUES,
         start_time=start_time,
@@ -66,27 +107,53 @@ def ds_lrq_facet_values(
 
 # Executes LRQ run loop of launch-ping-remove API requests until the query completes
 # with a result
-def ds_lrq_run_loop(client, body: PostQueriesLaunchQueryRequestBody):
+# Returns tuple - value, error message
+def ds_lrq_run_loop(
+    client: AuthenticatedClient, body: PostQueriesLaunchQueryRequestBody
+):
     body.query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority.HIGH
     response = post_queries.sync_detailed(client=client, json_body=body)
+    logger().debug(response)
     result = response.parsed
-    forward_tag = response.headers["x-dataset-query-forward-tag"]
-    steps_done = result.steps_completed
-    steps_total = result.steps_total
-    query_id = result.id
-    while steps_done < steps_total:
-        response = get_queries.sync_detailed(
-            id=query_id,
-            query_type=body.query_type,
-            client=client,
-            last_step_seen=steps_done,
-            forward_tag=forward_tag,
-        )
-        result = response.parsed
+    if result:
+        forward_tag = response.headers["x-dataset-query-forward-tag"]
         steps_done = result.steps_completed
-    delete_queries.sync_detailed(id=query_id, client=client, forward_tag=forward_tag)
+        steps_total = result.steps_total
+        query_id = result.id
+        retry = 0
+        while steps_done < steps_total:
+            response = get_queries.sync_detailed(
+                id=query_id,
+                query_type=body.query_type,
+                client=client,
+                last_step_seen=steps_done,
+                forward_tag=forward_tag,
+            )
+            logger().debug(response)
+            result = response.parsed
+            if result:
+                steps_done = result.steps_completed
+                retry = 0
+            else:
+                # 2023-11-01: QA server is sometimes returns 500 Operation not
+                # permitted, after several batches have been received.
+                # Idea is to try few retries. However, based on my handful of examples
+                # when this happened, retries has never helped.
+                retry += 1
+                logger().warning("Retrying: {}; {}".format(retry, response))
+                if retry > 5:
+                    logger().error(response)
+                    raise APIException(json.loads(response.content))
+                else:
+                    time.sleep(retry)
 
-    return result
+        delete_queries.sync_detailed(
+            id=query_id, client=client, forward_tag=forward_tag
+        )
+        return result
+
+    logger().error(response)
+    raise APIException(json.loads(response.content))
 
 
 # Returns a valid PowerQuery incorporating provided filter, columns and limit

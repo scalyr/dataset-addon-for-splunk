@@ -22,6 +22,15 @@ docker-splunk-run-shared:
 		-p 8000:8000 \
 		splunk/splunk:9.1 start
 
+docker-splunk-run-vanilla:
+	docker run -it \
+		-e SPLUNK_START_ARGS=--accept-license \
+		-e SPLUNK_PASSWORD=Test0101 \
+		--platform=linux/amd64 \
+		--name $(CONTAINER_NAME) \
+		-p 8000:8000 \
+		splunk/splunk:9.1 start
+
 .PHONY: docker-splunk-start
 docker-splunk-start:
 	docker start -a $(CONTAINER_NAME)
@@ -51,26 +60,34 @@ docker-splunk-show-app:
 		sudo -u splunk \
 		ls -l /opt/splunk/etc/apps/TA_dataset/
 
-.PHONY: docker-splunk-tail-logs-splunkd
-docker-splunk-tail-logs-splunkd:
+.PHONY: docker-splunk-list-logs
+docker-splunk-list-logs:
 	docker exec $(CONTAINER_NAME) \
 		sudo -u splunk \
-		tail -f \
-			/opt/splunk/var/log/splunk/splunkd.log
+		ls -lrt \
+			/opt/splunk/var/log/splunk/
+
+.PHONY: docker-splunk-tail-log
+docker-splunk-tail-log:
+	docker exec $(CONTAINER_NAME) \
+		bash -l -c "sudo -u splunk tail -f /opt/splunk/var/log/splunk/${LOG_NAME}"
+
+.PHONY: docker-splunk-tail-logs-splunkd
+docker-splunk-tail-logs-splunkd:
+	make docker-splunk-tail-log LOG_NAME=splunkd.log
 
 .PHONY: docker-splunk-tail-logs-python
 docker-splunk-tail-logs-python:
-	docker exec $(CONTAINER_NAME) \
-		sudo -u splunk \
-		tail -f \
-			/opt/splunk/var/log/splunk/python.log
+	make docker-splunk-tail-log LOG_NAME=python.log
 
-.PHONY: docker-splunk-tail-logs-input
-docker-splunk-tail-logs-input:
-	docker exec $(CONTAINER_NAME) \
-		sudo -u splunk \
-		tail -f \
-			/opt/splunk/var/log/splunk/TA_dataset_input.log
+# TODO: Figure out, how to make this work!
+.PHONY: docker-splunk-tail-logs-app-all
+docker-splunk-tail-logs-app-all:
+	make docker-splunk-tail-log LOG_NAME="TA_dataset*"
+
+.PHONY: docker-splunk-tail-logs-app-search-command
+docker-splunk-tail-logs-app-search-command:
+	make docker-splunk-tail-log LOG_NAME="TA_dataset_search_command.log"
 
 .PHONY: docker-splunk-tail-logs
 docker-splunk-tail-logs-count:
@@ -101,7 +118,7 @@ inspect:
 	splunk-appinspect inspect TA_dataset --included-tags splunk_appinspect
 
 .PHONY: pack
-pack:
+pack: clean
 	find $(SOURCE_PACKAGE) -name __pycache__ -exec rm -rfv {} \;
 	version=$$(jq -r '.meta.version' globalConfig.json) && \
 	scripts/pack.sh \
@@ -137,6 +154,7 @@ dev-config-restore:
 dev-update-source:
 	rsync -av $(SOURCE_PACKAGE)/bin/ $(OUTPUT_PACKAGE)/bin/
 	rsync -av $(SOURCE_PACKAGE)/default/ $(OUTPUT_PACKAGE)/default/
+	rsync -av $(SOURCE_PACKAGE)/lib/dataset_query_api_client/ $(OUTPUT_PACKAGE)/lib/dataset_query_api_client/
 
 dev-install-dependencies-pack:
 	pip install --upgrade-strategy only-if-needed -r requirements-pack.txt
@@ -162,3 +180,7 @@ e2e-test-headed:
 	npm run playwright:headed
 e2e-test-ui:
 	npm run playwright:ui
+
+.PHONY: clean
+clean:
+	find $(SOURCE_PACKAGE) -name '.DS_Store' -exec rm -rfv {} \;

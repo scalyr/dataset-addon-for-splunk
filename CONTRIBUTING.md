@@ -113,22 +113,34 @@ Note that build cleans previously created configuration. To prevent removal of c
 #### Alternative Build and Run Workflow for Docker using make commands
 
 1. At the beginning of the day:
-   1. Create package - `make pack`
-   2. Run Splunk in Docker - `make docker-splunk-run` (if it already exists use `make docker-splunk-start`)
+   1. Remove non-running container - `make docker-splunk-remove`
+   2. Create package - `make pack`
+   3. Run Splunk in Docker - `make docker-splunk-run` (if it already exists use `make docker-splunk-start`)
+   4. You can combine this into - `make docker-splunk-remove pack docker-splunk-run`
 2. Do your code changes (assuming docker is already running, see previous steps):
    1. Update source code - `make dev-update-source`
 
+You have to do 1. when you are changing other files (matadata, assets, ...). If the container is still running, you can
+use `make docker-splunk-kill`.
+
 #### Other Useful Commands
 
+* Run Splunk without DataSet Add-On - `make docker-splunk-run-vanilla`
 * Restart Splunk - `make docker-splunk-restart`
-* Stop Splunk - `make docker-splunk-restart`
+* Stop Splunk - `make docker-splunk-stop`
+* Start stopped Splunk container - `make docker-splunk-start`
+* Kill Splunk container - `make docker-splunk-kill`
 * Remove Splunk container - `make docker-splunk-remove`
 * Restore configuration - `make dev-config-backup`
 * Backup configuration - `make dev-config-restore` - it's not clear whether it really works
-* Tail Splunk logs - Splunkd - `make docker-tail-logs-splunk`
-* Tail Splunk logs - Python - `make docker-tail-logs-python`
-* Tail Splunk logs - Inputs - `make docker-tail-logs-inputs`
+* To see all available logs - `make docker-splunk-list-logs`
+* To see particular log, you may use - `make docker-splunk-tail-log LOG_NAME=log-file`
+  * Logs related to Splunk Python - `make docker-splunk-tail-logs-python` calls `make docker-splunk-tail-log LOG_NAME=python.log`
+  * Logs related to Search command - `make docker-splunk-tail-logs-app-search-command` calls `make docker-splunk-tail-log LOG_NAME="TA_dataset_search_command.log"`
 
+#### Where are errors:
+
+* `search_messages.log` - error message that is shown in the UI, no stack trace :/
 # E2E Testing
 
 We are using Playwright - https://playwright.dev/
@@ -144,3 +156,19 @@ We are using Playwright - https://playwright.dev/
 * Make sure, that your Splunk is running - `make docker-splunk-run`
 * Use `make e2e-test` - to run e2e tests without the browser
 * Use `make e2e-test-headed` - to run e2e tests with the browser
+
+# Release
+
+When code is merged, new tag is created and content of the [release](release)
+folder is updated with the tarball containing the latest version. You can release
+new version by following these instructions:
+
+1. Go to [Releases](https://github.com/scalyr/dataset-addon-for-splunk/releases) and remember what was the latest version released.
+2. Click on [Draft new release](https://github.com/scalyr/dataset-addon-for-splunk/releases/new).
+3. Create new release by:
+   1. Pick the latest tag.
+   2. As previous tag pick the tag of the latest release from 1. ![dataset-addon-for-splunk-begin](https://github.com/scalyr/dataset-addon-for-splunk/assets/122797378/c53af6ce-7066-47cc-93a5-cdd14d5cedb5)
+   3. Click on `Generate release notes`.
+   4. Upload the file from the [release](release) folder - `TA_dataset-x.y.z.tar.gz`.
+   5. Append some short description to the Release title.
+4. Click on `Publish release`. ![dataset-addon-for-splunk-end](https://github.com/scalyr/dataset-addon-for-splunk/assets/122797378/6601fb40-619e-411f-8bdf-9401d1b66eda)

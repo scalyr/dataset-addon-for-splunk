@@ -26,12 +26,19 @@ index=_internal sourcetype=splunk_web_access host=* user=*
 | fields eai:acl.app label id eai:data
 | rename eai:acl.app as app_name, eai:data as xml_source, label as dashboard_title
 
-```   now separate all the panels to individual events (rows)  ```
+
+
+``` Get rid of any apps we don't want up front  ```
+| search NOT app_name IN($myExcludedApps$)
+
+
+```  Start processing XML dashboards first ```
+
+``` Separate all the panels to individual events (rows) ```
 | rex field=id "http(s)?://([^/]+/)+(?&lt;file_name&gt;[^/]+)"
 | spath input=xml_source output=panel path=form.row.panel
 | mvexpand panel
 | fields app_name dashboard_title  file_name panel xml_source
-| search panel != ""
 
 ```   now identify the chart types, searches and drilldown searches for each panel  ```
 | spath input=panel output=panel_title path=title
@@ -39,16 +46,43 @@ index=_internal sourcetype=splunk_web_access host=* user=*
 | xpath field=panel outfield=drilldown "//*/drilldown/*/link"
 | rex   field=panel "\s+\&lt;(?&lt;panel_type&gt;[^\&lt;]+)\&gt;"
 
-``` filter for the types of panels that typically have searches  ```
-| search panel_type IN ("chart","single","table","event","search","viz","map")
-| search NOT app_name IN($myExcludedApps$)
+``` filter for the types of panels that typically have searches (and Dashboard Studio dashboards) ```
+| search panel_type IN ("chart","single","table","event","search","viz","map","title")  OR   xml_source ="*&lt;definition&gt;*"
 
-```   total, sort and print the results  ```
-| eventstats count as total_panels, dc(dashboard_title) as total_dashboards
+```    finsished with XML dashboards at this point   ```
+
+```  Now process the Dashboard Studio dashboards  ```
+```   get the JSON source for the dashboard and then get the dataSources element  ```
+| rex field=xml_source ".*&lt;definition&gt;&lt;!\[CDATA\[(?&lt;v2_source&gt;.*)]]&gt;&lt;\/definition&gt;"
+
+| eval datasources = json_extract(v2_source, "dataSources")
+
+```   Get all the queries and their associated datasource names  ```
+| rex max_match=0 field=datasources "\"query\"\s*:\s*\"(?&lt;query2&gt;[^,]+)\"|\"name\"\s*:\s*\"(?&lt;search_name&gt;[^\"]+)\""
+
+
+```   Create separate events for each Dashboard Studio query   ```
+| eval zipped=mvzip(search_name, query2, "%")
+| fields - search_name,query2
+| mvexpand zipped
+| rex field=zipped "(?&lt;search_name&gt;.+)%(?&lt;query2&gt;.+)"
+| fields - zipped
+
+``` merge fields from XML and Dashboard Studio dashboards   ```
+| eval dashboard_type=if(isNull(query2),"XML","Dashboard Studio")
+| eval panel_type=if(isNull(query2),panel_type,"datasource")
+| eval query = coalesce(query,query2)
+| eval search_name = coalesce(panel_title,search_name)
+
+
+``` total, sort and print the results ```
+| eventstats count as total_searches, dc(dashboard_title) as total_dashboards
 | eventstats dc(dashboard_title) as dashboards_in_app by app_name
-| eventstats count as panels_on_dashboard by app_name, dashboard_title
-| sort  app_name file_name dashboard_title panel_title
-| table app_name dashboards_in_app file_name dashboard_title panels_on_dashboard panel_title panel_type query drilldown</query>
+| eventstats count as dashboard_searches by app_name, dashboard_title
+| sort app_name file_name dashboard_title panel_title
+| table app_name dashboards_in_app file_name dashboard_title dashboard_type dashboard_searches search_name panel_type query drilldown
+
+</query>
     <earliest>$myTime.earliest$</earliest>
     <latest>$myTime.latest$</latest>
   </search>
@@ -135,7 +169,7 @@ index=_internal sourcetype=splunk_web_access host=* user=*
       </single>
     </panel>
     <panel>
-      <title>Interesting Dashboards</title>
+      <title>Dashboards</title>
       <single>
         <search base="base_panels">
           <query>| search app_name = "$myApp$" file_name="$myDashboard$"
@@ -147,7 +181,7 @@ index=_internal sourcetype=splunk_web_access host=* user=*
       </single>
     </panel>
     <panel>
-      <title>Interesting Panels</title>
+      <title>Dashboard Searches</title>
       <single>
         <search base="base_panels">
           <query>| search app_name = "$myApp$" file_name="$myDashboard$"
@@ -177,7 +211,7 @@ index=_internal sourcetype=splunk_web_access host=* user=*
       </table>
     </panel>
     <panel>
-      <title>Interesting Dashboards</title>
+      <title>Dashboards</title>
       <table>
         <search base="base_panels">
           <query>| search app_name = "$myApp$" file_name="$myDashboard$"
@@ -193,12 +227,12 @@ index=_internal sourcetype=splunk_web_access host=* user=*
       </table>
     </panel>
     <panel>
-      <title>Interesting Panels</title>
+      <title>Dashboard Searches (by name/title)</title>
       <table>
         <search base="base_panels">
           <query>| search app_name = "$myApp$" file_name="$myDashboard$"
-| dedup panel_title
-| table panel_title</query>
+| dedup search_name
+| table search_name</query>
         </search>
         <option name="drilldown">none</option>
         <option name="refresh.display">progressbar</option>
@@ -288,7 +322,7 @@ index=_internal sourcetype=splunk_web_access host=* user=*
   </row>
   <row>
     <panel>
-      <title>Dashboard Panels and Searches</title>
+      <title>Dashboard Panel Searches</title>
       <table>
         <search base="base_panels">
           <query>| search app_name = "$myApp$" file_name="$myDashboard$"</query>
