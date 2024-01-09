@@ -2,7 +2,7 @@
   "meta": {
     "name": "TA_dataset",
     "displayName": "Singularity Data Lake Add-On for Splunk",
-    "version": "2.0.61-SNAPSHOT",
+    "version": "2.0.62-SNAPSHOT",
     "restRoot": "TA_dataset",
     "schemaVersion": "0.0.3"
   },
