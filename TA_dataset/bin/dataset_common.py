@@ -167,14 +167,22 @@ def get_acct_info(self, logger, account=None):
                 for conf in confs:
                     acct_dict[conf.name] = {}
                     acct_dict[conf.name]["base_url"] = conf.url
-                    if hasattr(conf, "authn_api_token_key"):
-                        logger.info("The AuthN api token was avialable")
-                        acct_dict[conf.name]["ds_api_key"] = conf.authn_api_token_key
-                    else:
+                    token = ""
+                    if hasattr(conf, "an_fir_part"):
+                        logger.info("The AuthN api token first part was avialable")
+                        first_half = get_token(self, conf.name, "authn", logger, "an_fir_part")
+                        token += first_half
+                    if hasattr(conf, "an_sec_part"):
+                        logger.info("The AuthN api token second part was avialable")
+                        second_part = conf.an_sec_part
+                        token+=second_part
+                    if not hasattr(conf, "an_fir_part") and not hasattr(conf, "an_sec_part"):
                         logger.info("The AuthN api token was not avialable")
                         acct_dict[conf.name]["ds_api_key"] = get_token(
                             self, conf.name, "read", logger
                         )
+                    if token:
+                        acct_dict[conf.name]["ds_api_key"] = token
                     if hasattr(conf, "tenant"):
                         acct_dict[conf.name]["tenant"] = get_tenant_value(conf, logger)
                         acct_dict[conf.name]["account_ids"] = get_account_ids(
@@ -192,14 +200,22 @@ def get_acct_info(self, logger, account=None):
                     conf = self.service.confs[conf_name][entry]
                     acct_dict[entry] = {}
                     acct_dict[entry]["base_url"] = conf.url
-                    if hasattr(conf, "authn_api_token_key"):
-                        logger.info("The AuthN api token was avialable")
-                        acct_dict[entry]["ds_api_key"] = conf.authn_api_token_key
-                    else:
+                    token = ""
+                    if hasattr(conf, "an_fir_part"):
+                        logger.info("The AuthN api token first part was avialable")
+                        first_half = get_token(self, entry, "authn", logger, "an_fir_part")
+                        token += first_half
+                    if hasattr(conf, "an_sec_part"):
+                        logger.info("The AuthN api token second part was avialable")
+                        second_part = conf.an_sec_part
+                        token+=second_part
+                    if not hasattr(conf, "an_fir_part") and not hasattr(conf, "an_sec_part"):
                         logger.info("The AuthN api token was not avialable")
                         acct_dict[entry]["ds_api_key"] = get_token(
                             self, entry, "read", logger
                         )
+                    if token:
+                        acct_dict[entry]["ds_api_key"] = token
                     if hasattr(conf, "tenant"):
                         acct_dict[entry]["tenant"] = get_tenant_value(conf, logger)
                         logger.info(
@@ -220,14 +236,22 @@ def get_acct_info(self, logger, account=None):
             for conf in confs:
                 acct_dict[conf.name] = {}
                 acct_dict[conf.name]["base_url"] = conf.url
-                if hasattr(conf, "authn_api_token_key"):
-                    logger.info("The AuthN api token was avialable")
-                    acct_dict[conf.name]["ds_api_key"] = conf.authn_api_token_key
-                else:
+                token = ""
+                if hasattr(conf, "an_fir_part"):
+                    logger.info("The AuthN api token first part was avialable")
+                    first_half = get_token(self, conf.name, "authn", logger, "an_fir_part")
+                    token += first_half
+                if hasattr(conf, "an_sec_part"):
+                    logger.info("The AuthN api token second part was avialable")
+                    second_part = conf.an_sec_part
+                    token+=second_part
+                if not hasattr(conf, "an_fir_part") and not hasattr(conf, "an_sec_part"):
                     logger.info("The AuthN api token was not avialable")
                     acct_dict[conf.name]["ds_api_key"] = get_token(
                         self, conf.name, "read", logger
                     )
+                if token:
+                    acct_dict[conf.name]["ds_api_key"] = token
                 if hasattr(conf, "tenant"):
                     acct_dict[conf.name]["tenant"] = get_tenant_value(conf, logger)
                     acct_dict[conf.name]["account_ids"] = get_account_ids(conf, logger)
@@ -272,7 +296,7 @@ def get_account_ids(conf, logger):
     return account_ids_array
 
 
-def get_token(self, account, rw, logger):
+def get_token(self, account, rw, logger, key_field=None):
     try:
         # use Python SDK secrets retrieval
         for credential in self.service.storage_passwords:
@@ -284,6 +308,11 @@ def get_token(self, account, rw, logger):
                 and credential.username.startswith(account)
             ):
                 cred = credential.content.get("clear_password")
+                if rw == "authn":
+                    if key_field in cred:
+                        logger.info("the yes on authn token")
+                        cred_json = json.loads(cred)
+                        token = cred_json[key_field]
                 if rw == "read":
                     if "dataset_log_read_access_key" in cred:
                         cred_json = json.loads(cred)
@@ -293,6 +322,8 @@ def get_token(self, account, rw, logger):
                         cred_json = json.loads(cred)
                         token = cred_json["dataset_log_write_access_key"]
                 return token
+            else:
+                logger.debug("the credentials were not retireived")
     except Exception as e:
         logger.error(
             self,

@@ -68,51 +68,68 @@
                             ]
                         },
                         {
-                          "field": "tenant",
-                          "label": "Tenant",
-                          "type": "text",
-                          "help": "Enter tenant value.",
-                          "required": false,
-                          "defaultValue": "",
-                          "validators": [
-                              {
-                                  "type": "regex",
-                                  "pattern": "^(true|True|TRUE|false|False|FALSE)$",
-                                  "errorMsg": "Tenant must be a value of True or False or empty"
-                              }
-                          ]
-                      },
-                      {
-                          "field": "account_ids",
-                          "label": "Account IDs",
-                          "type": "text",
-                          "help": "provide the account ids with a comma separated",
-                          "required": false,
-                          "defaultValue": "",
-                          "validators": [
-                              {
-                                  "type": "regex",
-                                  "pattern": "^\\d+(,\\d+)*$",
-                                  "errorMsg": "Account IDs must be a comma separated ids"
-                              }
-                          ]
-                      },
-                      {
-                          "field": "authn_api_token_key",
-                          "label": "AuthN API Token Key",
-                          "type": "text",
-                          "help": "Required to enable inputs and SPL command. Include trailing hyphens if applicable.",
-                          "required": false,
-                          "defaultValue": "",
-                          "validators": [
-                              {
-                                  "type": "string",
-                                  "minLength": 0,
-                                  "maxLength": 500,
-                                  "errorMsg": "Max length of password is 500"
-                              }
-                          ]
-                      },
+                            "field": "tenant",
+                            "label": "Tenant",
+                            "type": "text",
+                            "help": "Tenant field can be True/False/Blank. If True, entire Tenant will be considered or if False, only the Account IDs will be considered for queries.",
+                            "required": false,
+                            "defaultValue": "",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^(true|True|TRUE|false|False|FALSE)$",
+                                    "errorMsg": "Tenant must be a value of True or False or empty"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "account_ids",
+                            "label": "Account IDs",
+                            "type": "text",
+                            "help": "Provide comma separated values of Account IDs on which the queries should run, when Tenant is set to False.",
+                            "required": false,
+                            "defaultValue": "",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^\\d+(,\\d+)*$",
+                                    "errorMsg": "Account IDs must be a comma separated ids"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "an_fir_part",
+                            "label": "AuthN API Token First Part",
+                            "type": "text",
+                            "help": "Encrypted part of the Token required to enable inputs and SPL command.",
+                            "required": false,
+                            "defaultValue": "",
+                            "encrypted": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 220,
+                                    "errorMsg": "Max length of password is 220"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "an_sec_part",
+                            "label": "AuthN API Token Second Part",
+                            "type": "text",
+                            "help": "Remaining part of the Token required to enable inputs and SPL command.",
+                            "required": false,
+                            "defaultValue": "",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 300,
+                                    "errorMsg": "Max length of password is 300"
+                                }
+                            ]
+                        },
                         {
                             "field": "dataset_log_read_access_key",
                             "label": "DataSet Log Read Access Key",
