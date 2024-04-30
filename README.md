@@ -74,7 +74,7 @@ To get the AuthN API token follow the below mentioned details:
 - Provide the comma seperated Account Ids, if Tenant is False. eg: 138687697697679,698767986986897666.
 - Enter the AuthN API Token First part which includes first 220 characters.
 - Enter the AuthN API Token Second part which includes remaining characters.
-    - Use this command to prepare both parts of AuthN API token: 
+    - Use this command to prepare both parts of AuthN API token:
     `read -p "Enter Token: " input_string && echo "Part1: $(echo $input_string | cut -c 1-220)"; echo "Part2: $(echo $input_string | cut -c 221-)"`
     - Reason for creating 2 parts of AuthN Token: Splunk Storage Manager has a limitation of storing only 256 characters of encrypted data from inputs. And the AuthN Token can have length <256, hence its split into 2 parts, the first one is encrypted (first 220 chars) and the second one is not. As we are encrypting most of the Token, its use is safe.
 - Enter the DataSet read key from above (required for searching), please ignore this if AuthN token value is provided.
