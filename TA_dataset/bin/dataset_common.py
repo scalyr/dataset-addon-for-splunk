@@ -170,13 +170,17 @@ def get_acct_info(self, logger, account=None):
                     token = ""
                     if hasattr(conf, "an_fir_part"):
                         logger.info("The AuthN api token first part was avialable")
-                        first_half = get_token(self, conf.name, "authn", logger, "an_fir_part")
+                        first_half = get_token(
+                            self, conf.name, "authn", logger, "an_fir_part"
+                        )
                         token += first_half
                     if hasattr(conf, "an_sec_part"):
                         logger.info("The AuthN api token second part was avialable")
                         second_part = conf.an_sec_part
-                        token+=second_part
-                    if not hasattr(conf, "an_fir_part") and not hasattr(conf, "an_sec_part"):
+                        token += second_part
+                    if not hasattr(conf, "an_fir_part") and not hasattr(
+                        conf, "an_sec_part"
+                    ):
                         logger.info("The AuthN api token was not avialable")
                         acct_dict[conf.name]["ds_api_key"] = get_token(
                             self, conf.name, "read", logger
@@ -203,13 +207,17 @@ def get_acct_info(self, logger, account=None):
                     token = ""
                     if hasattr(conf, "an_fir_part"):
                         logger.info("The AuthN api token first part was avialable")
-                        first_half = get_token(self, entry, "authn", logger, "an_fir_part")
+                        first_half = get_token(
+                            self, entry, "authn", logger, "an_fir_part"
+                        )
                         token += first_half
                     if hasattr(conf, "an_sec_part"):
                         logger.info("The AuthN api token second part was avialable")
                         second_part = conf.an_sec_part
-                        token+=second_part
-                    if not hasattr(conf, "an_fir_part") and not hasattr(conf, "an_sec_part"):
+                        token += second_part
+                    if not hasattr(conf, "an_fir_part") and not hasattr(
+                        conf, "an_sec_part"
+                    ):
                         logger.info("The AuthN api token was not avialable")
                         acct_dict[entry]["ds_api_key"] = get_token(
                             self, entry, "read", logger
@@ -239,13 +247,17 @@ def get_acct_info(self, logger, account=None):
                 token = ""
                 if hasattr(conf, "an_fir_part"):
                     logger.info("The AuthN api token first part was avialable")
-                    first_half = get_token(self, conf.name, "authn", logger, "an_fir_part")
+                    first_half = get_token(
+                        self, conf.name, "authn", logger, "an_fir_part"
+                    )
                     token += first_half
                 if hasattr(conf, "an_sec_part"):
                     logger.info("The AuthN api token second part was avialable")
                     second_part = conf.an_sec_part
-                    token+=second_part
-                if not hasattr(conf, "an_fir_part") and not hasattr(conf, "an_sec_part"):
+                    token += second_part
+                if not hasattr(conf, "an_fir_part") and not hasattr(
+                    conf, "an_sec_part"
+                ):
                     logger.info("The AuthN api token was not avialable")
                     acct_dict[conf.name]["ds_api_key"] = get_token(
                         self, conf.name, "read", logger
