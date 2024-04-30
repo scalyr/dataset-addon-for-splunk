@@ -21,6 +21,7 @@ def _get_kwargs(
     *,
     client: Client,
     json_body: PostQueriesLaunchQueryRequestBody,
+    tenant_details = None,
 ) -> Dict[str, Any]:
     url = "{}/v2/api/queries".format(client.base_url)
 
@@ -29,7 +30,8 @@ def _get_kwargs(
     proxies: Dict[str, str] = client.get_proxy()
 
     json_json_body = json_body.to_dict()
-
+    if tenant_details:
+        json_json_body.update(tenant_details)
     return {
         "method": "post",
         "url": url,
@@ -87,6 +89,8 @@ def sync_detailed(
     *,
     client: Client,
     json_body: PostQueriesLaunchQueryRequestBody,
+    tenant_details= None,
+    logger=None,
 ) -> Response[QueryResult]:
     """Launch a query
 
@@ -110,8 +114,9 @@ def sync_detailed(
     kwargs = _get_kwargs(
         client=client,
         json_body=json_body,
+        tenant_details = tenant_details
     )
-
+    logger.debug("Making api call to the queries with payload{}".format(kwargs.get("json")))
     response = httpx.request(
         verify=client.verify_ssl,
         **kwargs,

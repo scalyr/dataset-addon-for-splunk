@@ -167,9 +167,17 @@ def get_acct_info(self, logger, account=None):
                 for conf in confs:
                     acct_dict[conf.name] = {}
                     acct_dict[conf.name]["base_url"] = conf.url
-                    acct_dict[conf.name]["ds_api_key"] = get_token(
-                        self, conf.name, "read", logger
-                    )
+                    if hasattr(conf, "authn_api_token_key"):
+                        logger.info("The AuthN api token was avialable")
+                        acct_dict[conf.name]["ds_api_key"] = conf.authn_api_token_key
+                    else:
+                        logger.info("The AuthN api token was not avialable")
+                        acct_dict[conf.name]["ds_api_key"] = get_token(
+                            self, conf.name, "read", logger
+                        )
+                    if hasattr(conf, 'tenant'):
+                        acct_dict[conf.name]["tenant"] = get_tenant_value(conf, logger)
+                        acct_dict[conf.name]["account_ids"] = get_account_ids(conf, logger)
             except Exception as e:
                 msg = "Error retrieving add-on settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
@@ -182,9 +190,18 @@ def get_acct_info(self, logger, account=None):
                     conf = self.service.confs[conf_name][entry]
                     acct_dict[entry] = {}
                     acct_dict[entry]["base_url"] = conf.url
-                    acct_dict[entry]["ds_api_key"] = get_token(
-                        self, entry, "read", logger
-                    )
+                    if hasattr(conf, "authn_api_token_key"):
+                        logger.info("The AuthN api token was avialable")
+                        acct_dict[entry]["ds_api_key"] = conf.authn_api_token_key
+                    else:
+                        logger.info("The AuthN api token was not avialable")
+                        acct_dict[entry]["ds_api_key"] = get_token(
+                            self, entry, "read", logger
+                        )
+                    if hasattr(conf, 'tenant'):
+                        acct_dict[entry]["tenant"] = get_tenant_value(conf, logger)
+                        logger.info("the tenant value in entry conf {}".format(get_tenant_value(conf, logger)))
+                        acct_dict[entry]["account_ids"] = get_account_ids(conf, logger)
             except Exception as e:
                 msg = "Error retrieving account settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
@@ -197,9 +214,17 @@ def get_acct_info(self, logger, account=None):
             for conf in confs:
                 acct_dict[conf.name] = {}
                 acct_dict[conf.name]["base_url"] = conf.url
-                acct_dict[conf.name]["ds_api_key"] = get_token(
-                    self, conf.name, "read", logger
-                )
+                if hasattr(conf, "authn_api_token_key"):
+                    logger.info("The AuthN api token was avialable")
+                    acct_dict[conf.name]["ds_api_key"] = conf.authn_api_token_key
+                else:
+                    logger.info("The AuthN api token was not avialable")
+                    acct_dict[conf.name]["ds_api_key"] = get_token(
+                        self, conf.name, "read", logger
+                    )
+                if hasattr(conf, 'tenant'):
+                    acct_dict[conf.name]["tenant"] = get_tenant_value(conf, logger)
+                    acct_dict[conf.name]["account_ids"] = get_account_ids(conf, logger)
                 break
         except Exception as e:
             msg = (
@@ -210,6 +235,32 @@ def get_acct_info(self, logger, account=None):
             raise Exception(msg) from e
     logger.debug("DataSetFunction={}, endTime={}".format("get_acct_info", time.time()))
     return acct_dict
+
+
+def get_tenant_value(conf, logger):
+    tenant_value = conf.tenant
+    tenant_value = tenant_value.strip()
+    logger.info("The provided tenant value in config is {}".format(tenant_value))
+    if tenant_value.lower() == "false" or tenant_value.lower() == "0":
+        return False
+    return True
+
+
+def get_account_ids(conf, logger):
+    account_ids_array = []
+    tenant = False if conf.tenant == "0" else True
+    if tenant:
+        logger.debug("Account configured on global level")
+        return account_ids_array
+    if hasattr(conf, 'account_ids'):
+        account_ids_conf = conf.account_ids
+        account_ids_conf = account_ids_conf.strip()
+        if account_ids_conf:
+            account_ids_array = account_ids_conf.split(",")
+        logger.info(f"the provided account ids in config: {account_ids_array}")
+    if not tenant and not account_ids_array: 
+        raise Exception("Tenant is false, so please provide the valid comma-separated account IDs in the account configuration page.")
+    return account_ids_array
 
 
 def get_token(self, account, rw, logger):

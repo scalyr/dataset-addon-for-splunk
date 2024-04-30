@@ -110,7 +110,13 @@ class DATASET_ALERTS_INPUT(smi.Script):
                 ds_headers = {
                     "Authorization": "Bearer " + acct_dict[ds_acct]["ds_api_key"]
                 }
-
+                if acct_dict.get(ds_acct).get("tenant") is not None:
+                    tenant_value = acct_dict.get(ds_acct).get("tenant")
+                    if tenant_value:
+                        ds_payload.update({"tenant": True})
+                    else:
+                        ds_payload.update({"tenant": False, "accountIds": acct_dict[ds_acct]["account_ids"]})
+                logger.debug("ds payload in power query stream events = {}".format(ds_payload))
                 # Create checkpointer
                 checkpoint = checkpointer.KVStoreCheckpointer(
                     input_name, session_key, APP_NAME
