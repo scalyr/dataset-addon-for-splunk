@@ -68,40 +68,6 @@
                             ]
                         },
                         {
-                            "field": "dataset_log_read_access_key",
-                            "label": "DataSet Log Read Access Key",
-                            "type": "text",
-                            "help": "Required to enable inputs and SPL comand. Include trailing hyphens if applicable.",
-                            "required": false,
-                            "defaultValue": "",
-                            "encrypted": true,
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 100,
-                                    "errorMsg": "Max length of password is 100"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "dataset_log_write_access_key",
-                            "label": "DataSet Log Write Access Key",
-                            "type": "text",
-                            "help": "Required to enable alert action. Include trailing hyphens if applicable.",
-                            "required": false,
-                            "defaultValue": "",
-                            "encrypted": true,
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 100,
-                                    "errorMsg": "Max length of password is 100"
-                                }
-                            ]
-                        },
-                        {
                           "field": "tenant",
                           "label": "Tenant",
                           "type": "text",
@@ -146,7 +112,41 @@
                                   "errorMsg": "Max length of password is 500"
                               }
                           ]
-                      }
+                      },
+                        {
+                            "field": "dataset_log_read_access_key",
+                            "label": "DataSet Log Read Access Key",
+                            "type": "text",
+                            "help": "Required to enable inputs and SPL comand. Include trailing hyphens if applicable.",
+                            "required": false,
+                            "defaultValue": "",
+                            "encrypted": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 100,
+                                    "errorMsg": "Max length of password is 100"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "dataset_log_write_access_key",
+                            "label": "DataSet Log Write Access Key",
+                            "type": "text",
+                            "help": "Required to enable alert action. Include trailing hyphens if applicable.",
+                            "required": false,
+                            "defaultValue": "",
+                            "encrypted": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 100,
+                                    "errorMsg": "Max length of password is 100"
+                                }
+                            ]
+                        }
                     ]
                 },
                 {
