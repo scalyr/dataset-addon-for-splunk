@@ -68,52 +68,6 @@
                             ]
                         },
                         {
-                            "field": "tenant",
-                            "label": "Tenant",
-                            "type": "text",
-                            "help": "Enter tenant value.",
-                            "required": false,
-                            "defaultValue": "",
-                            "validators": [
-                                {
-                                    "type": "regex",
-                                    "pattern": "^(true|True|TRUE|false|False|FALSE)$",
-                                    "errorMsg": "Tenant must be a value of True or False or empty"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "account_ids",
-                            "label": "Account IDs",
-                            "type": "text",
-                            "help": "provide the account ids with a comma separated",
-                            "required": false,
-                            "defaultValue": "",
-                            "validators": [
-                                {
-                                    "type": "regex",
-                                    "pattern": "^\\d+(,\\d+)*$",
-                                    "errorMsg": "Account IDs must be a comma separated ids"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "authn_api_token_key",
-                            "label": "AuthN API Token Key",
-                            "type": "text",
-                            "help": "Required to enable inputs and SPL command. Include trailing hyphens if applicable.",
-                            "required": false,
-                            "defaultValue": "",
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 500,
-                                    "errorMsg": "Max length of password is 500"
-                                }
-                            ]
-                        },
-                        {
                             "field": "dataset_log_read_access_key",
                             "label": "DataSet Log Read Access Key",
                             "type": "text",
@@ -146,7 +100,53 @@
                                     "errorMsg": "Max length of password is 100"
                                 }
                             ]
-                        }
+                        },
+                        {
+                          "field": "tenant",
+                          "label": "Tenant",
+                          "type": "text",
+                          "help": "Enter tenant value.",
+                          "required": false,
+                          "defaultValue": "",
+                          "validators": [
+                              {
+                                  "type": "regex",
+                                  "pattern": "^(true|True|TRUE|false|False|FALSE)$",
+                                  "errorMsg": "Tenant must be a value of True or False or empty"
+                              }
+                          ]
+                      },
+                      {
+                          "field": "account_ids",
+                          "label": "Account IDs",
+                          "type": "text",
+                          "help": "provide the account ids with a comma separated",
+                          "required": false,
+                          "defaultValue": "",
+                          "validators": [
+                              {
+                                  "type": "regex",
+                                  "pattern": "^\\d+(,\\d+)*$",
+                                  "errorMsg": "Account IDs must be a comma separated ids"
+                              }
+                          ]
+                      },
+                      {
+                          "field": "authn_api_token_key",
+                          "label": "AuthN API Token Key",
+                          "type": "text",
+                          "help": "Required to enable inputs and SPL command. Include trailing hyphens if applicable.",
+                          "required": false,
+                          "defaultValue": "",
+                          "validators": [
+                              {
+                                  "type": "string",
+                                  "minLength": 0,
+                                  "maxLength": 500,
+                                  "errorMsg": "Max length of password is 500"
+                              }
+                          ]
+                      }
                     ]
                 },
                 {

@@ -115,8 +115,15 @@ class DATASET_ALERTS_INPUT(smi.Script):
                     if tenant_value:
                         ds_payload.update({"tenant": True})
                     else:
-                        ds_payload.update({"tenant": False, "accountIds": acct_dict[ds_acct]["account_ids"]})
-                logger.debug("ds payload in power query stream events = {}".format(ds_payload))
+                        ds_payload.update(
+                            {
+                                "tenant": False,
+                                "accountIds": acct_dict[ds_acct]["account_ids"],
+                            }
+                        )
+                logger.debug(
+                    "ds payload in power query stream events = {}".format(ds_payload)
+                )
                 # Create checkpointer
                 checkpoint = checkpointer.KVStoreCheckpointer(
                     input_name, session_key, APP_NAME

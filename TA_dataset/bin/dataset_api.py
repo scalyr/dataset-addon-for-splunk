@@ -46,15 +46,7 @@ def convert_proxy(proxy):
 
 # Executes Dataset LongRunningQuery for log events
 def ds_lrq_log_query(
-    base_url,
-    api_key,
-    start_time,
-    end_time,
-    filter_expr,
-    limit,
-    proxy,
-    logger,
-    acc_conf
+    base_url, api_key, start_time, end_time, filter_expr, limit, proxy, logger, acc_conf
 ):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
@@ -75,7 +67,9 @@ def ds_lrq_log_query(
 
 
 # Executes Dataset LongRunningQuery using PowerQuery language
-def ds_lrq_power_query(base_url, api_key, start_time, end_time, query, proxy, logger, acc_conf):
+def ds_lrq_power_query(
+    base_url, api_key, start_time, end_time, query, proxy, logger, acc_conf
+):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
     )
@@ -105,7 +99,7 @@ def ds_lrq_facet_values(
     max_values,
     proxy,
     logger,
-    acc_conf
+    acc_conf,
 ):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
@@ -131,10 +125,15 @@ def ds_lrq_facet_values(
 # with a result
 # Returns tuple - value, error message
 def ds_lrq_run_loop(
-    log, client: AuthenticatedClient, body: PostQueriesLaunchQueryRequestBody, acc_conf=None
+    log,
+    client: AuthenticatedClient,
+    body: PostQueriesLaunchQueryRequestBody,
+    acc_conf=None,
 ):
     body.query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority.HIGH
-    response = post_queries.sync_detailed(client=client, json_body=body, tenant_details=acc_conf, logger=log)
+    response = post_queries.sync_detailed(
+        client=client, json_body=body, tenant_details=acc_conf, logger=log
+    )
     logger().debug(response)
     result = response.parsed
     if result:

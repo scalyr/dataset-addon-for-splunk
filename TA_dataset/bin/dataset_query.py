@@ -149,7 +149,12 @@ class DATASET_QUERY_INPUT(smi.Script):
                     if tenant_value:
                         ds_payload.update({"tenant": True})
                     else:
-                        ds_payload.update({"tenant": False, "accountIds": acct_dict[ds_acct]["account_ids"]})
+                        ds_payload.update(
+                            {
+                                "tenant": False,
+                                "accountIds": acct_dict[ds_acct]["account_ids"],
+                            }
+                        )
                 curr_payload = copy.deepcopy(ds_payload)
                 logger.info("query api account curr payload {}".format(curr_payload))
                 curr_maxcount = copy.copy(ds_maxcount)

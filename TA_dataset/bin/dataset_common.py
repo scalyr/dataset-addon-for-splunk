@@ -175,9 +175,11 @@ def get_acct_info(self, logger, account=None):
                         acct_dict[conf.name]["ds_api_key"] = get_token(
                             self, conf.name, "read", logger
                         )
-                    if hasattr(conf, 'tenant'):
+                    if hasattr(conf, "tenant"):
                         acct_dict[conf.name]["tenant"] = get_tenant_value(conf, logger)
-                        acct_dict[conf.name]["account_ids"] = get_account_ids(conf, logger)
+                        acct_dict[conf.name]["account_ids"] = get_account_ids(
+                            conf, logger
+                        )
             except Exception as e:
                 msg = "Error retrieving add-on settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
@@ -198,9 +200,13 @@ def get_acct_info(self, logger, account=None):
                         acct_dict[entry]["ds_api_key"] = get_token(
                             self, entry, "read", logger
                         )
-                    if hasattr(conf, 'tenant'):
+                    if hasattr(conf, "tenant"):
                         acct_dict[entry]["tenant"] = get_tenant_value(conf, logger)
-                        logger.info("the tenant value in entry conf {}".format(get_tenant_value(conf, logger)))
+                        logger.info(
+                            "the tenant value in entry conf {}".format(
+                                get_tenant_value(conf, logger)
+                            )
+                        )
                         acct_dict[entry]["account_ids"] = get_account_ids(conf, logger)
             except Exception as e:
                 msg = "Error retrieving account settings, error = {}".format(e)
@@ -222,7 +228,7 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[conf.name]["ds_api_key"] = get_token(
                         self, conf.name, "read", logger
                     )
-                if hasattr(conf, 'tenant'):
+                if hasattr(conf, "tenant"):
                     acct_dict[conf.name]["tenant"] = get_tenant_value(conf, logger)
                     acct_dict[conf.name]["account_ids"] = get_account_ids(conf, logger)
                 break
@@ -252,14 +258,17 @@ def get_account_ids(conf, logger):
     if tenant:
         logger.debug("Account configured on global level")
         return account_ids_array
-    if hasattr(conf, 'account_ids'):
+    if hasattr(conf, "account_ids"):
         account_ids_conf = conf.account_ids
         account_ids_conf = account_ids_conf.strip()
         if account_ids_conf:
             account_ids_array = account_ids_conf.split(",")
         logger.info(f"the provided account ids in config: {account_ids_array}")
-    if not tenant and not account_ids_array: 
-        raise Exception("Tenant is false, so please provide the valid comma-separated account IDs in the account configuration page.")
+    if not tenant and not account_ids_array:
+        raise Exception(
+            "Tenant is false, so please provide the valid comma-separated account IDs"
+            " in the account configuration page."
+        )
     return account_ids_array
 
 
