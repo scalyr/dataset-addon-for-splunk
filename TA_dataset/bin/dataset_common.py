@@ -167,7 +167,9 @@ def get_acct_info(self, logger, account=None):
                 for conf in confs:
                     acct_dict[conf.name] = {}
                     acct_dict[conf.name]["base_url"] = conf.url
-                    acct_dict[conf.name]["ds_api_key"] = get_token_from_config(self, conf, conf.name, logger)
+                    acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
+                        self, conf, conf.name, logger
+                    )
                     if hasattr(conf, "tenant"):
                         tenant_value = get_tenant_value(conf, logger)
                         acct_dict[conf.name]["tenant"] = tenant_value
@@ -187,12 +189,16 @@ def get_acct_info(self, logger, account=None):
                     conf = self.service.confs[conf_name][entry]
                     acct_dict[entry] = {}
                     acct_dict[entry]["base_url"] = conf.url
-                    acct_dict[entry]["ds_api_key"] = get_token_from_config(self, conf, entry, logger)
+                    acct_dict[entry]["ds_api_key"] = get_token_from_config(
+                        self, conf, entry, logger
+                    )
                     if hasattr(conf, "tenant"):
                         tenant_value = get_tenant_value(conf, logger)
                         acct_dict[entry]["tenant"] = tenant_value
                         if not tenant_value:
-                            acct_dict[entry]["account_ids"] = get_account_ids(conf, logger)
+                            acct_dict[entry]["account_ids"] = get_account_ids(
+                                conf, logger
+                            )
             except Exception as e:
                 msg = "Error retrieving account settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
@@ -205,12 +211,16 @@ def get_acct_info(self, logger, account=None):
             for conf in confs:
                 acct_dict[conf.name] = {}
                 acct_dict[conf.name]["base_url"] = conf.url
-                acct_dict[conf.name]["ds_api_key"] = get_token_from_config(self, conf, conf.name, logger)
+                acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
+                    self, conf, conf.name, logger
+                )
                 if hasattr(conf, "tenant"):
                     tenant_value = get_tenant_value(conf, logger)
                     acct_dict[conf.name]["tenant"] = tenant_value
                     if not tenant_value:
-                        acct_dict[conf.name]["account_ids"] = get_account_ids(conf, logger)
+                        acct_dict[conf.name]["account_ids"] = get_account_ids(
+                            conf, logger
+                        )
                 break
         except Exception as e:
             msg = (
@@ -252,20 +262,16 @@ def get_token_from_config(self, conf, name, logger):
     authn_token = ""
     if hasattr(conf, "an_fir_part"):
         logger.info("The AuthN api token first part was available")
-        first_half = get_token(
-            self, name, "authn", logger, "an_fir_part"
-        )
+        first_half = get_token(self, name, "authn", logger, "an_fir_part")
         authn_token += first_half
     if hasattr(conf, "an_sec_part"):
         logger.info("The AuthN api token second part was available")
         second_part = conf.an_sec_part
         authn_token += second_part
-    if not hasattr(conf, "an_fir_part") and not hasattr(
-        conf, "an_sec_part"
-    ):
+    if not hasattr(conf, "an_fir_part") and not hasattr(conf, "an_sec_part"):
         logger.info("The AuthN api token was not available")
         return get_token(self, name, "read", logger)
-    
+
     return authn_token
 
 
