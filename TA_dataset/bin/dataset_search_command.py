@@ -26,10 +26,10 @@ from dataset_common import (
     get_acct_info,
     get_logger,
     get_proxy,
+    get_tenant_related_payload,
     get_url,
     logger,
     relative_to_epoch,
-    get_tenant_related_payload,
 )
 
 # Dataset V2 API client (generated)
@@ -443,7 +443,9 @@ class DataSetSearch(GeneratingCommand):
                         "DataSetFunction=makeRequest, destination={}, startTime={}"
                         .format(ds_url, time.time())
                     )
-                    tenant_related_payload = get_tenant_related_payload(acct_dict.get(ds_acct))
+                    tenant_related_payload = get_tenant_related_payload(
+                        acct_dict.get(ds_acct)
+                    )
                     ds_payload.update(tenant_related_payload)
                     logger.info(
                         "The paylaod for the timeseries api {}".format(ds_payload)

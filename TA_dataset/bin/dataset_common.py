@@ -274,13 +274,16 @@ def get_token_from_config(self, conf, name, logger):
 
     return authn_token
 
+
 def get_tenant_related_payload(ds_acct):
     if ds_acct.get("tenant") is not None:
         tenant_value = ds_acct.get("tenant")
         if tenant_value:
             return {"tenant": True}
-        return {"tenant": False, "accountIds": ds_acct["account_ids"],}
-
+        return {
+            "tenant": False,
+            "accountIds": ds_acct["account_ids"],
+        }
 
 
 def get_token(self, account, token_type, logger, config_key=None):

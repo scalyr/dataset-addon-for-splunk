@@ -12,9 +12,9 @@ from dataset_common import (
     get_acct_info,
     get_log_level,
     get_proxy,
+    get_tenant_related_payload,
     get_url,
     relative_to_epoch,
-    get_tenant_related_payload,
 )
 from solnlib import log
 from solnlib.modular_input import checkpointer
@@ -111,7 +111,9 @@ class DATASET_ALERTS_INPUT(smi.Script):
                 ds_headers = {
                     "Authorization": "Bearer " + acct_dict[ds_acct]["ds_api_key"]
                 }
-                tenant_related_payload = get_tenant_related_payload(acct_dict.get(ds_acct))
+                tenant_related_payload = get_tenant_related_payload(
+                    acct_dict.get(ds_acct)
+                )
                 ds_payload.update(tenant_related_payload)
                 logger.debug(
                     "ds payload in power query stream events = {}".format(ds_payload)
