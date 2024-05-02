@@ -29,6 +29,7 @@ from dataset_common import (
     get_url,
     logger,
     relative_to_epoch,
+    get_tenant_related_payload,
 )
 
 # Dataset V2 API client (generated)
@@ -442,17 +443,8 @@ class DataSetSearch(GeneratingCommand):
                         "DataSetFunction=makeRequest, destination={}, startTime={}"
                         .format(ds_url, time.time())
                     )
-                    if acct_dict.get(ds_acct).get("tenant") is not None:
-                        tenant_value = acct_dict.get(ds_acct).get("tenant")
-                        if tenant_value:
-                            ds_payload.update({"tenant": True})
-                        else:
-                            ds_payload.update(
-                                {
-                                    "tenant": False,
-                                    "accountIds": acct_dict[ds_acct]["account_ids"],
-                                }
-                            )
+                    tenant_related_payload = get_tenant_related_payload(acct_dict.get(ds_acct))
+                    ds_payload.update(tenant_related_payload)
                     logger.info(
                         "The paylaod for the timeseries api {}".format(ds_payload)
                     )

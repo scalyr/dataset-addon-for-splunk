@@ -18,6 +18,7 @@ from dataset_common import (
     get_proxy,
     get_url,
     relative_to_epoch,
+    get_tenant_related_payload,
 )
 from dataset_query_api_client.client import get_user_agent
 from solnlib.modular_input import checkpointer
@@ -144,17 +145,8 @@ class DATASET_QUERY_INPUT(smi.Script):
             proxy = get_proxy(session_key, logger)
             acct_dict = get_acct_info(self, logger, ds_account)
             for ds_acct in acct_dict.keys():
-                if acct_dict.get(ds_acct).get("tenant") is not None:
-                    tenant_value = acct_dict.get(ds_acct).get("tenant")
-                    if tenant_value:
-                        ds_payload.update({"tenant": True})
-                    else:
-                        ds_payload.update(
-                            {
-                                "tenant": False,
-                                "accountIds": acct_dict[ds_acct]["account_ids"],
-                            }
-                        )
+                tenant_related_payload = get_tenant_related_payload(acct_dict.get(ds_acct))
+                ds_payload.update(tenant_related_payload)
                 curr_payload = copy.deepcopy(ds_payload)
                 logger.info("query api account curr payload {}".format(curr_payload))
                 curr_maxcount = copy.copy(ds_maxcount)

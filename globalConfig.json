@@ -134,7 +134,7 @@
                             "field": "dataset_log_read_access_key",
                             "label": "DataSet Log Read Access Key",
                             "type": "text",
-                            "help": "Required to enable inputs and SPL comand. Include trailing hyphens if applicable.",
+                            "help": "Required to enable inputs and SPL comand. Include trailing hyphens if applicable. Please ignore this if AuthN token value is provided.",
                             "required": false,
                             "defaultValue": "",
                             "encrypted": true,
