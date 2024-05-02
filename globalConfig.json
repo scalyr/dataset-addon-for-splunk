@@ -71,7 +71,7 @@
                             "field": "tenant",
                             "label": "Tenant",
                             "type": "text",
-                            "help": "Tenant field can be True/False/Blank. If True, entire Tenant will be considered or if False, only the Account IDs will be considered for queries.",
+                            "help": "Tenant field can be True/False/Blank. If True, entire Tenant will be considered or if False, only the Account IDs will be considered for queries. If Blank neither consider",
                             "required": false,
                             "defaultValue": "",
                             "validators": [

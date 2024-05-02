@@ -44,6 +44,14 @@ def convert_proxy(proxy):
     return new_proxy
 
 
+def get_tenant_details(acc_conf):
+    if acc_conf.get("tenant") is not None:
+        tenant_value = acc_conf.get("tenant")
+        if tenant_value:
+            return {"tenant": True}
+        return {"tenant": False, "accountIds": acc_conf["account_ids"]}
+
+
 # Executes Dataset LongRunningQuery for log events
 def ds_lrq_log_query(
     base_url, api_key, start_time, end_time, filter_expr, limit, proxy, logger, acc_conf
@@ -57,13 +65,8 @@ def ds_lrq_log_query(
         end_time=end_time,
         log=LogAttributes(filter_=filter_expr, limit=limit),
     )
-    if acc_conf.get("tenant") is not None:
-        tenant_value = acc_conf.get("tenant")
-        if tenant_value:
-            acc_conf = {"tenant": True}
-        else:
-            acc_conf = {"tenant": False, "accountIds": acc_conf["account_ids"]}
-    return ds_lrq_run_loop(logger, client=client, body=body, acc_conf=acc_conf)
+    tenant_details = get_tenant_details(acc_conf=acc_conf)
+    return ds_lrq_run_loop(logger, client=client, body=body, tenant_details=tenant_details)
 
 
 # Executes Dataset LongRunningQuery using PowerQuery language
@@ -79,13 +82,8 @@ def ds_lrq_power_query(
         end_time=end_time,
         pq=PQAttributes(query=query),
     )
-    if acc_conf.get("tenant") is not None:
-        tenant_value = acc_conf.get("tenant")
-        if tenant_value:
-            acc_conf = {"tenant": True}
-        else:
-            acc_conf = {"tenant": False, "accountIds": acc_conf["account_ids"]}
-    return ds_lrq_run_loop(logger, client=client, body=body, acc_conf=acc_conf)
+    tenant_details = get_tenant_details(acc_conf=acc_conf)
+    return ds_lrq_run_loop(logger, client=client, body=body, tenant_details=tenant_details)
 
 
 # Executes Dataset LongRunningQuery to fetch facet values
@@ -112,13 +110,8 @@ def ds_lrq_facet_values(
             filter_=filter, name=name, max_values=max_values
         ),
     )
-    if acc_conf.get("tenant") is not None:
-        tenant_value = acc_conf.get("tenant")
-        if tenant_value:
-            acc_conf = {"tenant": True}
-        else:
-            acc_conf = {"tenant": False, "accountIds": acc_conf["account_ids"]}
-    return ds_lrq_run_loop(logger, client=client, body=body)
+    tenant_details = get_tenant_details(acc_conf=acc_conf)
+    return ds_lrq_run_loop(logger, client=client, body=body, tenant_details=tenant_details)
 
 
 # Executes LRQ run loop of launch-ping-remove API requests until the query completes
@@ -128,11 +121,11 @@ def ds_lrq_run_loop(
     log,
     client: AuthenticatedClient,
     body: PostQueriesLaunchQueryRequestBody,
-    acc_conf=None,
+    tenant_details=None,
 ):
     body.query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority.HIGH
     response = post_queries.sync_detailed(
-        client=client, json_body=body, tenant_details=acc_conf, logger=log
+        client=client, json_body=body, tenant_details=tenant_details, logger=log
     )
     logger().debug(response)
     result = response.parsed
