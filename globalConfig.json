@@ -1,10 +1,229 @@
 {
-    "meta": {
-        "name": "TA_dataset",
-        "displayName": "Singularity Data Lake Add-On for Splunk",
-    "version": "2.0.62-SNAPSHOT",
-        "restRoot": "TA_dataset",
-        "schemaVersion": "0.0.3"
+  "meta": {
+    "name": "TA_dataset",
+    "displayName": "Singularity Data Lake Add-On for Splunk",
+    "version": "2.0.64-SNAPSHOT",
+    "restRoot": "TA_dataset",
+    "schemaVersion": "0.0.3"
+  },
+  "pages": {
+    "configuration": {
+      "title": "Configuration",
+      "description": "Set up your add-on",
+      "tabs": [
+        {
+          "name": "account",
+          "title": "Account",
+          "table": {
+            "header": [
+              {
+                "field": "name",
+                "label": "Account name"
+              },
+              {
+                "field": "url",
+                "label": "URL"
+              }
+            ],
+            "actions": [
+              "edit",
+              "delete",
+              "clone"
+            ]
+          },
+          "entity": [
+            {
+              "field": "name",
+              "label": "Account name",
+              "type": "text",
+              "required": true,
+              "help": "Enter a unique name for this account.",
+              "validators": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 25,
+                  "errorMsg": "Length of Account name should be between 1 and 25"
+                },
+                {
+                  "type": "regex",
+                  "pattern": "^[a-zA-Z]\\w*$",
+                  "errorMsg": "Account name must start with a letter and followed by alphabetic letters, digits or underscores."
+                }
+              ]
+            },
+            {
+              "field": "url",
+              "label": "URL",
+              "type": "text",
+              "help": "Enter DataSet URL.",
+              "required": true,
+              "defaultValue": "https://app.scalyr.com",
+              "validators": [
+                {
+                  "type": "regex",
+                  "pattern": "^https:\\/{2}(?:\\S)+\\.\\w{2,}$",
+                  "errorMsg": "URL must begin with https:// and end with top-level domain. E.g.: https://app.us1.dataset.com"
+                }
+              ]
+            },
+            {
+              "field": "dataset_log_read_access_key",
+              "label": "DataSet Log Read Access Key",
+              "type": "text",
+              "help": "Required to enable inputs and SPL comand. Include trailing hyphens if applicable.",
+              "required": false,
+              "defaultValue": "",
+              "encrypted": true,
+              "validators": [
+                {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 100,
+                  "errorMsg": "Max length of password is 100"
+                }
+              ]
+            },
+            {
+              "field": "dataset_log_write_access_key",
+              "label": "DataSet Log Write Access Key",
+              "type": "text",
+              "help": "Required to enable alert action. Include trailing hyphens if applicable.",
+              "required": false,
+              "defaultValue": "",
+              "encrypted": true,
+              "validators": [
+                {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 100,
+                  "errorMsg": "Max length of password is 100"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "logging",
+          "title": "Logging",
+          "entity": [
+            {
+              "field": "loglevel",
+              "label": "Log level",
+              "type": "singleSelect",
+              "options": {
+                "disableSearch": true,
+                "autoCompleteFields": [
+                  {
+                    "label": "DEBUG",
+                    "value": "DEBUG"
+                  },
+                  {
+                    "label": "INFO",
+                    "value": "INFO"
+                  },
+                  {
+                    "label": "WARNING",
+                    "value": "WARNING"
+                  },
+                  {
+                    "label": "ERROR",
+                    "value": "ERROR"
+                  },
+                  {
+                    "label": "CRITICAL",
+                    "value": "CRITICAL"
+                  }
+                ]
+              },
+              "defaultValue": "INFO"
+            }
+          ]
+        },
+        {
+          "name": "proxy",
+          "title": "Proxy",
+          "entity": [
+            {
+              "field": "proxy_enabled",
+              "label": "Enable",
+              "type": "checkbox"
+            },
+            {
+              "type": "singleSelect",
+              "label": "Proxy Type",
+              "options": {
+                "disableSearch": true,
+                "autoCompleteFields": [
+                  {
+                    "value": "http",
+                    "label": "http"
+                  }
+                ]
+              },
+              "defaultValue": "http",
+              "field": "proxy_type"
+            },
+            {
+              "field": "proxy_url",
+              "label": "Host",
+              "type": "text",
+              "validators": [
+                {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 4096,
+                  "errorMsg": "Max host length is 4096"
+                }
+              ]
+            },
+            {
+              "field": "proxy_port",
+              "label": "Port",
+              "type": "text",
+              "validators": [
+                {
+                  "type": "number",
+                  "range": [
+                    1,
+                    65535
+                  ]
+                }
+              ]
+            },
+            {
+              "field": "proxy_username",
+              "label": "Username",
+              "type": "text",
+              "validators": [
+                {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 50,
+                  "errorMsg": "Max length of username is 50"
+                }
+              ]
+            },
+            {
+              "field": "proxy_password",
+              "label": "Password",
+              "type": "text",
+              "encrypted": true,
+              "validators": [
+                {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 8192,
+                  "errorMsg": "Max length of password is 8192"
+                }
+              ]
+            }
+          ],
+          "options": {
+            "saveValidator": "function(formData) { if(!formData.proxy_enabled || formData.proxy_enabled === '0') {return true; } if(!formData.proxy_url) { return 'Proxy Host can not be empty'; } if(!formData.proxy_port) { return 'Proxy Port can not be empty'; } return true; }"
+          }
+        }
+      ]
     },
     "pages": {
         "configuration": {
