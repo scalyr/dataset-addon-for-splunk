@@ -2,8 +2,8 @@
 url = <string>
 tenant = <bool>
 account_ids = <string>
-an_fir_part = <string>
-an_sec_part = <string>
+authn_token_part_one = <string>
+authn_token_part_two = <string>
 dataset_log_read_access_key = <string>
 dataset_log_write_access_key = <string>
 

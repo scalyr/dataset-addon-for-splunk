@@ -5,7 +5,7 @@ import time
 
 # adjust paths to make the Splunk app working
 import import_declare_test  # noqa: F401
-from dataset_common import logger, normalize_time
+from dataset_common import logger, normalize_time, get_tenant_related_payload
 
 # Dataset V2 API client (generated)
 from dataset_query_api_client import AuthenticatedClient
@@ -44,12 +44,6 @@ def convert_proxy(proxy):
     return new_proxy
 
 
-def get_tenant_details(acc_conf):
-    if acc_conf.get("tenant") is not None:
-        tenant_value = acc_conf.get("tenant")
-        if tenant_value:
-            return {"tenant": True}
-        return {"tenant": False, "accountIds": acc_conf["account_ids"]}
 
 
 # Executes Dataset LongRunningQuery for log events
@@ -65,7 +59,7 @@ def ds_lrq_log_query(
         end_time=end_time,
         log=LogAttributes(filter_=filter_expr, limit=limit),
     )
-    tenant_details = get_tenant_details(acc_conf=acc_conf)
+    tenant_details = get_tenant_related_payload(acc_conf)
     return ds_lrq_run_loop(
         logger, client=client, body=body, tenant_details=tenant_details
     )
@@ -84,7 +78,7 @@ def ds_lrq_power_query(
         end_time=end_time,
         pq=PQAttributes(query=query),
     )
-    tenant_details = get_tenant_details(acc_conf=acc_conf)
+    tenant_details = get_tenant_related_payload(acc_conf)
     return ds_lrq_run_loop(
         logger, client=client, body=body, tenant_details=tenant_details
     )
@@ -114,7 +108,7 @@ def ds_lrq_facet_values(
             filter_=filter, name=name, max_values=max_values
         ),
     )
-    tenant_details = get_tenant_details(acc_conf=acc_conf)
+    tenant_details = get_tenant_related_payload(acc_conf)
     return ds_lrq_run_loop(
         logger, client=client, body=body, tenant_details=tenant_details
     )

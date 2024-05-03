@@ -260,15 +260,15 @@ def get_account_ids(conf, logger):
 
 def get_token_from_config(self, conf, name, logger):
     authn_token = ""
-    if hasattr(conf, "an_fir_part"):
+    if hasattr(conf, "authn_token_part_one"):
         logger.info("The AuthN api token first part was available")
-        first_half = get_token(self, name, "authn", logger, "an_fir_part")
+        first_half = get_token(self, name, "authn", logger, "authn_token_part_one")
         authn_token += first_half
-    if hasattr(conf, "an_sec_part"):
+    if hasattr(conf, "authn_token_part_two"):
         logger.info("The AuthN api token second part was available")
-        second_part = conf.an_sec_part
+        second_part = conf.authn_token_part_two
         authn_token += second_part
-    if not hasattr(conf, "an_fir_part") and not hasattr(conf, "an_sec_part"):
+    if not hasattr(conf, "authn_token_part_one") and not hasattr(conf, "authn_token_part_two"):
         logger.info("The AuthN api token was not available")
         return get_token(self, name, "read", logger)
 
@@ -300,7 +300,6 @@ def get_token(self, account, token_type, logger, config_key=None):
                 cred = credential.content.get("clear_password")
                 if token_type == "authn":
                     if config_key in cred:
-                        logger.info("the yes on authn token")
                         cred_json = json.loads(cred)
                         token = cred_json[config_key]
                 if token_type == "read":

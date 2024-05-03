@@ -98,7 +98,7 @@
                             ]
                         },
                         {
-                            "field": "an_fir_part",
+                            "field": "authn_token_part_one",
                             "label": "AuthN API Token First Part",
                             "type": "text",
                             "help": "Encrypted part of the Token required to enable inputs and SPL command.",
@@ -115,7 +115,7 @@
                             ]
                         },
                         {
-                            "field": "an_sec_part",
+                            "field": "authn_token_part_two",
                             "label": "AuthN API Token Second Part",
                             "type": "text",
                             "help": "Remaining part of the Token required to enable inputs and SPL command.",
@@ -134,7 +134,7 @@
                             "field": "dataset_log_read_access_key",
                             "label": "DataSet Log Read Access Key",
                             "type": "text",
-                            "help": "Required to enable inputs and SPL comand. Include trailing hyphens if applicable. Please ignore this if AuthN token value is provided.",
+                            "help": "Required (if no AuthN token provided) to enable inputs and SPL command. Include trailing hyphens if applicable.",
                             "required": false,
                             "defaultValue": "",
                             "encrypted": true,
