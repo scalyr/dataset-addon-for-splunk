@@ -57,9 +57,9 @@ def ds_lrq_log_query(
         end_time=end_time,
         log=LogAttributes(filter_=filter_expr, limit=limit),
     )
-    tenant_details = get_tenant_related_payload(acc_conf)
+    body.additional_properties = get_tenant_related_payload(acc_conf)
     return ds_lrq_run_loop(
-        logger, client=client, body=body, tenant_details=tenant_details
+        logger, client=client, body=body
     )
 
 
@@ -76,9 +76,9 @@ def ds_lrq_power_query(
         end_time=end_time,
         pq=PQAttributes(query=query),
     )
-    tenant_details = get_tenant_related_payload(acc_conf)
+    body.additional_properties = get_tenant_related_payload(acc_conf)
     return ds_lrq_run_loop(
-        logger, client=client, body=body, tenant_details=tenant_details
+        logger, client=client, body=body
     )
 
 
@@ -106,9 +106,9 @@ def ds_lrq_facet_values(
             filter_=filter, name=name, max_values=max_values
         ),
     )
-    tenant_details = get_tenant_related_payload(acc_conf)
+    body.additional_properties = get_tenant_related_payload(acc_conf)
     return ds_lrq_run_loop(
-        logger, client=client, body=body, tenant_details=tenant_details
+        logger, client=client, body=body
     )
 
 
@@ -119,11 +119,10 @@ def ds_lrq_run_loop(
     log,
     client: AuthenticatedClient,
     body: PostQueriesLaunchQueryRequestBody,
-    tenant_details=None,
 ):
     body.query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority.HIGH
     response = post_queries.sync_detailed(
-        client=client, json_body=body, tenant_details=tenant_details, logger=log
+        client=client, json_body=body, logger=log
     )
     logger().debug(response)
     result = response.parsed
