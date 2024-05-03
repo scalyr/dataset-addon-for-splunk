@@ -1,4 +1,4 @@
-#  Singularity Data Lake Add-On for Splunk
+#  Singularity Data Lake Add-On for Splunk test
 
 [![Check Code Quality](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/check-code-quality.yaml/badge.svg)](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/check-code-quality.yaml) [![Unit tests](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/unittests.yml/badge.svg)](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/unittests.yml) [![UCC Gen Validation](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/validate.yaml/badge.svg)](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/validate.yaml) [![Playwright E2E Tests](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/playwright.yml/badge.svg)](https://github.com/scalyr/dataset-addon-for-splunk/actions/workflows/playwright.yml)
 
