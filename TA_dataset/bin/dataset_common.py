@@ -268,7 +268,9 @@ def get_token_from_config(self, conf, name, logger):
         logger.info("The AuthN api token second part was available")
         second_part = conf.authn_token_part_two
         authn_token += second_part
-    if not hasattr(conf, "authn_token_part_one") and not hasattr(conf, "authn_token_part_two"):
+    if not hasattr(conf, "authn_token_part_one") and not hasattr(
+        conf, "authn_token_part_two"
+    ):
         logger.info("The AuthN api token was not available")
         return get_token(self, name, "read", logger)
 

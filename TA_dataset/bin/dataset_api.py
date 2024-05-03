@@ -5,7 +5,7 @@ import time
 
 # adjust paths to make the Splunk app working
 import import_declare_test  # noqa: F401
-from dataset_common import logger, normalize_time, get_tenant_related_payload
+from dataset_common import get_tenant_related_payload, logger, normalize_time
 
 # Dataset V2 API client (generated)
 from dataset_query_api_client import AuthenticatedClient
@@ -42,8 +42,6 @@ def convert_proxy(proxy):
     if "https" in proxy:
         new_proxy["https://"] = proxy["https"]
     return new_proxy
-
-
 
 
 # Executes Dataset LongRunningQuery for log events
