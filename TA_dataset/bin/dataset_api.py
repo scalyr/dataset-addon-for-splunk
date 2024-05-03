@@ -58,9 +58,7 @@ def ds_lrq_log_query(
         log=LogAttributes(filter_=filter_expr, limit=limit),
     )
     body.additional_properties = get_tenant_related_payload(acc_conf)
-    return ds_lrq_run_loop(
-        logger, client=client, body=body
-    )
+    return ds_lrq_run_loop(logger, client=client, body=body)
 
 
 # Executes Dataset LongRunningQuery using PowerQuery language
@@ -77,9 +75,7 @@ def ds_lrq_power_query(
         pq=PQAttributes(query=query),
     )
     body.additional_properties = get_tenant_related_payload(acc_conf)
-    return ds_lrq_run_loop(
-        logger, client=client, body=body
-    )
+    return ds_lrq_run_loop(logger, client=client, body=body)
 
 
 # Executes Dataset LongRunningQuery to fetch facet values
@@ -107,9 +103,7 @@ def ds_lrq_facet_values(
         ),
     )
     body.additional_properties = get_tenant_related_payload(acc_conf)
-    return ds_lrq_run_loop(
-        logger, client=client, body=body
-    )
+    return ds_lrq_run_loop(logger, client=client, body=body)
 
 
 # Executes LRQ run loop of launch-ping-remove API requests until the query completes
@@ -121,9 +115,7 @@ def ds_lrq_run_loop(
     body: PostQueriesLaunchQueryRequestBody,
 ):
     body.query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority.HIGH
-    response = post_queries.sync_detailed(
-        client=client, json_body=body, logger=log
-    )
+    response = post_queries.sync_detailed(client=client, json_body=body, logger=log)
     logger().debug(response)
     result = response.parsed
     if result:

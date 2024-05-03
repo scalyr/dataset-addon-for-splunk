@@ -107,9 +107,7 @@ def sync_detailed(
         Response[QueryResult]
     """
 
-    kwargs = _get_kwargs(
-        client=client, json_body=json_body
-    )
+    kwargs = _get_kwargs(client=client, json_body=json_body)
     logger.info(
         "Making api call to the queries with payload{}".format(kwargs.get("json"))
     )
