@@ -72,7 +72,7 @@ jobs:
 
     - name: Debug for Splunk
       run: |
-        until [ "$(docker inspect -f {{.State.Health.Status}} $(docker-compose ps -q splunk))" = "healthy" ]; do sleep 1; done
+        until [ "$(docker ps -f name=splunk --format 'table {{.Names}},{{.Status}}' | grep 'healthy' -c)" -ne 1 ]; do echo "waiting until splunk container is healthy"; sleep 1; done
         sleep 15
         docker ps
         sleep 15
