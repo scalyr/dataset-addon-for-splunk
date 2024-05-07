@@ -76,7 +76,7 @@ You need Python 3.8 for development and package building.
   ```
 * Run commands manually:
   ```bash
-  ucc-gen --source TA_dataset --ta-version 2.0.8
+  ucc-gen --source TA_dataset --ta-version "$(jq -r '.meta.version' globalConfig.json)"
   slim package output/TA_dataset -o release
   ```
 
