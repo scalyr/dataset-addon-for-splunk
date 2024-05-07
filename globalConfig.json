@@ -1,44 +1,21 @@
 {
-  "meta": {
-    "name": "TA_dataset",
-    "displayName": "Singularity Data Lake Add-On for Splunk",
-    "version": "2.0.65-SNAPSHOT",
-    "restRoot": "TA_dataset",
-    "schemaVersion": "0.0.3"
-  },
-  "pages": {
-    "configuration": {
-      "title": "Configuration",
-      "description": "Set up your add-on",
-      "tabs": [
-        {
-          "name": "account",
-          "title": "Account",
-          "table": {
-            "header": [
-              {
-                "field": "name",
-                "label": "Account name"
-              },
-              {
-                "field": "url",
-                "label": "URL"
-              }
-            ],
-            "actions": [
-              "edit",
-              "delete",
-              "clone"
-            ]
-          },
-          "entity": [
-            {
-              "field": "name",
-              "label": "Account name",
-              "type": "text",
-              "required": true,
-              "help": "Enter a unique name for this account.",
-              "validators": [
+    "meta": {
+      "name": "TA_dataset",
+      "displayName": "Singularity Data Lake Add-On for Splunk",
+      "version": "2.0.65-SNAPSHOT",
+      "restRoot": "TA_dataset",
+      "schemaVersion": "0.0.3"
+    },
+    "pages": {
+      "configuration": {
+        "title": "Configuration",
+        "description": "Set up your add-on",
+        "tabs": [
+          {
+            "name": "account",
+            "title": "Account",
+            "table": {
+              "header": [
                 {
                   "field": "name",
                   "label": "Account name"
@@ -162,15 +139,15 @@
                 "defaultValue": "",
                 "encrypted": true,
                 "validators": [
-                    {
-                        "type": "string",
-                        "minLength": 0,
-                        "maxLength": 100,
-                        "errorMsg": "Max length of password is 100"
-                    }
+                  {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 100,
+                    "errorMsg": "Max length of password is 100"
+                  }
                 ]
-            },
-                {
+              },
+              {
                 "field": "dataset_log_write_access_key",
                 "label": "DataSet Log Write Access Key",
                 "type": "text",
