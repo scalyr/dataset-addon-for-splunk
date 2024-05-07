@@ -128,6 +128,12 @@ pack: clean
 		--release release
 
 dev-wait-for-splunk:
+	docker ps;
+	while [ "$(docker ps -f name=splunk --format 'table {{.Names}},{{.Status}}' | grep 'healthy' -c)" -ne 1 ]; do \
+		echo "waiting until splunk container is healthy"; \
+		sleep 1; \
+		done; \
+	docker ps;
 	awaitedStatus=303; \
 	status=900; \
 	while [ "x$${status}" != "x$${awaitedStatus}" ]; do \
