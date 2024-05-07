@@ -72,13 +72,13 @@ jobs:
 
     - name: Debug for Splunk
       run: |
-        sleep 5
+        sleep 15
         docker ps
-        sleep 5
+        sleep 15
         docker ps
-        sleep 5
+        sleep 15
         docker ps
-        sleep 5
+        sleep 15
         docker ps
 
     - name: Wait for Splunk
