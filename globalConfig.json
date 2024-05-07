@@ -1,21 +1,44 @@
 {
-    "meta": {
-      "name": "TA_dataset",
-      "displayName": "Singularity Data Lake Add-On for Splunk",
-      "version": "2.0.64-SNAPSHOT",
-      "restRoot": "TA_dataset",
-      "schemaVersion": "0.0.3"
-    },
-    "pages": {
-      "configuration": {
-        "title": "Configuration",
-        "description": "Set up your add-on",
-        "tabs": [
-          {
-            "name": "account",
-            "title": "Account",
-            "table": {
-              "header": [
+  "meta": {
+    "name": "TA_dataset",
+    "displayName": "Singularity Data Lake Add-On for Splunk",
+    "version": "2.0.65-SNAPSHOT",
+    "restRoot": "TA_dataset",
+    "schemaVersion": "0.0.3"
+  },
+  "pages": {
+    "configuration": {
+      "title": "Configuration",
+      "description": "Set up your add-on",
+      "tabs": [
+        {
+          "name": "account",
+          "title": "Account",
+          "table": {
+            "header": [
+              {
+                "field": "name",
+                "label": "Account name"
+              },
+              {
+                "field": "url",
+                "label": "URL"
+              }
+            ],
+            "actions": [
+              "edit",
+              "delete",
+              "clone"
+            ]
+          },
+          "entity": [
+            {
+              "field": "name",
+              "label": "Account name",
+              "type": "text",
+              "required": true,
+              "help": "Enter a unique name for this account.",
+              "validators": [
                 {
                   "field": "name",
                   "label": "Account name"
