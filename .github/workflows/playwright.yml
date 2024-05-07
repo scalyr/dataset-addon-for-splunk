@@ -70,6 +70,17 @@ jobs:
         echo "DATASET_LOG_ACCESS_READ=${{ secrets.DATASET_LOG_ACCESS_READ }}" >> .env
         echo "DATASET_LOG_ACCESS_WRITE=${{ secrets.DATASET_LOG_ACCESS_WRITE }}" >> .env
 
+    - name: Debug for Splunk
+      run: |
+        sleep 5
+        docker ps
+        sleep 5
+        docker ps
+        sleep 5
+        docker ps
+        sleep 5
+        docker ps
+
     - name: Wait for Splunk
       run: |
         make dev-wait-for-splunk
