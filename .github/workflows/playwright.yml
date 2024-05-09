@@ -72,6 +72,9 @@ jobs:
 
     - name: Wait for Splunk
       run: |
+        docker ps
+        while [ "$(docker ps -f name=splunk --format 'table {{.Names}},{{.Status}}' | grep 'healthy' -c)" -ne 1 ]; do echo "waiting until splunk container is healthy"; sleep 1; done
+        docker ps
         make dev-wait-for-splunk
 
     - name: Run Playwright tests
