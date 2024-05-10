@@ -58,7 +58,7 @@ setup('login and create account', async ({ page }) => {
     // Setup locators
     const locAccount = page.locator('div').filter({ hasText: /^\*?Account nameEnter a unique name for this account\.$/ }).locator('[data-test="textbox"]')
     const locUrl = page.locator('div').filter({ hasText: /^\*?URLEnter DataSet URL\.$/ }).locator('[data-test="textbox"]')
-    const locReadKey = page.locator('[data-test="body"] form div').filter({ hasText: 'DataSet Log Read Access KeyRequired to enable inputs and SPL comand. Include tra' }).locator('[data-test="textbox"]');
+    const locReadKey = page.locator('[data-test="body"] form div').filter({ hasText: 'DataSet Log Read Access KeyRequired (if no AuthN token provided) to enable' }).locator('[data-test="textbox"]');
     const locWriteKey = page.locator('[data-test="body"] form div').filter({ hasText: 'DataSet Log Write Access KeyRequired to enable alert action. Include trailing hy' }).locator('[data-test="textbox"]');
 
     // Read env with values
