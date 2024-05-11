@@ -71,7 +71,7 @@ export async function searchDataSet(page: Page, query: string) {
     const queryScreenshotKey = query2file(query);
     await page.screenshot({path: `playwright-screenshots/page-search-query-${queryScreenshotKey}.png`, fullPage: true});
     await waitForSearchResults(page, queryScreenshotKey)
-    await expect(page.getByText("sourcetype").first()).toBeHidden();
+    await expect(page.getByText("sourcetype").first()).toBeVisible();
 }
 
 export async function waitForSearchResults(page: Page, key: string) {
@@ -96,7 +96,7 @@ export async function waitForSearchResults(page: Page, key: string) {
     // It looks that No results found element is still there, but not visible
     console.log("Wait for 'No results found' to disappear");
     const locNoResults = page.getByText('No results found.', { exact: true });
-    if (await locNoResults.count() > 0 && key != 'examples') {
+    if (await locNoResults.count() > 0) {
         if (await locNoResults.isVisible()) {
             await expect(locNoResults).toHaveCount(0, {timeout: 50000})
             await page.screenshot({ path: `playwright-screenshots/page-${ key }-wait-for-data-${ pic++ }.png`, fullPage: true });

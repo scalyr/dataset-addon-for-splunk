@@ -286,6 +286,7 @@ def get_tenant_related_payload(ds_acct):
             "tenant": False,
             "accountIds": ds_acct["account_ids"],
         }
+    return {}
 
 
 def get_token(self, account, token_type, logger, config_key=None):
