@@ -5,7 +5,7 @@ import time
 
 # adjust paths to make the Splunk app working
 import import_declare_test  # noqa: F401
-from dataset_common import get_tenant_related_payload, logger, normalize_time
+from dataset_common import logger, normalize_time
 
 # Dataset V2 API client (generated)
 from dataset_query_api_client import AuthenticatedClient
@@ -46,7 +46,15 @@ def convert_proxy(proxy):
 
 # Executes Dataset LongRunningQuery for log events
 def ds_lrq_log_query(
-    base_url, api_key, start_time, end_time, filter_expr, limit, proxy, logger, tenant_related_payload
+    base_url,
+    api_key,
+    start_time,
+    end_time,
+    filter_expr,
+    limit,
+    proxy,
+    logger,
+    tenant_related_payload,
 ):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
@@ -63,7 +71,14 @@ def ds_lrq_log_query(
 
 # Executes Dataset LongRunningQuery using PowerQuery language
 def ds_lrq_power_query(
-    base_url, api_key, start_time, end_time, query, proxy, logger, tenant_related_payload
+    base_url,
+    api_key,
+    start_time,
+    end_time,
+    query,
+    proxy,
+    logger,
+    tenant_related_payload,
 ):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)

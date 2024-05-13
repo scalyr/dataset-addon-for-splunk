@@ -319,8 +319,8 @@ class DataSetSearch(GeneratingCommand):
 
             try:
                 tenant_related_payload = get_tenant_related_payload(
-                        acct_dict.get(ds_acct)
-                    )
+                    acct_dict.get(ds_acct)
+                )
                 if ds_method == "query":
                     result = ds_lrq_log_query(
                         base_url=ds_base_url,
