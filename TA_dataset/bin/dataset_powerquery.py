@@ -8,7 +8,13 @@ import time
 import import_declare_test  # noqa: F401
 import requests
 from dataset_api import build_payload, parse_powerquery
-from dataset_common import get_acct_info, get_log_level, get_proxy, get_url
+from dataset_common import (
+    get_acct_info,
+    get_log_level,
+    get_proxy,
+    get_tenant_related_payload,
+    get_url,
+)
 from solnlib import log
 from solnlib.modular_input import checkpointer
 from splunklib import modularinput as smi
@@ -117,7 +123,13 @@ class DATASET_POWERQUERY_INPUT(smi.Script):
                 ds_headers = {
                     "Authorization": "Bearer " + acct_dict[ds_acct]["ds_api_key"]
                 }
-
+                tenant_related_payload = get_tenant_related_payload(
+                    acct_dict.get(ds_acct)
+                )
+                ds_payload.update(tenant_related_payload)
+                logger.info(
+                    "ds payload in power query stream events = {}".format(ds_payload)
+                )
                 # Create checkpointer
                 checkpoint = checkpointer.KVStoreCheckpointer(
                     input_name, session_key, APP_NAME

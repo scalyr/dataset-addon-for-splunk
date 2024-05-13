@@ -52,16 +52,32 @@ The add-on uses Splunk encrypted secrets storage, so admins require `admin_all_o
 4. Under Log Access Keys, click Add Key > Add Write Key (required for alert action).
 5. Optionally, click the pencil icon to rename the keys.
 
+### SentinelOne Platform with Singularity Data Lake
+To get the AuthN API token follow the below mentioned details:
+1. Login into the SentinelOne console, click on your User Name > My User
+![My User Page](README_images/my_user.png)
+2. Click on Actions > API Token Operations > Generate / Regenrate API token.
+    - If you are generating the API Token for the first time then you will have the Generate API Token option. Otherwise you will find the generate API Token.
+![Token generation](README_images/generate_token.png)
+3. Copy the API Token and save it for configuration.
+
 ### Splunk
 1. In Splunk, open the Add-on
 
-![Configuring DataSet Account](README_images/setup_account.png)
+![Configuring DataSet Account](README_images/acc_details_new.png)
 
 2. On the configuration > account tab:
 - Click Add
 - Enter a user-friendly account name. For multiple accounts, the account name can be used in queries (more details below).
 - Enter the full URL noted above (e.g.: `https://app.scalyr.com`, `https://xdr.us1.sentinelone.net` or `https://xdr.eu1.sentinelone.net`).
-- Enter the DataSet read key from above (required for searching)
+- Enter Tenant value, it can be True/False/Blank. If set to True, the queries will run for the entire Tenant or if set to False, provide Account IDs as a comma separated values to run searches in those specific accounts. Leave it blank if you are not trying use the Tenant level searches.
+- Provide the comma seperated Account Ids, if Tenant is False. eg: 1234567890,9876543210.
+- Enter the AuthN API Token First part which includes first 220 characters.
+- Enter the AuthN API Token Second part which includes remaining characters.
+    - Use this command to prepare both parts of AuthN API token:
+    `read -p "Enter Token: " input_string && echo "Part1: $(echo $input_string | cut -c 1-220)"; echo "Part2: $(echo $input_string | cut -c 221-)"`
+    - Reason for creating 2 parts of AuthN Token: Splunk Storage Manager has a limitation of storing only 256 characters of encrypted data from inputs. And the AuthN Token can have length <256, hence its split into 2 parts, the first one is encrypted (first 220 chars) and the second one is not. As we are encrypting most of the Token, its use is safe.
+- Enter the DataSet read key from above (required for searching), please ignore this if AuthN token value is provided.
 - Enter the DataSet write key from above (only required for alert actions).
 - Click Save
 

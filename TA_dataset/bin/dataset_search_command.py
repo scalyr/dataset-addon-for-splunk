@@ -26,6 +26,7 @@ from dataset_common import (
     get_acct_info,
     get_logger,
     get_proxy,
+    get_tenant_related_payload,
     get_url,
     logger,
     relative_to_epoch,
@@ -317,6 +318,9 @@ class DataSetSearch(GeneratingCommand):
                 )
 
             try:
+                tenant_related_payload = get_tenant_related_payload(
+                    acct_dict.get(ds_acct)
+                )
                 if ds_method == "query":
                     result = ds_lrq_log_query(
                         base_url=ds_base_url,
@@ -326,6 +330,8 @@ class DataSetSearch(GeneratingCommand):
                         filter_expr=ds_search,
                         limit=ds_maxcount,
                         proxy=proxy,
+                        logger=logger,
+                        tenant_related_payload=tenant_related_payload,
                     )
 
                     logger.debug("QUERY RESULT, result={}".format(result))
@@ -368,6 +374,8 @@ class DataSetSearch(GeneratingCommand):
                         end_time=ds_end,
                         query=pq,
                         proxy=proxy,
+                        logger=logger,
+                        tenant_related_payload=tenant_related_payload,
                     )
                     logger.debug("QUERY RESULT, result={}".format(result))
                     data = result.data  # TableResultData
@@ -404,6 +412,8 @@ class DataSetSearch(GeneratingCommand):
                         name=f_field,
                         max_values=ds_maxcount,
                         proxy=proxy,
+                        logger=logger,
+                        tenant_related_payload=tenant_related_payload,
                     )
                     logger.debug("QUERY RESULT, result={}".format(result))
                     facet = result.data.facet  # FacetValuesResultData.data -> FacetData
@@ -435,6 +445,10 @@ class DataSetSearch(GeneratingCommand):
                     logger.debug(
                         "DataSetFunction=makeRequest, destination={}, startTime={}"
                         .format(ds_url, time.time())
+                    )
+                    ds_payload.update(tenant_related_payload)
+                    logger.debug(
+                        "The paylaod for the timeseries api {}".format(ds_payload)
                     )
                     r = requests.post(
                         url=ds_url, headers=ds_headers, json=ds_payload, proxies=proxy

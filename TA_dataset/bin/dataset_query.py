@@ -16,6 +16,7 @@ from dataset_common import (
     get_acct_info,
     get_logger,
     get_proxy,
+    get_tenant_related_payload,
     get_url,
     relative_to_epoch,
 )
@@ -144,7 +145,12 @@ class DATASET_QUERY_INPUT(smi.Script):
             proxy = get_proxy(session_key, logger)
             acct_dict = get_acct_info(self, logger, ds_account)
             for ds_acct in acct_dict.keys():
+                tenant_related_payload = get_tenant_related_payload(
+                    acct_dict.get(ds_acct)
+                )
+                ds_payload.update(tenant_related_payload)
                 curr_payload = copy.deepcopy(ds_payload)
+                logger.info("query api account curr payload {}".format(curr_payload))
                 curr_maxcount = copy.copy(ds_maxcount)
                 ds_url = get_url(acct_dict[ds_acct]["base_url"], "query")
                 ds_headers = {

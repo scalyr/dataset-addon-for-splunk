@@ -1,5 +1,9 @@
 [account]
 url = <string>
+tenant = <string>
+account_ids = <string>
+authn_token_part_one = <string>
+authn_token_part_two = <string>
 dataset_log_read_access_key = <string>
 dataset_log_write_access_key = <string>
 

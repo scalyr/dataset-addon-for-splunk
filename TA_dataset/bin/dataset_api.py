@@ -53,6 +53,8 @@ def ds_lrq_log_query(
     filter_expr,
     limit,
     proxy,
+    logger,
+    tenant_related_payload,
 ):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
@@ -63,11 +65,21 @@ def ds_lrq_log_query(
         end_time=end_time,
         log=LogAttributes(filter_=filter_expr, limit=limit),
     )
-    return ds_lrq_run_loop(client=client, body=body)
+    body.additional_properties = tenant_related_payload
+    return ds_lrq_run_loop(logger, client=client, body=body)
 
 
 # Executes Dataset LongRunningQuery using PowerQuery language
-def ds_lrq_power_query(base_url, api_key, start_time, end_time, query, proxy):
+def ds_lrq_power_query(
+    base_url,
+    api_key,
+    start_time,
+    end_time,
+    query,
+    proxy,
+    logger,
+    tenant_related_payload,
+):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
     )
@@ -77,7 +89,8 @@ def ds_lrq_power_query(base_url, api_key, start_time, end_time, query, proxy):
         end_time=end_time,
         pq=PQAttributes(query=query),
     )
-    return ds_lrq_run_loop(client=client, body=body)
+    body.additional_properties = tenant_related_payload
+    return ds_lrq_run_loop(logger, client=client, body=body)
 
 
 # Executes Dataset LongRunningQuery to fetch facet values
@@ -90,6 +103,8 @@ def ds_lrq_facet_values(
     name,
     max_values,
     proxy,
+    logger,
+    tenant_related_payload,
 ):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
@@ -102,17 +117,24 @@ def ds_lrq_facet_values(
             filter_=filter, name=name, max_values=max_values
         ),
     )
-    return ds_lrq_run_loop(client=client, body=body)
+    body.additional_properties = tenant_related_payload
+    return ds_lrq_run_loop(logger, client=client, body=body)
 
 
 # Executes LRQ run loop of launch-ping-remove API requests until the query completes
 # with a result
 # Returns tuple - value, error message
 def ds_lrq_run_loop(
-    client: AuthenticatedClient, body: PostQueriesLaunchQueryRequestBody
+    log,
+    client: AuthenticatedClient,
+    body: PostQueriesLaunchQueryRequestBody,
 ):
+    """
+    The log parameter assists in generating logs with the chosen level
+    in the index="_internal". This helps in debugging.
+    """
     body.query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority.HIGH
-    response = post_queries.sync_detailed(client=client, json_body=body)
+    response = post_queries.sync_detailed(client=client, json_body=body, logger=log)
     logger().debug(response)
     result = response.parsed
     if result:
@@ -242,7 +264,7 @@ def parse_query(ds_columns, match_list, sessions):
     if ds_columns is None:
         session_key = match_list["session"]
 
-        for session_entry, session_dict in sessions.items():
+        for session_entry, session_dict in list(sessions.items()):
             if session_entry == session_key:
                 for key in session_dict:
                     ds_event_dict[key] = session_dict[key]
