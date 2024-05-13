@@ -129,6 +129,10 @@ def ds_lrq_run_loop(
     client: AuthenticatedClient,
     body: PostQueriesLaunchQueryRequestBody,
 ):
+    """
+    The log parameter assists in generating logs with the chosen level
+    in the index="_internal". This helps in debugging.
+    """
     body.query_priority = PostQueriesLaunchQueryRequestBodyQueryPriority.HIGH
     response = post_queries.sync_detailed(client=client, json_body=body, logger=log)
     logger().debug(response)

@@ -375,7 +375,7 @@ class DataSetSearch(GeneratingCommand):
                         query=pq,
                         proxy=proxy,
                         logger=logger,
-                        tenant_related_payload=tenant_related_payload
+                        tenant_related_payload=tenant_related_payload,
                     )
                     logger.debug("QUERY RESULT, result={}".format(result))
                     data = result.data  # TableResultData
@@ -413,7 +413,7 @@ class DataSetSearch(GeneratingCommand):
                         max_values=ds_maxcount,
                         proxy=proxy,
                         logger=logger,
-                        tenant_related_payload=tenant_related_payload
+                        tenant_related_payload=tenant_related_payload,
                     )
                     logger.debug("QUERY RESULT, result={}".format(result))
                     facet = result.data.facet  # FacetValuesResultData.data -> FacetData
