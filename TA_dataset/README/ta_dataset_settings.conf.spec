@@ -1,6 +1,6 @@
 [account]
 url = <string>
-tenant = <bool>
+tenant = <string>
 account_ids = <string>
 authn_token_part_one = <string>
 authn_token_part_two = <string>

@@ -46,7 +46,7 @@ def convert_proxy(proxy):
 
 # Executes Dataset LongRunningQuery for log events
 def ds_lrq_log_query(
-    base_url, api_key, start_time, end_time, filter_expr, limit, proxy, logger, acc_conf
+    base_url, api_key, start_time, end_time, filter_expr, limit, proxy, logger, tenant_related_payload
 ):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
@@ -57,13 +57,13 @@ def ds_lrq_log_query(
         end_time=end_time,
         log=LogAttributes(filter_=filter_expr, limit=limit),
     )
-    body.additional_properties = get_tenant_related_payload(acc_conf)
+    body.additional_properties = tenant_related_payload
     return ds_lrq_run_loop(logger, client=client, body=body)
 
 
 # Executes Dataset LongRunningQuery using PowerQuery language
 def ds_lrq_power_query(
-    base_url, api_key, start_time, end_time, query, proxy, logger, acc_conf
+    base_url, api_key, start_time, end_time, query, proxy, logger, tenant_related_payload
 ):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
@@ -74,7 +74,7 @@ def ds_lrq_power_query(
         end_time=end_time,
         pq=PQAttributes(query=query),
     )
-    body.additional_properties = get_tenant_related_payload(acc_conf)
+    body.additional_properties = tenant_related_payload
     return ds_lrq_run_loop(logger, client=client, body=body)
 
 
@@ -89,7 +89,7 @@ def ds_lrq_facet_values(
     max_values,
     proxy,
     logger,
-    acc_conf,
+    tenant_related_payload,
 ):
     client = AuthenticatedClient(
         base_url=base_url, token=api_key, proxy=convert_proxy(proxy)
@@ -102,7 +102,7 @@ def ds_lrq_facet_values(
             filter_=filter, name=name, max_values=max_values
         ),
     )
-    body.additional_properties = get_tenant_related_payload(acc_conf)
+    body.additional_properties = tenant_related_payload
     return ds_lrq_run_loop(logger, client=client, body=body)
 
 

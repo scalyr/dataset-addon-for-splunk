@@ -108,7 +108,7 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(client=client, json_body=json_body)
-    logger.info(
+    logger.debug(
         "Making api call to the queries with payload{}".format(kwargs.get("json"))
     )
     response = httpx.request(

@@ -236,7 +236,7 @@ def get_acct_info(self, logger, account=None):
 def get_tenant_value(conf, logger):
     tenant_value = conf.tenant
     tenant_value = tenant_value.strip()
-    logger.info("The provided tenant value in config is {}".format(tenant_value))
+    logger.debug("The provided tenant value in config is {}".format(tenant_value))
     if tenant_value.lower() == "false" or tenant_value.lower() == "0":
         return False
     return True
@@ -249,7 +249,7 @@ def get_account_ids(conf, logger):
         account_ids_conf = account_ids_conf.strip()
         if account_ids_conf:
             account_ids_array = account_ids_conf.split(",")
-        logger.info(f"the provided account ids in config: {account_ids_array}")
+        logger.debug(f"the provided account ids in config: {account_ids_array}")
     if not account_ids_array:
         raise Exception(
             "Tenant is false, so please provide the valid comma-separated account IDs"
@@ -261,17 +261,17 @@ def get_account_ids(conf, logger):
 def get_token_from_config(self, conf, name, logger):
     authn_token = ""
     if hasattr(conf, "authn_token_part_one"):
-        logger.info("The AuthN api token first part was available")
+        logger.debug("The AuthN api token first part was available")
         first_half = get_token(self, name, "authn", logger, "authn_token_part_one")
         authn_token += first_half
     if hasattr(conf, "authn_token_part_two"):
-        logger.info("The AuthN api token second part was available")
+        logger.debug("The AuthN api token second part was available")
         second_part = conf.authn_token_part_two
         authn_token += second_part
     if not hasattr(conf, "authn_token_part_one") and not hasattr(
         conf, "authn_token_part_two"
     ):
-        logger.info("The AuthN api token was not available")
+        logger.debug("The AuthN api token was not available")
         return get_token(self, name, "read", logger)
 
     return authn_token

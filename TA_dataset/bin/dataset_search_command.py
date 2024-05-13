@@ -318,6 +318,9 @@ class DataSetSearch(GeneratingCommand):
                 )
 
             try:
+                tenant_related_payload = get_tenant_related_payload(
+                        acct_dict.get(ds_acct)
+                    )
                 if ds_method == "query":
                     result = ds_lrq_log_query(
                         base_url=ds_base_url,
@@ -328,7 +331,7 @@ class DataSetSearch(GeneratingCommand):
                         limit=ds_maxcount,
                         proxy=proxy,
                         logger=logger,
-                        acc_conf=acct_dict[ds_acct],
+                        tenant_related_payload=tenant_related_payload,
                     )
 
                     logger.debug("QUERY RESULT, result={}".format(result))
@@ -372,7 +375,7 @@ class DataSetSearch(GeneratingCommand):
                         query=pq,
                         proxy=proxy,
                         logger=logger,
-                        acc_conf=acct_dict[ds_acct],
+                        tenant_related_payload=tenant_related_payload
                     )
                     logger.debug("QUERY RESULT, result={}".format(result))
                     data = result.data  # TableResultData
@@ -410,7 +413,7 @@ class DataSetSearch(GeneratingCommand):
                         max_values=ds_maxcount,
                         proxy=proxy,
                         logger=logger,
-                        acc_conf=acct_dict[ds_acct],
+                        tenant_related_payload=tenant_related_payload
                     )
                     logger.debug("QUERY RESULT, result={}".format(result))
                     facet = result.data.facet  # FacetValuesResultData.data -> FacetData
@@ -443,11 +446,8 @@ class DataSetSearch(GeneratingCommand):
                         "DataSetFunction=makeRequest, destination={}, startTime={}"
                         .format(ds_url, time.time())
                     )
-                    tenant_related_payload = get_tenant_related_payload(
-                        acct_dict.get(ds_acct)
-                    )
                     ds_payload.update(tenant_related_payload)
-                    logger.info(
+                    logger.debug(
                         "The paylaod for the timeseries api {}".format(ds_payload)
                     )
                     r = requests.post(
