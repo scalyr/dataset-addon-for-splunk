@@ -70,7 +70,7 @@ To get the AuthN API token follow the below mentioned details:
 - Click Add
 - Enter a user-friendly account name. For multiple accounts, the account name can be used in queries (more details below).
 - Enter the full URL noted above (e.g.: `https://app.scalyr.com`, `https://xdr.us1.sentinelone.net` or `https://xdr.eu1.sentinelone.net`).
-- Enter Tenant value, it can be True/False/Blank. If set to True, the queries will run for the entire Tenant or if set to False, provide Account IDs as a comma separated values to run searches in those specific accounts. Leave it blank if you are not trying use the Tenant level searches.
+- Enter Tenant value, it can be True/False/1/0/Blank. If set to True/1, the queries will run for the entire Tenant or if set to False/0, provide Account IDs as a comma separated values to run searches in those specific accounts. Leave it blank if you are not trying use the Tenant level searches.
 - Provide the comma seperated Account Ids, if Tenant is False. eg: 1234567890,9876543210.
 - Enter the AuthN API Token First part which includes first 220 characters.
 - Enter the AuthN API Token Second part which includes remaining characters.
