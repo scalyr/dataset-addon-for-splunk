@@ -71,14 +71,14 @@
               "field": "tenant",
               "label": "Tenant",
               "type": "text",
-              "help": "Tenant field can be True/False/Blank. If True, entire Tenant will be considered or if False, only the Account IDs will be considered for queries. If Blank neither consider",
+              "help": "Tenant field can be True/False/1/0/Blank. If True/1, entire Tenant will be considered or if False/0, only the Account IDs will be considered for queries. If Blank neither consider",
               "required": false,
               "defaultValue": "",
               "validators": [
                 {
                   "type": "regex",
-                  "pattern": "^(true|True|TRUE|false|False|FALSE)$",
-                  "errorMsg": "Tenant must be a value of True or False or empty"
+                  "pattern": "^(true|True|TRUE|false|False|FALSE|1|0)$",
+                  "errorMsg": "Tenant must be a value of True or False or 1 or 0 or empty"
                 }
               ]
             },

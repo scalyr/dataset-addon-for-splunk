@@ -263,10 +263,14 @@ def get_token_from_config(self, conf, name, logger):
     if hasattr(conf, "authn_token_part_one"):
         logger.debug("The AuthN api token first part was available")
         first_half = get_token(self, name, "authn", logger, "authn_token_part_one")
+        if not first_half:
+            raise Exception("Configuration error: AuthN API Token First Part is not specified")
         authn_token += first_half
     if hasattr(conf, "authn_token_part_two"):
         logger.debug("The AuthN api token second part was available")
         second_part = conf.authn_token_part_two
+        if not second_part:
+            raise Exception("Configuration error: AuthN API Token Second Part is not specified")
         authn_token += second_part
     if not hasattr(conf, "authn_token_part_one") and not hasattr(
         conf, "authn_token_part_two"
