@@ -34,7 +34,7 @@
           "entity": [
             {
               "field": "name",
-              "label": "Account name",
+              "label": "Account Name *",
               "type": "text",
               "required": true,
               "help": "Enter a unique name for this account.",
@@ -54,7 +54,7 @@
             },
             {
               "field": "url",
-              "label": "URL",
+              "label": "URL *",
               "type": "text",
               "help": "Enter DataSet URL.",
               "required": true,
@@ -69,24 +69,34 @@
             },
             {
               "field": "tenant",
-              "label": "Tenant",
-              "type": "text",
-              "help": "Tenant field can be True/False/1/0/Blank. If True/1, entire Tenant will be considered or if False/0, only the Account IDs will be considered for queries. If Blank neither consider",
-              "required": false,
-              "defaultValue": "",
-              "validators": [
-                {
-                  "type": "regex",
-                  "pattern": "^(true|True|TRUE|false|False|FALSE|1|0)$",
-                  "errorMsg": "Tenant must be a value of True or False or 1 or 0 or empty"
-                }
-              ]
+              "label": "Run On *",
+              "type": "singleSelect",
+              "options": {
+                "disableSearch": true,
+                "autoCompleteFields": [
+                  {
+                    "value": "all_scopes",
+                    "label": "All scopes"
+                  },
+                  {
+                    "value": "specified_scopes",
+                    "label": "Specified scopes"
+                  },
+                  {
+                    "value": "none",
+                    "label": "None"
+                  }
+                ]
+              },
+              "defaultValue": "none",
+              "help": "When using AuthN tokens, select scope on which the queries should run. It can run on 'All scopes' / 'Specified scopes' i.e., Account Ids. When kept None, it would use the SDL Tokens (Read+Write).",
+              "required": true
             },
             {
               "field": "account_ids",
               "label": "Account IDs",
               "type": "text",
-              "help": "Provide comma separated values of Account IDs on which the queries should run, when Tenant is set to False.",
+              "help": "Provide comma separated values of Account IDs on which the queries should run, when Run On is selected as Specified scopes.",
               "required": false,
               "defaultValue": "",
               "validators": [
@@ -131,8 +141,17 @@
               ]
             },
             {
+              "field": "authn_help_link",
+              "label": "",
+              "type": "helpLink",
+              "options": {
+                "text": "AuthN Help Link",
+                "link": "https://github.com/scalyr/dataset-addon-for-splunk/blob/main/README.md#splunk"
+              }
+            },
+            {
               "field": "dataset_log_read_access_key",
-              "label": "DataSet Log Read Access Key",
+              "label": "SDL Read Access Key (Legacy)",
               "type": "text",
               "help": "Required (if no AuthN token provided) to enable inputs and SPL command. Include trailing hyphens if applicable.",
               "required": false,
@@ -149,9 +168,9 @@
             },
             {
               "field": "dataset_log_write_access_key",
-              "label": "DataSet Log Write Access Key",
+              "label": "SDL Write Access Key (Legacy)",
               "type": "text",
-              "help": "Required to enable alert action. Include trailing hyphens if applicable.",
+              "help": "Required (if no AuthN token provided) to enable alert action. Include trailing hyphens if applicable.",
               "required": false,
               "defaultValue": "",
               "encrypted": true,

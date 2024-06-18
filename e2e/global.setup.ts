@@ -56,10 +56,10 @@ setup('login and create account', async ({ page }) => {
     await locAddDialog.click();
 
     // Setup locators
-    const locAccount = page.locator('div').filter({ hasText: /^\*?Account nameEnter a unique name for this account\.$/ }).locator('[data-test="textbox"]')
-    const locUrl = page.locator('div').filter({ hasText: /^\*?URLEnter DataSet URL\.$/ }).locator('[data-test="textbox"]')
-    const locReadKey = page.locator('[data-test="body"] form div').filter({ hasText: 'DataSet Log Read Access KeyRequired (if no AuthN token provided) to enable' }).locator('[data-test="textbox"]');
-    const locWriteKey = page.locator('[data-test="body"] form div').filter({ hasText: 'DataSet Log Write Access KeyRequired to enable alert action. Include trailing hy' }).locator('[data-test="textbox"]');
+    const locAccount = page.locator('div').filter({ hasText: /^\*?Account Name \*Enter a unique name for this account\.$/ }).locator('[data-test="textbox"]')
+    const locUrl = page.locator('div').filter({ hasText: /^\*?URL \*Enter DataSet URL\.$/ }).locator('[data-test="textbox"]')
+    const locReadKey = page.locator('[data-test="body"] form div').filter({ hasText: 'SDL Read Access Key (Legacy)Required (if no AuthN token provided) to enable' }).locator('[data-test="textbox"]');
+    const locWriteKey = page.locator('[data-test="body"] form div').filter({ hasText: 'SDL Write Access Key (Legacy)Required (if no AuthN token provided) to enable alert action.' }).locator('[data-test="textbox"]');
 
     // Read env with values
     const { DATASET_URL: datasetUrl, DATASET_LOG_ACCESS_READ: datasetReadKey, DATASET_LOG_ACCESS_WRITE: datasetWriteKey } = process.env;
