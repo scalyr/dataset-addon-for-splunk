@@ -70,8 +70,11 @@ To get the AuthN API token follow the below mentioned details:
 - Click Add
 - Enter a user-friendly account name. For multiple accounts, the account name can be used in queries (more details below).
 - Enter the full URL noted above (e.g.: `https://app.scalyr.com`, `https://xdr.us1.sentinelone.net` or `https://xdr.eu1.sentinelone.net`).
-- Select Run On value, it can be 'All scopes' / 'Specified scopes' / 'None'. If set to All scopes, the queries will run for the entire Tenant ot if set to Specified scopes, provide Account IDs as a comma separated values to run searches in those specific accounts. Leave it to default None value if you are not trying to use the Tenant level searches in this case you need to provide the anyone of the legacy API Tokens.
-- Provide the comma seperated Account Ids, if Tenant is False. eg: 1234567890,9876543210.
+- Select the "Run On" value, which can be 'All scopes', 'Specified scopes', or 'None'.
+    - If set to **All scopes**, the queries will run for the entire tenant.
+    - If set to **Specified scopes**, provide Account IDs as comma-separated values to run searches in those specific accounts.
+    - Leave it to the default value of **None** if you are not trying to use tenant-level searches; in this case, you need to provide one of the legacy API tokens.
+- Provide the comma seperated Account Ids, if "Run On" is set to **Specified scopes**. eg: 1234567890,9876543210.
 - Enter the AuthN API Token First part which includes first 220 characters.
 - Enter the AuthN API Token Second part which includes remaining characters.
     - Use this command to prepare both parts of AuthN API token:
