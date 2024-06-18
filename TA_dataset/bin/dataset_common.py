@@ -170,7 +170,10 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
                         self, conf, conf.name, logger
                     )
-                    if hasattr(conf, "tenant") and conf.tenant in ["all_scopes", "specified_scopes"]:
+                    if hasattr(conf, "tenant") and conf.tenant in [
+                        "all_scopes",
+                        "specified_scopes",
+                    ]:
                         tenant_value = True if conf.tenant == "all_scopes" else False
                         acct_dict[conf.name]["tenant"] = tenant_value
                         if not tenant_value:
@@ -192,7 +195,10 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[entry]["ds_api_key"] = get_token_from_config(
                         self, conf, entry, logger
                     )
-                    if hasattr(conf, "tenant") and conf.tenant in ["all_scopes", "specified_scopes"]:
+                    if hasattr(conf, "tenant") and conf.tenant in [
+                        "all_scopes",
+                        "specified_scopes",
+                    ]:
                         tenant_value = True if conf.tenant == "all_scopes" else False
                         acct_dict[entry]["tenant"] = tenant_value
                         if not tenant_value:
@@ -214,7 +220,10 @@ def get_acct_info(self, logger, account=None):
                 acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
                     self, conf, conf.name, logger
                 )
-                if hasattr(conf, "tenant") and conf.tenant in ["all_scopes", "specified_scopes"]:
+                if hasattr(conf, "tenant") and conf.tenant in [
+                    "all_scopes",
+                    "specified_scopes",
+                ]:
                     tenant_value = True if conf.tenant == "all_scopes" else False
                     acct_dict[conf.name]["tenant"] = tenant_value
                     if not tenant_value:
