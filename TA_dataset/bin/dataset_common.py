@@ -170,16 +170,9 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
                         self, conf, conf.name, logger
                     )
-                    if hasattr(conf, "tenant") and conf.tenant in [
-                        "all_scopes",
-                        "specified_scopes",
-                    ]:
-                        tenant_value = True if conf.tenant == "all_scopes" else False
-                        acct_dict[conf.name]["tenant"] = tenant_value
-                        if not tenant_value:
-                            acct_dict[conf.name]["account_ids"] = get_account_ids(
-                                conf, logger
-                            )
+                    acct_dict = get_updated_account_dict(
+                        conf, conf.name, acct_dict, logger
+                    )
             except Exception as e:
                 msg = "Error retrieving add-on settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
@@ -195,16 +188,7 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[entry]["ds_api_key"] = get_token_from_config(
                         self, conf, entry, logger
                     )
-                    if hasattr(conf, "tenant") and conf.tenant in [
-                        "all_scopes",
-                        "specified_scopes",
-                    ]:
-                        tenant_value = True if conf.tenant == "all_scopes" else False
-                        acct_dict[entry]["tenant"] = tenant_value
-                        if not tenant_value:
-                            acct_dict[entry]["account_ids"] = get_account_ids(
-                                conf, logger
-                            )
+                    acct_dict = get_updated_account_dict(conf, entry, acct_dict, logger)
             except Exception as e:
                 msg = "Error retrieving account settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
@@ -220,16 +204,7 @@ def get_acct_info(self, logger, account=None):
                 acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
                     self, conf, conf.name, logger
                 )
-                if hasattr(conf, "tenant") and conf.tenant in [
-                    "all_scopes",
-                    "specified_scopes",
-                ]:
-                    tenant_value = True if conf.tenant == "all_scopes" else False
-                    acct_dict[conf.name]["tenant"] = tenant_value
-                    if not tenant_value:
-                        acct_dict[conf.name]["account_ids"] = get_account_ids(
-                            conf, logger
-                        )
+                acct_dict = get_updated_account_dict(conf, conf.name, acct_dict, logger)
                 break
         except Exception as e:
             msg = (
@@ -239,6 +214,15 @@ def get_acct_info(self, logger, account=None):
             logger.error(msg + " - %s", e, exc_info=True)
             raise Exception(msg) from e
     logger.debug("DataSetFunction={}, endTime={}".format("get_acct_info", time.time()))
+    return acct_dict
+
+
+def get_updated_account_dict(conf, conf_name, acct_dict, logger):
+    if hasattr(conf, "tenant") and conf.tenant in ["all_scopes", "specified_scopes"]:
+        tenant_value = True if conf.tenant == "all_scopes" else False
+        acct_dict[conf_name]["tenant"] = tenant_value
+        if not tenant_value:
+            acct_dict[conf_name]["account_ids"] = get_account_ids(conf, logger)
     return acct_dict
 
 
