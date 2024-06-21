@@ -170,7 +170,7 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
                         self, conf, conf.name, logger
                     )
-                    acct_dict = get_updated_account_dict(
+                    acct_dict = update_tenant_conf(
                         conf, conf.name, acct_dict, logger
                     )
             except Exception as e:
@@ -188,7 +188,7 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[entry]["ds_api_key"] = get_token_from_config(
                         self, conf, entry, logger
                     )
-                    acct_dict = get_updated_account_dict(conf, entry, acct_dict, logger)
+                    acct_dict = update_tenant_conf(conf, entry, acct_dict, logger)
             except Exception as e:
                 msg = "Error retrieving account settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
@@ -204,7 +204,7 @@ def get_acct_info(self, logger, account=None):
                 acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
                     self, conf, conf.name, logger
                 )
-                acct_dict = get_updated_account_dict(conf, conf.name, acct_dict, logger)
+                acct_dict = update_tenant_conf(conf, conf.name, acct_dict, logger)
                 break
         except Exception as e:
             msg = (
@@ -217,7 +217,7 @@ def get_acct_info(self, logger, account=None):
     return acct_dict
 
 
-def get_updated_account_dict(conf, conf_name, acct_dict, logger):
+def update_tenant_conf(conf, conf_name, acct_dict, logger):
     if hasattr(conf, "tenant") and conf.tenant in ["all_scopes", "specified_scopes"]:
         tenant_value = True if conf.tenant == "all_scopes" else False
         acct_dict[conf_name]["tenant"] = tenant_value
