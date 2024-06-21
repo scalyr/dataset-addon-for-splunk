@@ -170,9 +170,7 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
                         self, conf, conf.name, logger
                     )
-                    acct_dict = update_tenant_conf(
-                        conf, conf.name, acct_dict, logger
-                    )
+                    acct_dict = update_tenant_conf(conf, conf.name, acct_dict, logger)
             except Exception as e:
                 msg = "Error retrieving add-on settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
