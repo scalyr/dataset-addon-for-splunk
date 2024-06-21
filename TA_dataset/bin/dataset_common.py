@@ -170,13 +170,7 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
                         self, conf, conf.name, logger
                     )
-                    if hasattr(conf, "tenant"):
-                        tenant_value = get_tenant_value(conf, logger)
-                        acct_dict[conf.name]["tenant"] = tenant_value
-                        if not tenant_value:
-                            acct_dict[conf.name]["account_ids"] = get_account_ids(
-                                conf, logger
-                            )
+                    acct_dict = update_tenant_conf(conf, conf.name, acct_dict, logger)
             except Exception as e:
                 msg = "Error retrieving add-on settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
@@ -192,13 +186,7 @@ def get_acct_info(self, logger, account=None):
                     acct_dict[entry]["ds_api_key"] = get_token_from_config(
                         self, conf, entry, logger
                     )
-                    if hasattr(conf, "tenant"):
-                        tenant_value = get_tenant_value(conf, logger)
-                        acct_dict[entry]["tenant"] = tenant_value
-                        if not tenant_value:
-                            acct_dict[entry]["account_ids"] = get_account_ids(
-                                conf, logger
-                            )
+                    acct_dict = update_tenant_conf(conf, entry, acct_dict, logger)
             except Exception as e:
                 msg = "Error retrieving account settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
@@ -214,13 +202,7 @@ def get_acct_info(self, logger, account=None):
                 acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
                     self, conf, conf.name, logger
                 )
-                if hasattr(conf, "tenant"):
-                    tenant_value = get_tenant_value(conf, logger)
-                    acct_dict[conf.name]["tenant"] = tenant_value
-                    if not tenant_value:
-                        acct_dict[conf.name]["account_ids"] = get_account_ids(
-                            conf, logger
-                        )
+                acct_dict = update_tenant_conf(conf, conf.name, acct_dict, logger)
                 break
         except Exception as e:
             msg = (
@@ -233,13 +215,13 @@ def get_acct_info(self, logger, account=None):
     return acct_dict
 
 
-def get_tenant_value(conf, logger):
-    tenant_value = conf.tenant
-    tenant_value = tenant_value.strip()
-    logger.debug("The provided tenant value in config is {}".format(tenant_value))
-    if tenant_value.lower() == "false" or tenant_value.lower() == "0":
-        return False
-    return True
+def update_tenant_conf(conf, conf_name, acct_dict, logger):
+    if hasattr(conf, "tenant") and conf.tenant in ["all_scopes", "specified_scopes"]:
+        tenant_value = True if conf.tenant == "all_scopes" else False
+        acct_dict[conf_name]["tenant"] = tenant_value
+        if not tenant_value:
+            acct_dict[conf_name]["account_ids"] = get_account_ids(conf, logger)
+    return acct_dict
 
 
 def get_account_ids(conf, logger):
@@ -263,10 +245,18 @@ def get_token_from_config(self, conf, name, logger):
     if hasattr(conf, "authn_token_part_one"):
         logger.debug("The AuthN api token first part was available")
         first_half = get_token(self, name, "authn", logger, "authn_token_part_one")
+        if not first_half:
+            raise Exception(
+                "Configuration error: AuthN API Token First Part is not specified"
+            )
         authn_token += first_half
     if hasattr(conf, "authn_token_part_two"):
         logger.debug("The AuthN api token second part was available")
         second_part = conf.authn_token_part_two
+        if not second_part:
+            raise Exception(
+                "Configuration error: AuthN API Token Second Part is not specified"
+            )
         authn_token += second_part
     if not hasattr(conf, "authn_token_part_one") and not hasattr(
         conf, "authn_token_part_two"
