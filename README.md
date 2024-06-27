@@ -227,13 +227,14 @@ For information on how to report security vulnerabilities, please see [SECURITY.
 
 ## Permissions
 
-
 Required permissions in Splunk 
 
 -  search
 -  list_all_objects
 -  list_storage_passwords
 -  rest_properties_get
+-  admin_all_objects
+-  list_storage_passwords
 
 ## Copyright, License, and Contributors Agreement
 
