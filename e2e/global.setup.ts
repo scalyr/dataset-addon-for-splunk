@@ -56,8 +56,8 @@ setup('login and create account', async ({ page }) => {
     await locAddDialog.click();
 
     // Setup locators
-    const locAccount = page.locator('div').filter({ hasText: /^\*?Account Name \*Enter a unique name for this account\.$/ }).locator('[data-test="textbox"]')
-    const locUrl = page.locator('div').filter({ hasText: /^\*?URL \*Enter DataSet URL\.$/ }).locator('[data-test="textbox"]')
+    const locAccount = page.locator('div').filter({ hasText: /^\*?Account NameEnter a unique name for this account\.$/ }).locator('[data-test="textbox"]')
+    const locUrl = page.locator('div').filter({ hasText: /^\*?URLEnter DataSet URL\.$/ }).locator('[data-test="textbox"]')
     const locReadKey = page.locator('[data-test="body"] form div').filter({ hasText: 'SDL Read Access Key (Legacy)Required (if no AuthN token provided) to enable' }).locator('[data-test="textbox"]');
     const locWriteKey = page.locator('[data-test="body"] form div').filter({ hasText: 'SDL Write Access Key (Legacy)Required (if no AuthN token provided) to enable alert action.' }).locator('[data-test="textbox"]');
 

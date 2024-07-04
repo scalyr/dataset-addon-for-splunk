@@ -4,7 +4,8 @@
     "displayName": "Singularity Data Lake Add-On for Splunk",
     "version": "2.0.71-SNAPSHOT",
     "restRoot": "TA_dataset",
-    "schemaVersion": "0.0.3"
+    "schemaVersion": "0.0.7",
+    "_uccVersion": "5.47.0"
   },
   "pages": {
     "configuration": {
@@ -34,7 +35,7 @@
           "entity": [
             {
               "field": "name",
-              "label": "Account Name *",
+              "label": "Account Name",
               "type": "text",
               "required": true,
               "help": "Enter a unique name for this account.",
@@ -54,7 +55,7 @@
             },
             {
               "field": "url",
-              "label": "URL *",
+              "label": "URL",
               "type": "text",
               "help": "Enter DataSet URL.",
               "required": true,
@@ -69,7 +70,7 @@
             },
             {
               "field": "tenant",
-              "label": "Run On *",
+              "label": "Run On",
               "type": "singleSelect",
               "options": {
                 "disableSearch": true,
@@ -186,41 +187,7 @@
           ]
         },
         {
-          "name": "logging",
-          "title": "Logging",
-          "entity": [
-            {
-              "field": "loglevel",
-              "label": "Log level",
-              "type": "singleSelect",
-              "options": {
-                "disableSearch": true,
-                "autoCompleteFields": [
-                  {
-                    "label": "DEBUG",
-                    "value": "DEBUG"
-                  },
-                  {
-                    "label": "INFO",
-                    "value": "INFO"
-                  },
-                  {
-                    "label": "WARNING",
-                    "value": "WARNING"
-                  },
-                  {
-                    "label": "ERROR",
-                    "value": "ERROR"
-                  },
-                  {
-                    "label": "CRITICAL",
-                    "value": "CRITICAL"
-                  }
-                ]
-              },
-              "defaultValue": "INFO"
-            }
-          ]
+          "type": "loggingTab"
         },
         {
           "name": "proxy",
@@ -398,18 +365,11 @@
               }
             },
             {
+              "type": "interval",
               "field": "interval",
               "label": "Interval",
-              "type": "text",
-              "required": true,
               "help": "Time interval of input in seconds.",
-              "validators": [
-                {
-                  "type": "regex",
-                  "pattern": "^\\-[1-9]\\d*$|^\\d*$",
-                  "errorMsg": "Interval must be an integer."
-                }
-              ]
+              "required": true
             },
             {
               "field": "index",
@@ -561,18 +521,11 @@
               }
             },
             {
+              "type": "interval",
               "field": "interval",
               "label": "Interval",
-              "type": "text",
-              "required": true,
               "help": "Time interval of input in seconds.",
-              "validators": [
-                {
-                  "type": "regex",
-                  "pattern": "^\\-[1-9]\\d*$|^\\d*$",
-                  "errorMsg": "Interval must be an integer."
-                }
-              ]
+              "required": true
             },
             {
               "field": "index",
@@ -687,18 +640,11 @@
               }
             },
             {
+              "type": "interval",
               "field": "interval",
               "label": "Interval",
-              "type": "text",
-              "required": true,
               "help": "Time interval of input in seconds.",
-              "validators": [
-                {
-                  "type": "regex",
-                  "pattern": "^\\-[1-9]\\d*$|^\\d*$",
-                  "errorMsg": "Interval must be an integer."
-                }
-              ]
+              "required": true
             },
             {
               "field": "index",
