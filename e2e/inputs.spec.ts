@@ -23,7 +23,7 @@ test('New Input - DataSet Query', async ({ page }) => {
   await page.locator('div').filter({ hasText: /^\*?ColumnsIf left blank, all columns are returned\.$/ }).locator('[data-test="textbox"]').fill("")
   await page.locator('form div').filter({ hasText: /^\*?Max CountSpecifies the maximum number of records to return. If left blank, the d/ }).locator('[data-test="textbox"]').fill("13")
 
-  await page.getByLabel("Select a value").click();
+  await page.getByLabel("Select...").click();
   await page.locator('[data-test="option"]').first().click();
 
   await page.screenshot({ path: 'playwright-screenshots/page-inputs-query-01-filled-form.png', fullPage: true });
@@ -50,7 +50,7 @@ test('New Input - DataSet PowerQuery', async ({ page }) => {
   await page.locator('form div').filter({ hasText: /^\*?End TimeIf left blank, present time at query execution is used. If defined, use/ }).locator('[data-test="textbox"]').fill("1m")
   await page.locator('form div').filter({ hasText: /^\*?DataSet PowerQuery String/ }).locator('[data-test="textbox"]').fill("serverHost=* | group count=count() by tag")
 
-  await page.getByLabel("Select a value").click();
+  await page.getByLabel("Select...").click();
   await page.locator('[data-test="option"]').first().click();
 
   await page.screenshot({ path: 'playwright-screenshots/page-inputs-powerquery-01-filled-form.png', fullPage: true });
@@ -77,7 +77,7 @@ test('New Input - DataSet Alerts', async ({ page }) => {
   await page.locator('div').filter({ hasText: /^\*?IntervalTime interval of input in seconds\.$/ }).locator('[data-test="textbox"]').fill("20")
   await page.locator('form div').filter({ hasText: /^\*?Start TimeRelative time to query back. Use short form relative time, e.g.: 24h/ }).locator('[data-test="textbox"]').fill("60m")
 
-  await page.getByLabel("Select a value").click();
+  await page.getByLabel("Select...").click();
   await page.locator('[data-test="option"]').first().click();
 
   await page.screenshot({ path: 'playwright-screenshots/page-inputs-alerts-01-filled-form.png', fullPage: true });
