@@ -1,5 +1,34 @@
-# https://docs.splunk.com/Documentation/Splunk/9.1.0/Admin/Defaultmetaconf
-# https://dev.splunk.com/enterprise/tutorials/module_getstarted/setpermissions/
+# Application-level permissions
 
 []
-export=system
+access = read : [ * ], write : [ admin, power ]
+
+### EVENT TYPES
+
+[eventtypes]
+export = system
+
+
+### PROPS
+
+[props]
+export = system
+
+
+### TRANSFORMS
+
+[transforms]
+export = system
+
+
+### LOOKUPS
+
+[lookups]
+export = system
+
+
+### VIEWSTATES: even normal users should be able to create shared viewstates
+
+[viewstates]
+access = read : [ * ], write : [ * ]
+export = system
