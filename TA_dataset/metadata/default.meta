@@ -1,5 +1,5 @@
-# https://docs.splunk.com/Documentation/Splunk/9.1.0/Admin/Defaultmetaconf
-# https://dev.splunk.com/enterprise/tutorials/module_getstarted/setpermissions/
+# Application-level permissions
 
 []
-export=system
+access = read : [ * ], write : [ admin, power ]
+export = system
