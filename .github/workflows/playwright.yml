@@ -87,7 +87,7 @@ jobs:
         make docker-splunk-tail-logs-count COUNT=1000 > splunk-logs.log
 
     - name: Store playwright-report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: playwright-report
@@ -95,7 +95,7 @@ jobs:
         retention-days: 30
 
     - name: Store playwright-screenshots
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: playwright-screenshots
@@ -103,7 +103,7 @@ jobs:
         retention-days: 30
 
     - name: Store splunk-logs
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: splunk-logs.log
