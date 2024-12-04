@@ -850,8 +850,8 @@ class socksocket(_BaseSocket):
                 proxy_server = "{}:{}".format(proxy_addr, proxy_port)  # noqa
                 printable_type = PRINTABLE_PROXY_TYPES[proxy_type]
 
-                msg = "Error connecting to {} proxy at address {}:{}".format(
-                    printable_type, proxy_addr, proxy_port
+                msg = "Error connecting to {} proxy".format(
+                    printable_type
                 )
                 log.debug("%s due to: %s", msg, error)
                 raise ProxyConnectionError(msg, error)
