@@ -6,7 +6,7 @@ SocksiPy + urllib2 handler
 version: 0.3
 author: e<e@tr0ll.in>
 
-This module provides a Handler which you can use with urllib2 to allow it to tunnel your connection through a socks.sockssocket socket, with out monkey patching the original socket...
+This module provides a Handler which you can use with urllib2 to allow it to tunnel your connection through a socks.sockssocket socket, with out monkey patching the original socket... # noqa
 """
 from __future__ import print_function
 
@@ -19,7 +19,7 @@ try:
     import six.moves.urllib.parse
     import six.moves.urllib.request
 except ImportError:  # Python 3
-    import urllib.request as urllib2
+    import urllib.request as urllib2  # noqa
     import http.client as httplib
 
 import socks  # $ pip install PySocks
@@ -39,7 +39,7 @@ def is_ip(s):
             socket.inet_aton(s)
         else:
             return False
-    except:
+    except:  # noqa
         return False
     else:
         return True
