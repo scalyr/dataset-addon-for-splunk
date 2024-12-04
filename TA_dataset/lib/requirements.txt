@@ -1,12 +1,2 @@
 # splunk is using 3.7, but it's deprecated
 # we use 3.8 for development
-attrs==23.1.0; python_version <= '3.8'
-h11==0.14.0; python_version <= '3.8'
-httpcore==0.17.0; python_version <= '3.8'
-httpx==0.24.0; python_version <= '3.8'
-requests==2.31.0; python_version <= '3.8'
-sniffio==1.3.0; python_version <= '3.8'
-splunk-sdk==1.7.3; python_version <= '3.8'
-splunktaucclib==6.0.7; python_version <= '3.8'
-typing-extensions==4.7.1; python_version <= '3.8'
-urllib3==1.26.16; python_version <= '3.8'
