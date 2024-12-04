@@ -984,7 +984,7 @@ else:
             if "__annotations__" in ns:
                 own_annotations = ns["__annotations__"]
             elif "__annotate__" in ns:
-                # TODO: Use inspect.VALUE here, and make the annotations lazily evaluated
+                # TODO: Use inspect.VALUE here, and make the annotations lazily evaluated # noqa
                 own_annotations = ns["__annotate__"](1)
             else:
                 own_annotations = {}
@@ -1729,7 +1729,7 @@ elif hasattr(typing, "ParamSpec"):
                     args = [*args, paramspec.__default__]
                 if i >= len(args):
                     raise TypeError(f"Too few arguments for {alias}")
-                # Special case where Z[[int, str, bool]] == Z[int, str, bool] in PEP 612.
+                # Special case where Z[[int, str, bool]] == Z[int, str, bool] in PEP 612. # noqa
                 if len(params) == 1 and not typing._is_param_expr(args[0]):
                     assert i == 0
                     args = (args,)
@@ -1916,7 +1916,7 @@ def _concatenate_getitem(self, parameters):
 # 3.10+
 if hasattr(typing, "Concatenate"):
     Concatenate = typing.Concatenate
-    _ConcatenateGenericAlias = typing._ConcatenateGenericAlias
+    _ConcatenateGenericAlias = typing._ConcatenateGenericAlias  # noqa
 # 3.9
 elif sys.version_info[:2] >= (3, 9):
 
@@ -3296,7 +3296,7 @@ else:
             if "__annotations__" in ns:
                 types = ns["__annotations__"]
             elif "__annotate__" in ns:
-                # TODO: Use inspect.VALUE here, and make the annotations lazily evaluated
+                # TODO: Use inspect.VALUE here, and make the annotations lazily evaluated # noqa
                 types = ns["__annotate__"](1)
             else:
                 types = {}
@@ -3326,7 +3326,7 @@ else:
                 else:
                     class_getitem = typing.Generic.__class_getitem__.__func__
                     nm_tpl.__class_getitem__ = classmethod(class_getitem)
-            # update from user namespace without overriding special namedtuple attributes
+            # update from user namespace without overriding special namedtuple attributes # noqa
             for key, val in list(ns.items()):
                 if key in _prohibited_namedtuple_fields:
                     raise AttributeError("Cannot overwrite NamedTuple attribute " + key)
@@ -3475,7 +3475,7 @@ if hasattr(_types, "get_original_bases"):
 else:
 
     def get_original_bases(cls, /):
-        """Return the class's "original" bases prior to modification by `__mro_entries__`.
+        """Return the class's "original" bases prior to modification by `__mro_entries__`. # noqa
 
         Examples::
 

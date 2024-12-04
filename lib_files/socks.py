@@ -23,7 +23,7 @@ __version__ = "1.7.1"
 
 if os.name == "nt" and sys.version_info < (3, 0):
     try:
-        import win_inet_pton
+        import win_inet_pton  # noqa
     except ImportError:
         raise ImportError("To run PySocks on Windows you must install win_inet_pton")
 
@@ -50,7 +50,7 @@ def set_self_blocking(function):
             if _is_blocking == 0:
                 self.setblocking(True)
             return function(*args, **kwargs)
-        except Exception as e:
+        except Exception as e:  # noqa
             raise
         finally:
             # set orgin blocking
@@ -248,12 +248,12 @@ class _BaseSocket(socket.socket):
     def __init__(self, *pos, **kw):
         _orig_socket.__init__(self, *pos, **kw)
 
-        self._savedmethods = dict()
+        self._savedmethods = dict()  # noqa
         for name in self._savenames:
             self._savedmethods[name] = getattr(self, name)
             delattr(self, name)  # Allows normal overriding mechanism to work
 
-    _savenames = list()
+    _savenames = list()  # noqa
 
 
 def _makemethod(name):
@@ -318,7 +318,7 @@ class socksocket(_BaseSocket):
         self._timeout = timeout
         try:
             # test if we're connected, if so apply timeout
-            peer = self.get_proxy_peername()
+            peer = self.get_proxy_peername()  # noqa
             super(socksocket, self).settimeout(self._timeout)
         except socket.error:
             pass
@@ -847,11 +847,11 @@ class socksocket(_BaseSocket):
             self.close()
             if not catch_errors:
                 proxy_addr, proxy_port = proxy_addr
-                proxy_server = "{}:{}".format(proxy_addr, proxy_port)
+                proxy_server = "{}:{}".format(proxy_addr, proxy_port)  # noqa
                 printable_type = PRINTABLE_PROXY_TYPES[proxy_type]
 
-                msg = "Error connecting to {} proxy {}".format(
-                    printable_type, proxy_server
+                msg = "Error connecting to {} proxy at address {}:{}".format(
+                    printable_type, proxy_addr, proxy_port
                 )
                 log.debug("%s due to: %s", msg, error)
                 raise ProxyConnectionError(msg, error)
@@ -879,14 +879,14 @@ class socksocket(_BaseSocket):
     @set_self_blocking
     def connect_ex(self, dest_pair):
         """https://docs.python.org/3/library/socket.html#socket.socket.connect_ex
-        Like connect(address), but return an error indicator instead of raising an exception for errors returned by the C-level connect() call (other problems, such as "host not found" can still raise exceptions).
+        Like connect(address), but return an error indicator instead of raising an exception for errors returned by the C-level connect() call (other problems, such as "host not found" can still raise exceptions). # noqa
         """
         try:
             self.connect(dest_pair, catch_errors=True)
             return 0
         except OSError as e:
             # If the error is numeric (socket errors are numeric), then return number as
-            # connect_ex expects. Otherwise raise the error again (socket timeout for example)
+            # connect_ex expects. Otherwise raise the error again (socket timeout for example) # noqa
             if e.errno:
                 return e.errno
             else:
