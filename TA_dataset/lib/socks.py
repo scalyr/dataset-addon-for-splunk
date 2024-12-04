@@ -795,8 +795,7 @@ class socksocket(_BaseSocket):
                 proxy_server = "{}:{}".format(proxy_addr, proxy_port)
                 printable_type = PRINTABLE_PROXY_TYPES[proxy_type]
 
-                msg = "Error connecting to {} proxy {}".format(printable_type,
-                                                                    proxy_server)
+                msg = "Error connecting to proxy"
                 log.debug("%s due to: %s", msg, error)
                 raise ProxyConnectionError(msg, error)
             else:
