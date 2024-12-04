@@ -56,4 +56,6 @@ repos:
     - id: mypy
       additional_dependencies:
         ["types-requests"]
-      args: ["--config-file", ".mypy.ini"]
+      args:
+      - "--config-file"
+      - ".mypy.ini"
