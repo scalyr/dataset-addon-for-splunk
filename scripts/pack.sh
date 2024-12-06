@@ -62,6 +62,10 @@ echo "Generate package - ${version}" && \
 ucc-gen --source "${input}" --ta-version "${version}" && \
 jq '.' globalConfig.json > globalConfig.new.json && \
 mv globalConfig.new.json globalConfig.json && \
+echo "Updating typing_extensions.py, socks.py and sockshandler.py in lib of output"
+cp -f "lib_files/cus_typing_extensions.py" "$output/TA_dataset/lib/typing_extensions.py" && \
+cp -f "lib_files/socks.py" "$output/TA_dataset/lib/socks.py" && \
+cp -f "lib_files/sockshandler.py" "$output/TA_dataset/lib/sockshandler.py" && \
 echo "Construct tarball" && \
 slim package "${output}/${input}" -o "${release}" && \
 echo "Validate released tarball" && \
