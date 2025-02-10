@@ -128,11 +128,22 @@ class DATASET_QUERY_INPUT(smi.Script):
             ds_columns = input_items.get("dataset_query_columns")
             maxcount = input_items.get("max_count")
 
-            ds_st = relative_to_epoch(ds_start)
-            if ds_end:
-                ds_et = relative_to_epoch(ds_end)
+            # Fetching the start and endtime from the checkpoint
+            checkpoint = checkpointer.KVStoreCheckpointer(
+                    input_name, session_key, APP_NAME
+                )
+            get_checkpoint = checkpoint.get(input_name)
+            if get_checkpoint is None:
+                logger.info("The checkpoint Object is None. So fetching the values from the config")
+                ds_st = relative_to_epoch(ds_start)
+                if ds_end:
+                    ds_et = relative_to_epoch(ds_end)
+                else:
+                    ds_et = relative_to_epoch("1s")
             else:
-                ds_et = relative_to_epoch("1s")
+                logger.info("The checkpoint Object exists. So fetching the values from the checkpoint")
+                ds_st = get_checkpoint["start_time"]
+                ds_et = get_checkpoint["end_time"]
             if maxcount:
                 ds_maxcount = int(maxcount)
             else:
@@ -141,7 +152,7 @@ class DATASET_QUERY_INPUT(smi.Script):
             ds_payload = build_payload(
                 ds_st, ds_et, "query", ds_search, ds_columns, ds_maxcount
             )
-            logger.debug("ds_payload = {}".format(ds_payload))
+            logger.info("Data input Query Payload: {}".format(ds_payload))
             proxy = get_proxy(session_key, logger)
             acct_dict = get_acct_info(self, logger, ds_account)
             for ds_acct in acct_dict.keys():
@@ -158,11 +169,6 @@ class DATASET_QUERY_INPUT(smi.Script):
                     "User-Agent": get_user_agent(),
                 }
 
-                # Create checkpointer
-                checkpoint = checkpointer.KVStoreCheckpointer(
-                    input_name, session_key, APP_NAME
-                )
-
                 ds_api_max = query_api_max()
                 ds_iterations = math.ceil(ds_maxcount / ds_api_max)
 
@@ -175,7 +181,7 @@ class DATASET_QUERY_INPUT(smi.Script):
                     r = requests.post(
                         url=ds_url, headers=ds_headers, json=curr_payload, proxies=proxy
                     )
-                    logger.debug(
+                    logger.info(
                         "DataSetFunction=getResponse, elapsed={}".format(r.elapsed)
                     )
                     r_json = r.json()
@@ -188,7 +194,7 @@ class DATASET_QUERY_INPUT(smi.Script):
                         if "matches" in r_json and "sessions" in r_json:
                             matches = r_json["matches"]
                             sessions = r_json["sessions"]
-
+                            logger.info("Data input Query Request: The length of matches in response {}".format(len(matches)))
                             if len(matches) == 0 and len(sessions) == 0:
                                 logger.warning(
                                     "DataSet response success, no matches returned"
@@ -199,43 +205,20 @@ class DATASET_QUERY_INPUT(smi.Script):
                                 ds_event, splunk_dt = parse_query(
                                     ds_columns, match_list, sessions
                                 )
-                                get_checkpoint = checkpoint.get(input_name)
-
-                                # if checkpoint doesn't exist, set to 0
-                                if get_checkpoint is None:
-                                    checkpoint.update(input_name, {"timestamp": 0})
-                                    checkpoint_time = 0
-                                else:
-                                    checkpoint_time = get_checkpoint["timestamp"]
-
-                                if splunk_dt > checkpoint_time:
-                                    # if greater than current checkpoint,
-                                    # write event and update checkpoint
-                                    event = smi.Event(
-                                        stanza=input_name,
-                                        data=json.dumps(ds_event),
-                                        sourcetype="dataset:query",
-                                        time=splunk_dt,
-                                    )
-                                    logger.debug(
-                                        "writing event with splunk_dt={}, checkpoint={}"
-                                        .format(splunk_dt, checkpoint_time)
-                                    )
-                                    ew.write_event(event)
-
-                                    logger.debug(
-                                        "saving checkpoint {}".format(splunk_dt)
-                                    )
-                                    checkpoint.update(
-                                        input_name, {"timestamp": splunk_dt}
-                                    )
-                                else:
-                                    logger.debug(
-                                        "skipping due to splunk_dt={} is less than"
-                                        " checkpoint={}".format(
-                                            splunk_dt, checkpoint_time
-                                        )
-                                    )
+                                event = smi.Event(
+                                    stanza=input_name,
+                                    data=json.dumps(ds_event),
+                                    sourcetype="dataset:query",
+                                    time=splunk_dt,
+                                )
+                                logger.debug(
+                                    "writing event with splunk_dt={}"
+                                    .format(splunk_dt)
+                                )
+                                ew.write_event(event)
+                                logger.debug(
+                                    "saving checkpoint {}".format(splunk_dt)
+                                )
 
                         else:
                             logger.warning(
@@ -256,6 +239,7 @@ class DATASET_QUERY_INPUT(smi.Script):
                     else:
                         logger.warning(r_json)
                         break
+                checkpoint.update(input_name, {"start_time": ds_et, "end_time": relative_to_epoch("1s")})
 
         except Exception as e:
             logger.exception(e)
