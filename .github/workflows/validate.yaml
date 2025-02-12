@@ -21,8 +21,8 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
-          cache: 'pip'
+          python-version: "3.8"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -42,7 +42,7 @@ jobs:
             --release release
 
       - name: Store Release Folder
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: release
@@ -50,7 +50,7 @@ jobs:
           retention-days: 30
 
       - name: Store Output Folder
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: output
