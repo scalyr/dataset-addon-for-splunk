@@ -180,13 +180,23 @@ def get_acct_info(self, logger, account=None):
                 # remove spaces and split by commas
                 account = account.replace(" ", "").split(",")
                 for entry in account:
-                    conf = self.service.confs[conf_name][entry]
-                    acct_dict[entry] = {}
-                    acct_dict[entry]["base_url"] = conf.url
-                    acct_dict[entry]["ds_api_key"] = get_token_from_config(
-                        self, conf, entry, logger
+                    # Case-insensitive account lookup
+                    entry_lower = entry.lower()
+                    found_conf = None
+                    for conf in self.service.confs[conf_name]:
+                        if conf.name.lower() == entry_lower:
+                            found_conf = conf
+                            break
+                    if found_conf is None:
+                        raise KeyError("Account '{}' not found".format(entry))
+                    conf = found_conf
+                    # Use conf.name (actual stored name) for consistency
+                    acct_dict[conf.name] = {}
+                    acct_dict[conf.name]["base_url"] = conf.url
+                    acct_dict[conf.name]["ds_api_key"] = get_token_from_config(
+                        self, conf, conf.name, logger
                     )
-                    acct_dict = update_tenant_conf(conf, entry, acct_dict, logger)
+                    acct_dict = update_tenant_conf(conf, conf.name, acct_dict, logger)
             except Exception as e:
                 msg = "Error retrieving account settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
@@ -288,7 +298,7 @@ def get_token(self, account, token_type, logger, config_key=None):
                 == "__REST_CREDENTIAL__#{}#configs/conf-{}_account".format(
                     APP_NAME, CONF_NAME
                 )
-                and credential.username.startswith(account)
+                and credential.username.lower().startswith(account.lower())
             ):
                 cred = credential.content.get("clear_password")
                 if token_type == "authn":
