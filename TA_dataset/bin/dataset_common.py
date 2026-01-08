@@ -177,18 +177,20 @@ def get_acct_info(self, logger, account=None):
                 raise Exception(msg) from e
         else:
             try:
-                # split account string into list
+                # Split the comma-separated account string into a cleaned list of account names
                 entries = [a.strip() for a in account.split(",") if a.strip()]
 
                 try:
+                    # Retrieve the configuration group from Splunk based on conf_name
                     confs_obj = self.service.confs[conf_name]
                 except KeyError:
                     raise KeyError(f"Config group '{conf_name}' not found")
 
-                # case-insensitive lookup table
+                # Build a case-insensitive lookup map of account names to their config objects
                 conf_by_name_cf = {}
 
                 def _add_conf(name: str, conf):
+                    #  Normalize config name for case-insensitive matching and detect collisions
                     k = name.casefold()
                     if k in conf_by_name_cf and conf_by_name_cf[k] is not conf:
                         raise ValueError(
@@ -197,17 +199,20 @@ def get_acct_info(self, logger, account=None):
                     conf_by_name_cf[k] = conf
 
                 if isinstance(confs_obj, dict):
+                    # Handle confs returned as a dictionary
                     for k, conf in confs_obj.items():
                         _add_conf(k, conf)
                         if getattr(conf, "name", None):
                             _add_conf(conf.name, conf)
                 else:
+                    # Handle confs returned as an iterable of config objects
                     for conf in confs_obj:
                         if not getattr(conf, "name", None):
                             continue
                         _add_conf(conf.name, conf)
 
                 for entry in entries:
+                    # Look up the config using a case-insensitive account name match
                     conf = conf_by_name_cf.get(entry.casefold())
                     if conf is None:
                         raise KeyError(f"Account '{entry}' not found")
