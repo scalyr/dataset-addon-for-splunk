@@ -177,16 +177,53 @@ def get_acct_info(self, logger, account=None):
                 raise Exception(msg) from e
         else:
             try:
-                # remove spaces and split by commas
-                account = account.replace(" ", "").split(",")
-                for entry in account:
-                    conf = self.service.confs[conf_name][entry]
-                    acct_dict[entry] = {}
-                    acct_dict[entry]["base_url"] = conf.url
-                    acct_dict[entry]["ds_api_key"] = get_token_from_config(
-                        self, conf, entry, logger
+                # Split the comma-separated account string into a cleaned list of account names
+                entries = [a.strip() for a in account.split(",") if a.strip()]
+
+                try:
+                    # Retrieve the configuration group from Splunk based on conf_name
+                    confs_obj = self.service.confs[conf_name]
+                except KeyError:
+                    raise KeyError(f"Config group '{conf_name}' not found")
+
+                # Build a case-insensitive lookup map of account names to their config objects
+                conf_by_name_cf = {}
+
+                def _add_conf(name: str, conf):
+                    #  Normalize config name for case-insensitive matching and detect collisions
+                    k = name.casefold()
+                    if k in conf_by_name_cf and conf_by_name_cf[k] is not conf:
+                        raise ValueError(
+                            f"Ambiguous account name '{name}': multiple configs collide case-insensitively"
+                        )
+                    conf_by_name_cf[k] = conf
+
+                if isinstance(confs_obj, dict):
+                    # Handle confs returned as a dictionary
+                    for k, conf in confs_obj.items():
+                        _add_conf(k, conf)
+                        if getattr(conf, "name", None):
+                            _add_conf(conf.name, conf)
+                else:
+                    # Handle confs returned as an iterable of config objects
+                    for conf in confs_obj:
+                        if not getattr(conf, "name", None):
+                            continue
+                        _add_conf(conf.name, conf)
+
+                for entry in entries:
+                    # Look up the config using a case-insensitive account name match
+                    conf = conf_by_name_cf.get(entry.casefold())
+                    if conf is None:
+                        raise KeyError(f"Account '{entry}' not found")
+
+                    config_name = conf.name  # canonical stored name
+                    acct_dict[config_name] = {}
+                    acct_dict[config_name]["base_url"] = conf.url
+                    acct_dict[config_name]["ds_api_key"] = get_token_from_config(
+                        self, conf, config_name, logger
                     )
-                    acct_dict = update_tenant_conf(conf, entry, acct_dict, logger)
+                    acct_dict = update_tenant_conf(conf, config_name, acct_dict, logger)
             except Exception as e:
                 msg = "Error retrieving account settings, error = {}".format(e)
                 logger.error(msg + " - %s", e, exc_info=True)
@@ -281,6 +318,7 @@ def get_tenant_related_payload(ds_acct):
 
 def get_token(self, account, token_type, logger, config_key=None):
     try:
+        acct_cf = account.casefold()
         # use Python SDK secrets retrieval
         for credential in self.service.storage_passwords:
             if (
@@ -288,7 +326,8 @@ def get_token(self, account, token_type, logger, config_key=None):
                 == "__REST_CREDENTIAL__#{}#configs/conf-{}_account".format(
                     APP_NAME, CONF_NAME
                 )
-                and credential.username.startswith(account)
+                and credential.username
+                and credential.username.casefold().startswith(acct_cf)
             ):
                 cred = credential.content.get("clear_password")
                 if token_type == "authn":
